@@ -678,11 +678,16 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     // Don't abandon a team push to defend a tower from creeps.
-    // If 3+ allies are grouped together pushing, defend desire is very low.
+    // If enough allies are grouped together pushing, defend desire is very low.
     // OHA MOD 2026/08/29: this used to short-circuit BEFORE the base/high-ground
     // threat check below, so a 3-man push elsewhere could fully cancel defense even
     // while the enemy was sieging our Ancient. Now it only applies when the base
     // isn't under direct threat.
+    // OHA MOD 2026/08/30: Customize.Force_Group_Push_Level was never wired up anywhere;
+    // now it also lowers how many grouped pushers are needed to keep the team committed
+    // to the push instead of peeling off to defend (3 at level 1, down to 1 at level 3).
+    const forceGroupPushLevel = math.max(1, math.min(3, (Customize as any).Force_Group_Push_Level || 1));
+    const pushGroupThreshold = 4 - forceGroupPushLevel;
     const baseUnderDirectThreat = (ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1 : false) || jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team) >= 2;
     let teamIsPushing = false;
     for (let i = 1; i <= GetTeamPlayers(nTeam).length; i++) {
@@ -691,7 +696,7 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
             const mode = member.GetActiveMode();
             if (mode === BotMode.PushTowerTop || mode === BotMode.PushTowerMid || mode === BotMode.PushTowerBot) {
                 const alliesNear = jmz.GetAlliesNearLoc(member.GetLocation(), 1600);
-                if (alliesNear.length >= 3) {
+                if (alliesNear.length >= pushGroupThreshold) {
                     teamIsPushing = true;
                     break;
                 }

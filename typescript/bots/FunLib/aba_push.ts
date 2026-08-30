@@ -265,7 +265,12 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const locationState = getGlobalLocationState();
     // const unitState = updateUnitStateCache(); // Not used in this function
 
-    let nMaxDesire = 0.82;
+    // OHA MOD 2026/08/30: Customize.Force_Group_Push_Level was documented in general.lua
+    // but never actually read anywhere — wire it in. 1: baseline (unchanged), 2-3: raise
+    // the desire ceiling and tolerate more of a hero-count disadvantage while grouped.
+    const forceGroupPushLevel = math.max(1, math.min(3, (Customize as any).Force_Group_Push_Level || 1));
+
+    let nMaxDesire = 0.82 + (forceGroupPushLevel - 1) * 0.06;
     const nSearchRange = 2000;
     const botActiveMode = bot.GetActiveMode();
     const nModeDesire = bot.GetActiveModeDesire();
@@ -303,8 +308,9 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     if (alliesHere.length <= 1 && gameState.aliveEnemyCount >= 3 && (5 - gameState.aliveEnemyCount) < 2) {
         return BotModeDesire.None;
     }
-    // Never push with 2+ hero count disadvantage
-    if (gameState.aliveAllyCount <= gameState.aliveEnemyCount - 2) {
+    // Never push with too big a hero count disadvantage — Force_Group_Push_Level widens
+    // the tolerated deficit (2 at level 1, up to 4 at level 3) since grouping up is the point.
+    if (gameState.aliveAllyCount <= gameState.aliveEnemyCount - (1 + forceGroupPushLevel)) {
         return BotModeDesire.None;
     }
     // Don't push deep (past T2 toward enemy base) when alone or outnumbered

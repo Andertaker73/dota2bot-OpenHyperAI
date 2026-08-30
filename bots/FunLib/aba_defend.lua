@@ -201,7 +201,7 @@ local function __TS__ArrayForEach(self, callbackFn, thisArg)
 end
 -- End of Lua Library inline imports
 local ____exports = {}
-local getDefendState, updateDefendGameStateCache, updateDefendLocationStateCache, updateDefendUnitStateCache, _q, _keyLoc, _recentHeroCountNear, IsValidBuildingTarget, IsBaseThreatActive, WeightedEnemiesAroundLocation, GetThreatenedLane, GetClosestAllyPos, IsThereNoTeammateTravelBootsDefender, GetHighGroundEdgeWaitPoint, ConsiderPingedDefend, okLoc, Localization, PING_DELTA, MAX_DESIRE_CAP, BASE_THREAT_RADIUS, BASE_THREAT_HOLD, CACHE_ENEMY_AROUND_LOC_HZ, CACHE_LASTSEEN_WINDOW, nTeam, _threatLaneSticky, baseThreatUntil, fTraveBootsDefendTime, _cacheEnemyAroundLoc, DEFEND_CACHE_TTL, defendGameStateCache, defendLocationStateCache, defendUnitStateCache
+local getDefendState, updateDefendGameStateCache, updateDefendLocationStateCache, updateDefendUnitStateCache, _q, _keyLoc, _recentHeroCountNear, IsValidBuildingTarget, IsBaseThreatActive, WeightedEnemiesAroundLocation, GetThreatenedLane, GetClosestAllyPos, IsThereNoTeammateTravelBootsDefender, GetHighGroundEdgeWaitPoint, ConsiderPingedDefend, okLoc, Localization, Customize, PING_DELTA, MAX_DESIRE_CAP, BASE_THREAT_RADIUS, BASE_THREAT_HOLD, CACHE_ENEMY_AROUND_LOC_HZ, CACHE_LASTSEEN_WINDOW, nTeam, _threatLaneSticky, baseThreatUntil, fTraveBootsDefendTime, _cacheEnemyAroundLoc, DEFEND_CACHE_TTL, defendGameStateCache, defendLocationStateCache, defendUnitStateCache
 local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
 local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
 local Barracks = ____dota.Barracks
@@ -928,6 +928,11 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     if #closeEnemiesDefend > 0 and #closeAlliesDefend >= #closeEnemiesDefend then
         return math.min(0.3, BotModeDesire.Moderate)
     end
+    local forceGroupPushLevel = math.max(
+        1,
+        math.min(3, Customize.Force_Group_Push_Level or 1)
+    )
+    local pushGroupThreshold = 4 - forceGroupPushLevel
     local ____ancient_11
     if ancient then
         ____ancient_11 = jmz.Utils.CountEnemyHeroesNear(
@@ -950,7 +955,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
                         member:GetLocation(),
                         1600
                     )
-                    if #alliesNear >= 3 then
+                    if #alliesNear >= pushGroupThreshold then
                         teamIsPushing = true
                         break
                     end
@@ -1238,7 +1243,7 @@ okLoc, Localization = pcall(
 if not okLoc then
     Localization = {Get = function(_) return "Defend here!" end}
 end
-local Customize = require(GetScriptDirectory().."/Customize/general")
+Customize = require(GetScriptDirectory().."/Customize/general")
 local ____Customize_1 = Customize
 local ____Customize_Enable_0
 if Customize.Enable then

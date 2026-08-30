@@ -23,7 +23,7 @@ local function __TS__StringIncludes(self, searchString, position)
 end
 -- End of Lua Library inline imports
 local ____exports = {}
-local updateGameStateCache, updateLocationStateCache, updateUnitStateCache, presence_adjust, pingTimeDelta, StartToPushTime, BOT_MODE_DESIRE_EXTRA_LOW, hEnemyAncient, PUSH_CACHE_TTL, gameStateCache, locationStateCache, unitStateCache, BASE_ANC_RADIUS
+local updateGameStateCache, updateLocationStateCache, updateUnitStateCache, presence_adjust, Customize, pingTimeDelta, StartToPushTime, BOT_MODE_DESIRE_EXTRA_LOW, hEnemyAncient, PUSH_CACHE_TTL, gameStateCache, locationStateCache, unitStateCache, BASE_ANC_RADIUS
 local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
 local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
 local Barracks = ____dota.Barracks
@@ -132,7 +132,11 @@ function ____exports.GetPushDesireHelper(bot, lane)
     autoCleanupCache()
     local gameState = getGlobalGameState()
     local locationState = getGlobalLocationState()
-    local nMaxDesire = 0.82
+    local forceGroupPushLevel = math.max(
+        1,
+        math.min(3, Customize.Force_Group_Push_Level or 1)
+    )
+    local nMaxDesire = 0.82 + (forceGroupPushLevel - 1) * 0.06
     local nSearchRange = 2000
     local botActiveMode = bot:GetActiveMode()
     local nModeDesire = bot:GetActiveModeDesire()
@@ -186,7 +190,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
     if #alliesHere <= 1 and gameState.aliveEnemyCount >= 3 and 5 - gameState.aliveEnemyCount < 2 then
         return BotModeDesire.None
     end
-    if gameState.aliveAllyCount <= gameState.aliveEnemyCount - 2 then
+    if gameState.aliveAllyCount <= gameState.aliveEnemyCount - (1 + forceGroupPushLevel) then
         return BotModeDesire.None
     end
     local enemyFountain = gameState.team == Team.Radiant and DireFountainTpPoint or RadiantFountainTpPoint
@@ -606,7 +610,7 @@ function ____exports.IsAnyTargetBackdooredAt(_bot, lane)
     end
     return not not (nearest and ____exports.HasBackdoorProtect(nearest))
 end
-local Customize = require(GetScriptDirectory().."/Customize/general")
+Customize = require(GetScriptDirectory().."/Customize/general")
 local ____Customize_1 = Customize
 local ____Customize_Enable_0
 if Customize.Enable then

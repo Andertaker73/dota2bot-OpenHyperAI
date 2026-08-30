@@ -101,6 +101,10 @@ Customize.Dire_Names = {
 -- The desire level that the bots will group up and push the same lane. 
 -- 1 is mild meaning bots will group up only when convenient; 3 is bots will almost always try to push together.
 -- Group pushing may increase the difficulty but can reduce the game experience. 
+-- OHA MOD 2026/08/30: now actually wired into aba_push/aba_defend (was a no-op before).
+-- Higher levels raise the push desire ceiling, tolerate more of a hero-count
+-- disadvantage while grouped, and require fewer allies grouped up before the
+-- team commits to the push instead of peeling off to defend.
 Customize.Force_Group_Push_Level = 1
 
 -- The Enhanced Fretbots mode settings:
