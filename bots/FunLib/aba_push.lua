@@ -779,11 +779,21 @@ end
 local fNextMovementTime = 0
 function ____exports.PushThink(bot, lane)
     local now = DotaTime()
-    if jmz.CanNotUseAction(bot) then
-        return
-    end
-    if jmz.Utils.IsBotThinkingMeaningfulAction(bot, Customize.ThinkLess, "push") then
-        return
+    local activeMode = bot:GetActiveMode()
+    local isPushMode = activeMode == BotMode.PushTowerTop or activeMode == BotMode.PushTowerMid or activeMode == BotMode.PushTowerBot
+    local justEnteredPush = isPushMode and bot._lastActiveMode ~= activeMode
+    bot._lastActiveMode = activeMode
+    if justEnteredPush then
+        if jmz.IsBotBusyChannelingOrStunned(bot) then
+            return
+        end
+    else
+        if jmz.CanNotUseAction(bot) then
+            return
+        end
+        if jmz.Utils.IsBotThinkingMeaningfulAction(bot, Customize.ThinkLess, "push") then
+            return
+        end
     end
     autoCleanupCache()
     local gameState = getGlobalGameState()
@@ -874,24 +884,24 @@ function ____exports.PushThink(bot, lane)
     local towerDistanceToFountain = bTowerNearby and GetUnitToLocationDistance(nEnemyTowers[1], vTeamFountain) or 0
     for ____, creep in ipairs(nCreeps) do
         do
-            local __continue132
+            local __continue135
             repeat
                 if not jmz.IsValid(creep) or not jmz.CanBeAttacked(creep) then
-                    __continue132 = true
+                    __continue135 = true
                     break
                 end
                 if jmz.IsTormentor(creep) or jmz.IsRoshan(creep) then
-                    __continue132 = true
+                    __continue135 = true
                     break
                 end
                 if bTowerNearby and GetUnitToLocationDistance(creep, vTeamFountain) >= towerDistanceToFountain then
-                    __continue132 = true
+                    __continue135 = true
                     break
                 end
                 bot:Action_AttackUnit(creep, true)
                 return
             until true
-            if not __continue132 then
+            if not __continue135 then
                 break
             end
         end

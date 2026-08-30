@@ -770,9 +770,21 @@ let fNextMovementTime = 0;
 export function PushThink(bot: Unit, lane: Lane): void {
     const now = DotaTime();
 
+    // OHA MOD 2026/08/30: same fix as DefendThink — don't let a stale order from whatever
+    // mode was previously active (ACTIVITY_RUN counts as "meaningful") block Push from
+    // taking over the tick it just became the active mode.
+    const activeMode = bot.GetActiveMode();
+    const isPushMode = activeMode === BotMode.PushTowerTop || activeMode === BotMode.PushTowerMid || activeMode === BotMode.PushTowerBot;
+    const justEnteredPush = isPushMode && (bot as any)._lastActiveMode !== activeMode;
+    (bot as any)._lastActiveMode = activeMode;
+
     // 1) baseline action gates
-    if (jmz.CanNotUseAction(bot)) return;
-    if (jmz.Utils.IsBotThinkingMeaningfulAction(bot, Customize.ThinkLess, "push")) return;
+    if (justEnteredPush) {
+        if (jmz.IsBotBusyChannelingOrStunned(bot)) return;
+    } else {
+        if (jmz.CanNotUseAction(bot)) return;
+        if (jmz.Utils.IsBotThinkingMeaningfulAction(bot, Customize.ThinkLess, "push")) return;
+    }
 
     // Update global caches
     autoCleanupCache();

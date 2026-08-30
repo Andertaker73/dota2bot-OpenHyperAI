@@ -28,6 +28,7 @@ declare function IsGoingOnSomeone(bot: Unit): boolean;
 
 declare function CanNotUseAbility(bot: Unit): boolean;
 declare function CanNotUseAction(bot: Unit): boolean;
+declare function IsBotBusyChannelingOrStunned(bot: Unit): boolean;
 
 declare function GetMP(bot: Unit): number;
 

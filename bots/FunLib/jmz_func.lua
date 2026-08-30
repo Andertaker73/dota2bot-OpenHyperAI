@@ -110,6 +110,24 @@ function J.CanNotUseAction( bot )
 
 end
 
+-- OHA MOD 2026/08/30: like CanNotUseAction but WITHOUT the queued-action check.
+-- Used when a mode just became active, to override a stale order left by whatever
+-- mode was running previously (e.g. Defend responding to a ping while the bot was
+-- still mid-walk from farming) instead of waiting for that old order to finish.
+function J.IsBotBusyChannelingOrStunned( bot )
+	return not bot:IsAlive()
+			or (bot:IsInvulnerable() and not bot:HasModifier('modifier_fountain_invulnerability') and not bot:HasModifier('modifier_dazzle_nothl_projection_soul_debuff'))
+			or bot:IsCastingAbility()
+			or bot:IsUsingAbility()
+			or bot:IsChanneling()
+			or (bot:IsStunned() and not bot:HasModifier('modifier_dazzle_nothl_projection_soul_debuff'))
+			or bot:IsNightmared()
+			or bot:HasModifier( 'modifier_ringmaster_the_box_buff' )
+			or bot:HasModifier( 'modifier_item_forcestaff_active' )
+			or bot:HasModifier( 'modifier_phantom_lancer_phantom_edge_boost' )
+			or bot:HasModifier( 'modifier_tinker_rearm' )
+end
+
 function J.CanNotUseAbility( bot )
 	return not bot:IsAlive()
 			or J.HasQueuedAction( bot )

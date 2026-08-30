@@ -940,8 +940,23 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 export function DefendThink(bot: Unit, lane: Lane) {
     const now = DotaTime();
 
-    if (jmz.CanNotUseAction(bot)) return;
-    if (jmz.Utils.IsBotThinkingMeaningfulAction(bot, Customize.ThinkLess, "defend")) return;
+    // OHA MOD 2026/08/30: CanNotUseAction()/IsBotThinkingMeaningfulAction() also treat a
+    // stale order left by whatever mode was active a moment ago (e.g. still walking to a
+    // farm camp, ACTIVITY_RUN counts as "meaningful") as busy — so when a ping/threat just
+    // switched the bot into Defend, it kept executing the old order instead of defending.
+    // Skip those two gates for the tick Defend just became active; still respect real
+    // un-interruptible states (channel/stun/etc) via IsBotBusyChannelingOrStunned.
+    const activeMode = bot.GetActiveMode();
+    const isDefendMode = activeMode === BotMode.DefendTowerTop || activeMode === BotMode.DefendTowerMid || activeMode === BotMode.DefendTowerBot;
+    const justEnteredDefend = isDefendMode && (bot as any)._lastActiveMode !== activeMode;
+    (bot as any)._lastActiveMode = activeMode;
+
+    if (justEnteredDefend) {
+        if (jmz.IsBotBusyChannelingOrStunned(bot)) return;
+    } else {
+        if (jmz.CanNotUseAction(bot)) return;
+        if (jmz.Utils.IsBotThinkingMeaningfulAction(bot, Customize.ThinkLess, "defend")) return;
+    }
 
     // a small don't-walk-through-fire guard - use cached enemies when possible
     const botLocation = bot.GetLocation();

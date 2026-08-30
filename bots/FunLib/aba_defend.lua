@@ -1277,11 +1277,21 @@ function ____exports.GetDefendDesire(bot, lane)
 end
 function ____exports.DefendThink(bot, lane)
     local now = DotaTime()
-    if jmz.CanNotUseAction(bot) then
-        return
-    end
-    if jmz.Utils.IsBotThinkingMeaningfulAction(bot, Customize.ThinkLess, "defend") then
-        return
+    local activeMode = bot:GetActiveMode()
+    local isDefendMode = activeMode == BotMode.DefendTowerTop or activeMode == BotMode.DefendTowerMid or activeMode == BotMode.DefendTowerBot
+    local justEnteredDefend = isDefendMode and bot._lastActiveMode ~= activeMode
+    bot._lastActiveMode = activeMode
+    if justEnteredDefend then
+        if jmz.IsBotBusyChannelingOrStunned(bot) then
+            return
+        end
+    else
+        if jmz.CanNotUseAction(bot) then
+            return
+        end
+        if jmz.Utils.IsBotThinkingMeaningfulAction(bot, Customize.ThinkLess, "defend") then
+            return
+        end
     end
     local botLocation = bot:GetLocation()
     local pathCacheKey = (("pathEnemies_" .. tostring(bot:GetPlayerID())) .. "_") .. tostring(math.floor(now * 2))
