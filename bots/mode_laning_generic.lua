@@ -160,25 +160,47 @@ end
 function GetBestDenyCreep(hCreepList)
 	-- OHA MOD 2026/08/29: pick the CLOSEST valid deny target instead of the first
 	-- match in the list, so the bot doesn't ignore a nearby deny to chase a farther one.
+	-- OHA MOD 2026/08/30: use J.WillKillTarget (same kill-prediction as last-hit, accounts
+	-- for attack delay/incoming damage) instead of a naive "health <= attackDamage" check,
+	-- which missed valid denies. Also returns a pre-position target (creep not lethal yet
+	-- but close to the deny threshold) so the bot is already in range when the window opens.
 	local bestCreep = nil
 	local bestDist = math.huge
+	local bestMoveToCreep = nil
+	local bestMoveToDist = math.huge
 	for _, creep in pairs(hCreepList)
 	do
 		if J.IsValid(creep)
 		and J.GetHP(creep) < 0.49
 		and J.CanBeAttacked(creep)
-		and creep:GetHealth() <= attackDamage
 		and string.find(creep:GetUnitName(), 'npc_dota_creep_')
 		then
 			local nDist = GetUnitToUnitDistance(bot, creep)
-			if nDist < bestDist then
-				bestDist = nDist
-				bestCreep = creep
+			local nDelay = J.GetAttackProDelayTime(bot, creep)
+			if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
+				if nDist < bestDist then
+					bestDist = nDist
+					bestCreep = creep
+				end
+			elseif nDist < bestMoveToDist then
+				bestMoveToDist = nDist
+				bestMoveToCreep = creep
+			end
+		elseif J.IsValid(creep)
+		and J.GetHP(creep) < 0.65
+		and J.CanBeAttacked(creep)
+		and string.find(creep:GetUnitName(), 'npc_dota_creep_')
+		then
+			-- not in the deny window yet, but close — pre-position for it
+			local nDist = GetUnitToUnitDistance(bot, creep)
+			if nDist < bestMoveToDist then
+				bestMoveToDist = nDist
+				bestMoveToCreep = creep
 			end
 		end
 	end
 
-	return bestCreep
+	return bestCreep, bestMoveToCreep
 end
 
 function Think()
@@ -212,20 +234,27 @@ function Think()
 			end
 		end
 
-		local denyCreep = GetBestDenyCreep(nAllyCreeps)
+		local denyCreep, denyMoveToCreep = GetBestDenyCreep(nAllyCreeps)
 		-- OHA MOD 2026/08/29: deny is attempted regardless of human allies, but only
 		-- if there is actually an enemy hero nearby (nInRangeEnemy, 1600 range, set in GetDesire).
-		if J.IsValid(denyCreep) and nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
-			-- OHA MOD 2026/08/29: explicit move-in-range check (same pattern as last-hit above)
-			-- instead of relying on Action_AttackUnit to path there, so denies aren't missed
-			-- when the bot is just outside attack range.
-			if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
-				bot:Action_MoveToUnit(denyCreep)
+		if nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
+			if J.IsValid(denyCreep) then
+				-- OHA MOD 2026/08/29: explicit move-in-range check (same pattern as last-hit above)
+				-- instead of relying on Action_AttackUnit to path there, so denies aren't missed
+				-- when the bot is just outside attack range.
+				if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
+					bot:Action_MoveToUnit(denyCreep)
+					return
+				end
+				bot:SetTarget(denyCreep)
+				bot:Action_AttackUnit(denyCreep, true)
+				return
+			-- OHA MOD 2026/08/30: pre-position toward an ally creep about to enter the deny
+			-- window, so the bot is already in range for the exact tick it becomes lethal.
+			elseif J.IsValid(denyMoveToCreep) and GetUnitToUnitDistance(bot, denyMoveToCreep) > botAttackRange * 0.6 then
+				bot:Action_MoveToUnit(denyMoveToCreep)
 				return
 			end
-			bot:SetTarget(denyCreep)
-			bot:Action_AttackUnit(denyCreep, true)
-			return
 		end
 
 		-- OHA MOD 2026/08/13: 没刀没反补 → 打附近野（800 内）——治"无事可做=站桩挂机"
