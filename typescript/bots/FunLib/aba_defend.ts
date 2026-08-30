@@ -679,6 +679,11 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     // Don't abandon a team push to defend a tower from creeps.
     // If 3+ allies are grouped together pushing, defend desire is very low.
+    // OHA MOD 2026/08/29: this used to short-circuit BEFORE the base/high-ground
+    // threat check below, so a 3-man push elsewhere could fully cancel defense even
+    // while the enemy was sieging our Ancient. Now it only applies when the base
+    // isn't under direct threat.
+    const baseUnderDirectThreat = (ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1 : false) || jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team) >= 2;
     let teamIsPushing = false;
     for (let i = 1; i <= GetTeamPlayers(nTeam).length; i++) {
         const member = GetTeamMember(i);
@@ -693,7 +698,7 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
             }
         }
     }
-    if (teamIsPushing) {
+    if (teamIsPushing && !baseUnderDirectThreat) {
         return BotModeDesire.VeryLow;
     }
 
@@ -808,9 +813,11 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     // Human priority ping (use a hint floor instead of early-return)
+    // OHA MOD 2026/08/29: was inverted (!normal_ping), so bots only reacted to the
+    // danger "X" ping and ignored the standard "come here" ping players actually spam.
     let pingFloor = 0;
     const [human, humanPing] = jmz.GetHumanPing();
-    if (human && humanPing && !humanPing.normal_ping && DotaTime() > 0) {
+    if (human && humanPing && humanPing.normal_ping && DotaTime() > 0) {
         const [isPinged, pingedLane] = jmz.IsPingCloseToValidTower(gameState.team, humanPing, 800, 5.0);
         if (isPinged && lane === pingedLane && GameTime() < humanPing.time + PING_DELTA) {
             (bot as any).laneToDefend = lane;

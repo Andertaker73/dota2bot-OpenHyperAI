@@ -928,6 +928,16 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     if #closeEnemiesDefend > 0 and #closeAlliesDefend >= #closeEnemiesDefend then
         return math.min(0.3, BotModeDesire.Moderate)
     end
+    local ____ancient_11
+    if ancient then
+        ____ancient_11 = jmz.Utils.CountEnemyHeroesNear(
+            ancient:GetLocation(),
+            2200
+        ) >= 1
+    else
+        ____ancient_11 = false
+    end
+    local baseUnderDirectThreat = ____ancient_11 or jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team) >= 2
     local teamIsPushing = false
     do
         local i = 1
@@ -949,7 +959,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
             i = i + 1
         end
     end
-    if teamIsPushing then
+    if teamIsPushing and not baseUnderDirectThreat then
         return BotModeDesire.VeryLow
     end
     local recentlyHit = bot:WasRecentlyDamagedByAnyHero(5) or bot:WasRecentlyDamagedByTower(5)
@@ -1090,7 +1100,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     end
     local pingFloor = 0
     local human, humanPing = jmz.GetHumanPing()
-    if human and humanPing and not humanPing.normal_ping and DotaTime() > 0 then
+    if human and humanPing and humanPing.normal_ping and DotaTime() > 0 then
         local isPinged, pingedLane = jmz.IsPingCloseToValidTower(gameState.team, humanPing, 800, 5)
         if isPinged and lane == pingedLane and GameTime() < humanPing.time + PING_DELTA then
             bot.laneToDefend = lane
