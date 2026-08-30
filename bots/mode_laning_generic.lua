@@ -158,6 +158,10 @@ function GetBestLastHitCreep(hCreepList)
 end
 
 function GetBestDenyCreep(hCreepList)
+	-- OHA MOD 2026/08/29: pick the CLOSEST valid deny target instead of the first
+	-- match in the list, so the bot doesn't ignore a nearby deny to chase a farther one.
+	local bestCreep = nil
+	local bestDist = math.huge
 	for _, creep in pairs(hCreepList)
 	do
 		if J.IsValid(creep)
@@ -166,11 +170,15 @@ function GetBestDenyCreep(hCreepList)
 		and creep:GetHealth() <= attackDamage
 		and string.find(creep:GetUnitName(), 'npc_dota_creep_')
 		then
-			return creep
+			local nDist = GetUnitToUnitDistance(bot, creep)
+			if nDist < bestDist then
+				bestDist = nDist
+				bestCreep = creep
+			end
 		end
 	end
 
-	return nil
+	return bestCreep
 end
 
 function Think()
@@ -179,14 +187,18 @@ function Think()
 			-- 让刀：旁边有己方真人玩家时不补刀（真人优先吃线，不看 bot 自己是什么角色）
 			-- 用 GetUnitList 遍历（与作者 J.IsPosxHuman 同款），不用 GetNearbyHeroes（其 botMode 参数语义不可靠）
 			-- 关键：没有真人时（对面/纯 bot 局）无条件补刀，避免影响 bot 之间正常对线
-			local bHumanNearby = false
+			-- OHA MOD 2026/08/29: yield ONLY to a human ally assigned to the SAME lane, for ANY bot
+			-- position (previously pos 1/2 always ignored the human, contradicting the comment above).
+			local bHumanLaneAllyNearby = false
 			for _, ally in ipairs(GetUnitList(UNIT_LIST_ALLIED_HEROES)) do
-				if J.IsValidHero(ally) and not ally:IsBot() and GetUnitToUnitDistance(bot, ally) <= 700 then
-					bHumanNearby = true
+				if J.IsValidHero(ally) and not ally:IsBot()
+				and ally:GetAssignedLane() == botAssignedLane
+				and GetUnitToUnitDistance(bot, ally) <= 700 then
+					bHumanLaneAllyNearby = true
 					break
 				end
 			end
-			if not bHumanNearby or J.GetPosition(bot) <= 2 or not J.IsThereNonSelfCoreNearby(700)
+			if not bHumanLaneAllyNearby
 			then
 				if GetUnitToUnitDistance(bot, hitCreep) > botAttackRange
 				or (moveToCreep and GetUnitToUnitDistance(bot, hitCreep) > botAttackRange * 0.8) then
@@ -201,7 +213,16 @@ function Think()
 		end
 
 		local denyCreep = GetBestDenyCreep(nAllyCreeps)
-		if J.IsValid(denyCreep) then
+		-- OHA MOD 2026/08/29: deny is attempted regardless of human allies, but only
+		-- if there is actually an enemy hero nearby (nInRangeEnemy, 1600 range, set in GetDesire).
+		if J.IsValid(denyCreep) and nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
+			-- OHA MOD 2026/08/29: explicit move-in-range check (same pattern as last-hit above)
+			-- instead of relying on Action_AttackUnit to path there, so denies aren't missed
+			-- when the bot is just outside attack range.
+			if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
+				bot:Action_MoveToUnit(denyCreep)
+				return
+			end
 			bot:SetTarget(denyCreep)
 			bot:Action_AttackUnit(denyCreep, true)
 			return
