@@ -225,15 +225,23 @@ function ____exports.GetPushDesireHelper(bot, lane)
     if not bMyLane and jmz.IsCore(bot) and gameState.isLaningPhase or jmz.IsDoingRoshan(bot) and #jmz.GetAlliesNearLoc(locationState.roshanLocation, 2800) >= 3 or isMidOrEarlyGame and (#jmz.GetAlliesNearLoc(locationState.tormentorLocation, 1600) >= 3 or #jmz.GetAlliesNearLoc(locationState.tormentorWaitingLocation, 2500) >= 3) then
         return BOT_MODE_DESIRE_EXTRA_LOW
     end
+    local nLowLevelMembers = 0
+    local nTeamMembers = 0
     do
         local i = 1
         while i <= #GetTeamPlayers(team) do
             local member = GetTeamMember(i)
-            if member ~= nil and member:GetLevel() < 6 then
-                return BotModeDesire.None
+            if member ~= nil then
+                nTeamMembers = nTeamMembers + 1
+                if member:GetLevel() < 6 then
+                    nLowLevelMembers = nLowLevelMembers + 1
+                end
             end
             i = i + 1
         end
+    end
+    if nTeamMembers > 0 and nLowLevelMembers / nTeamMembers > 0.5 then
+        return BotModeDesire.None
     end
     local nH = jmz.Utils.NumHumanBotPlayersInTeam(GetOpposingTeam())
     if nH > 0 and currentTime <= StartToPushTime then
@@ -243,7 +251,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
         nMaxDesire = 0.75
     end
     local human, humanPing = jmz.GetHumanPing()
-    if human ~= nil and humanPing ~= nil and not humanPing.normal_ping and DotaTime() > 0 then
+    if human ~= nil and humanPing ~= nil and humanPing.normal_ping and DotaTime() > 0 then
         local isPinged, pingedLane = jmz.IsPingCloseToValidTower(
             GetOpposingTeam(),
             humanPing,
@@ -866,24 +874,24 @@ function ____exports.PushThink(bot, lane)
     local towerDistanceToFountain = bTowerNearby and GetUnitToLocationDistance(nEnemyTowers[1], vTeamFountain) or 0
     for ____, creep in ipairs(nCreeps) do
         do
-            local __continue130
+            local __continue132
             repeat
                 if not jmz.IsValid(creep) or not jmz.CanBeAttacked(creep) then
-                    __continue130 = true
+                    __continue132 = true
                     break
                 end
                 if jmz.IsTormentor(creep) or jmz.IsRoshan(creep) then
-                    __continue130 = true
+                    __continue132 = true
                     break
                 end
                 if bTowerNearby and GetUnitToLocationDistance(creep, vTeamFountain) >= towerDistanceToFountain then
-                    __continue130 = true
+                    __continue132 = true
                     break
                 end
                 bot:Action_AttackUnit(creep, true)
                 return
             until true
-            if not __continue130 then
+            if not __continue132 then
                 break
             end
         end

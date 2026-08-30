@@ -359,11 +359,20 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     // If a team member is still very low level, hold pushes entirely
+    // OHA MOD 2026/08/29: was blocking ALL pushes for the whole game whenever a single
+    // support lagged behind in level; now only holds pushes when the team as a whole
+    // (majority) is underleveled.
+    let nLowLevelMembers = 0;
+    let nTeamMembers = 0;
     for (let i = 1; i <= GetTeamPlayers(team).length; i++) {
         const member = GetTeamMember(i);
-        if (member !== null && member.GetLevel() < 6) {
-            return BotModeDesire.None;
+        if (member !== null) {
+            nTeamMembers++;
+            if (member.GetLevel() < 6) nLowLevelMembers++;
         }
+    }
+    if (nTeamMembers > 0 && nLowLevelMembers / nTeamMembers > 0.5) {
+        return BotModeDesire.None;
     }
 
     // Human opponents → delay high-commit pushes before a certain time
@@ -378,8 +387,10 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     // Respect allied "attack here" human ping on a tower if it matches lane
+    // OHA MOD 2026/08/29: was inverted (!normal_ping), so bots only reacted to the
+    // danger "X" ping and ignored the standard "come here" ping players actually spam.
     const [human, humanPing] = jmz.GetHumanPing();
-    if (human !== null && humanPing !== null && !humanPing.normal_ping && DotaTime() > 0) {
+    if (human !== null && humanPing !== null && humanPing.normal_ping && DotaTime() > 0) {
         const [isPinged, pingedLane] = jmz.IsPingCloseToValidTower(GetOpposingTeam(), humanPing, 700, 5.0);
         if (isPinged && lane === pingedLane && GameTime() < humanPing.time + pingTimeDelta) {
             return 0.9 as BotModeDesire;
