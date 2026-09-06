@@ -968,8 +968,12 @@ function ____exports.GetDefendDesireHelper(bot, lane)
         return BotModeDesire.VeryLow
     end
     local recentlyHit = bot:WasRecentlyDamagedByAnyHero(5) or bot:WasRecentlyDamagedByTower(5)
-    local threatenedLane = GetThreatenedLane()
+    local humanPressureLane = GetHumanLanePressureLane()
+    local threatenedLane = humanPressureLane ~= nil and humanPressureLane or GetThreatenedLane()
     local panic = {active = false, floor = 0}
+    if humanPressureLane ~= nil and lane == humanPressureLane then
+        panic = {active = true, floor = 0.9, forceLoc = GetLaneFrontLocation(nTeam, lane, -250)}
+    end
     local enemiesAtAncient = ancient and jmz.Utils.CountEnemyHeroesNear(
         ancient:GetLocation(),
         2200

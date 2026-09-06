@@ -255,6 +255,40 @@ export function GetPushDesire(bot: Unit, lane: Lane): BotModeDesire {
 /* -----------------------------------------------------------------------------
  * Desire core
  * ---------------------------------------------------------------------------*/
+function GetHumanLanePressureLane(): Lane | null {
+    const team = GetTeam();
+    const enemyTeam = GetOpposingTeam();
+    const lanes: Lane[] = [Lane.Top, Lane.Mid, Lane.Bot];
+
+    for (let i = 1; i <= GetTeamPlayers(team).length; i++) {
+        const member = GetTeamMember(i);
+        if (!member || member.IsBot() || !member.IsAlive() || !member.IsHero() || member.IsIllusion()) continue;
+
+        for (const laneId of lanes) {
+            const laneFront = GetLaneFrontLocation(enemyTeam, laneId, 0);
+            const enemyTower =
+                laneId === Lane.Top ? GetTower(enemyTeam, Tower.Top1) :
+                laneId === Lane.Mid ? GetTower(enemyTeam, Tower.Mid1) :
+                GetTower(enemyTeam, Tower.Bot1);
+
+            const enemyPriorityTower =
+                laneId === Lane.Top ? GetTower(enemyTeam, Tower.Top2) :
+                laneId === Lane.Mid ? GetTower(enemyTeam, Tower.Mid2) :
+                GetTower(enemyTeam, Tower.Bot2);
+
+            const nearLaneFront = GetUnitToLocationDistance(member, laneFront) < 2200;
+            const nearPriorityTower = enemyTower && jmz.IsValidBuilding(enemyTower) && GetUnitToUnitDistance(member, enemyTower) < 2200;
+            const nearSecondTower = enemyPriorityTower && jmz.IsValidBuilding(enemyPriorityTower) && GetUnitToUnitDistance(member, enemyPriorityTower) < 2400;
+
+            if ((nearLaneFront || nearPriorityTower || nearSecondTower) && member.GetAssignedLane() === laneId) {
+                return laneId;
+            }
+        }
+    }
+
+    return null;
+}
+
 export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // Keep the intent: avoid pushing too early or when other team jobs override.
     if ((bot as any).laneToPush == null) (bot as any).laneToPush = lane;
@@ -304,6 +338,13 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         if (enemiesAtTower.length >= 2) {
             return BotModeDesire.ExtraLow;
         }
+    }
+
+    const humanLanePressure = GetHumanLanePressureLane();
+    if (humanLanePressure !== null && humanLanePressure !== lane) {
+        // O jogador humano está atacando outra lane. Não manter um push paralelo em outra rota;
+        // o time deve seguir a pressão ativa em vez de abrir uma rota descartável.
+        nMaxDesire = math.min(nMaxDesire, 0.2);
     }
 
     // --- Push safety gates ---

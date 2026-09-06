@@ -125,6 +125,28 @@ function updateUnitStateCache()
     }
     return unitStateCache
 end
+local function GetHumanLanePressureLane()
+    local team = GetTeam()
+    local enemyTeam = GetOpposingTeam()
+    local lanes = {Lane.Top, Lane.Mid, Lane.Bot}
+    for i = 1, #GetTeamPlayers(team) do
+        local member = GetTeamMember(i)
+        if member and member:IsAlive() and member:IsHero() and not member:IsBot() and not member:IsIllusion() then
+            for ____, laneId in ipairs(lanes) do
+                local laneFront = GetLaneFrontLocation(enemyTeam, laneId, 0)
+                local enemyTower = laneId == Lane.Top and GetTower(enemyTeam, Tower.Top1) or laneId == Lane.Mid and GetTower(enemyTeam, Tower.Mid1) or GetTower(enemyTeam, Tower.Bot1)
+                local enemyPriorityTower = laneId == Lane.Top and GetTower(enemyTeam, Tower.Top2) or laneId == Lane.Mid and GetTower(enemyTeam, Tower.Mid2) or GetTower(enemyTeam, Tower.Bot2)
+                local nearLaneFront = GetUnitToLocationDistance(member, laneFront) < 2200
+                local nearPriorityTower = enemyTower and jmz.IsValidBuilding(enemyTower) and GetUnitToUnitDistance(member, enemyTower) < 2200
+                local nearSecondTower = enemyPriorityTower and jmz.IsValidBuilding(enemyPriorityTower) and GetUnitToUnitDistance(member, enemyPriorityTower) < 2400
+                if (nearLaneFront or nearPriorityTower or nearSecondTower) and member:GetAssignedLane() == laneId then
+                    return laneId
+                end
+            end
+        end
+    end
+    return nil
+end
 function ____exports.GetPushDesireHelper(bot, lane)
     if bot.laneToPush == nil then
         bot.laneToPush = lane
@@ -143,6 +165,10 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local bMyLane = bot:GetAssignedLane() == lane
     local isMidOrEarlyGame = gameState.isEarlyGame or gameState.isMidGame
     hEnemyAncient = gameState.enemyAncient
+    local humanLanePressure = GetHumanLanePressureLane()
+    if humanLanePressure ~= nil and humanLanePressure ~= lane then
+        nMaxDesire = math.min(nMaxDesire, 0.2)
+    end
     local alliesHere = getCachedAlliesNearLoc(
         bot:GetLocation(),
         1600

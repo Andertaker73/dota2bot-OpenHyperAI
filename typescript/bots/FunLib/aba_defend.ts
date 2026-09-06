@@ -710,10 +710,14 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const recentlyHit = bot.WasRecentlyDamagedByAnyHero(5) || bot.WasRecentlyDamagedByTower(5);
 
     // --- Base-first policy ---
-    const threatenedLane = GetThreatenedLane();
+    const humanPressureLane = GetHumanLanePressureLane();
+    const threatenedLane = humanPressureLane !== null ? humanPressureLane : GetThreatenedLane();
 
     // Panic hint (no early return): HG pressure or ancient poke
     let panic: PanicHint = { active: false, floor: 0 };
+    if (humanPressureLane !== null && lane === humanPressureLane) {
+        panic = { active: true, floor: 0.9, forceLoc: GetLaneFrontLocation(nTeam, lane, -250) };
+    }
 
     // Count enemies around Ancient & on our high ground
     const enemiesAtAncient = ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) : 0;
