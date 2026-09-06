@@ -105,6 +105,18 @@ function X.Think()
 		end
 	end
 
+	-- Deny first when an enemy is pressuring the lane. Preventing the allied creep from dying is
+	-- higher priority than taking a safer, lower-value last-hit.
+	local denyCreep = GetBestDenyCreep(nAllyCreeps)
+	if J.IsValid(denyCreep) and #tEnemyHeroes > 0 then
+		if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
+			bot:Action_MoveToUnit(denyCreep)
+		else
+			bot:Action_AttackUnit(denyCreep, true)
+		end
+		return
+	end
+
 	-- Last-hit with support suppression (reference: lane partner check)
 	local hitCreep = GetBestLastHitCreep(nEnemyCreeps)
 	if J.IsValid(hitCreep) then
@@ -122,13 +134,6 @@ function X.Think()
 			end
 			return
 		end
-	end
-
-	-- Deny
-	local denyCreep = GetBestDenyCreep(nAllyCreeps)
-	if J.IsValid(denyCreep) then
-		bot:Action_AttackUnit(denyCreep, true)
-		return
 	end
 
 	-- Support harass: only when few enemy creeps nearby (low aggro risk)

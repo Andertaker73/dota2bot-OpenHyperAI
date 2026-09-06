@@ -204,6 +204,25 @@ function GetBestDenyCreep(hCreepList)
 end
 
 function Think()
+		local denyCreep, denyMoveToCreep = GetBestDenyCreep(nAllyCreeps)
+		-- PRIORIDADE DE DENY: se há inimigo próximo e um creep aliado está em janela de deny,
+		-- o bot deve impedir a morte antes de forçar um last-hit. Isso evita perder o lane por
+		-- conceder o creep ao inimigo em troca de um ataque menor.
+		if nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
+			if J.IsValid(denyCreep) then
+				if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
+					bot:Action_MoveToUnit(denyCreep)
+					return
+				end
+				bot:SetTarget(denyCreep)
+				bot:Action_AttackUnit(denyCreep, true)
+				return
+			elseif J.IsValid(denyMoveToCreep) and GetUnitToUnitDistance(bot, denyMoveToCreep) > botAttackRange * 0.6 then
+				bot:Action_MoveToUnit(denyMoveToCreep)
+				return
+			end
+		end
+
 		local hitCreep, moveToCreep = GetBestLastHitCreep(nEnemyCreeps)
 		if J.IsValid(hitCreep) then
 			-- 让刀：旁边有己方真人玩家时不补刀（真人优先吃线，不看 bot 自己是什么角色）
@@ -231,29 +250,6 @@ function Think()
 					bot:Action_AttackUnit(hitCreep, true)
 					return
 				end
-			end
-		end
-
-		local denyCreep, denyMoveToCreep = GetBestDenyCreep(nAllyCreeps)
-		-- OHA MOD 2026/08/29: deny is attempted regardless of human allies, but only
-		-- if there is actually an enemy hero nearby (nInRangeEnemy, 1600 range, set in GetDesire).
-		if nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
-			if J.IsValid(denyCreep) then
-				-- OHA MOD 2026/08/29: explicit move-in-range check (same pattern as last-hit above)
-				-- instead of relying on Action_AttackUnit to path there, so denies aren't missed
-				-- when the bot is just outside attack range.
-				if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
-					bot:Action_MoveToUnit(denyCreep)
-					return
-				end
-				bot:SetTarget(denyCreep)
-				bot:Action_AttackUnit(denyCreep, true)
-				return
-			-- OHA MOD 2026/08/30: pre-position toward an ally creep about to enter the deny
-			-- window, so the bot is already in range for the exact tick it becomes lethal.
-			elseif J.IsValid(denyMoveToCreep) and GetUnitToUnitDistance(bot, denyMoveToCreep) > botAttackRange * 0.6 then
-				bot:Action_MoveToUnit(denyMoveToCreep)
-				return
 			end
 		end
 
