@@ -289,6 +289,29 @@ function GetHumanLanePressureLane(): Lane | null {
     return null;
 }
 
+function IsEnemyThreatNearOurBase(): boolean {
+    const team = GetTeam();
+    const ancient = GetAncient(team);
+    if (ancient && jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) return true;
+
+    const barracks = [
+        GetBarracks(team, Barracks.TopMelee),
+        GetBarracks(team, Barracks.TopRanged),
+        GetBarracks(team, Barracks.MidMelee),
+        GetBarracks(team, Barracks.MidRanged),
+        GetBarracks(team, Barracks.BotMelee),
+        GetBarracks(team, Barracks.BotRanged),
+    ];
+
+    for (const b of barracks) {
+        if (b && IsValidUnit(b) && b.IsAlive() && jmz.Utils.CountEnemyHeroesNear(b.GetLocation(), 1800) >= 1) {
+            return true;
+        }
+    }
+
+    return jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1;
+}
+
 export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // Keep the intent: avoid pushing too early or when other team jobs override.
     if ((bot as any).laneToPush == null) (bot as any).laneToPush = lane;
@@ -323,7 +346,8 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // --- Strong base-defense gate for push ---
     const team = gameState.team;
     const ourAncient = gameState.ourAncient;
-    const enemiesAtAncient = jmz.Utils.CountEnemyHeroesNear(ourAncient!.GetLocation(), BASE_ANC_RADIUS);
+    const enemiesAtAncient = ourAncient ? jmz.Utils.CountEnemyHeroesNear(ourAncient.GetLocation(), BASE_ANC_RADIUS) : 0;
+    if (IsEnemyThreatNearOurBase()) return BotModeDesire.ExtraLow;
     // If Ancient under direct pressure → strongly deprioritize pushes
     if (enemiesAtAncient >= 1) return BotModeDesire.ExtraLow;
 

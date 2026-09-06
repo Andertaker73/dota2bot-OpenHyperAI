@@ -147,6 +147,27 @@ local function GetHumanLanePressureLane()
     end
     return nil
 end
+local function IsEnemyThreatNearOurBase()
+    local team = GetTeam()
+    local ancient = GetAncient(team)
+    if ancient and jmz.Utils.CountEnemyHeroesNear(ancient:GetLocation(), 2600) >= 1 then
+        return true
+    end
+    local barracks = {
+        GetBarracks(team, Barracks.TopMelee),
+        GetBarracks(team, Barracks.TopRanged),
+        GetBarracks(team, Barracks.MidMelee),
+        GetBarracks(team, Barracks.MidRanged),
+        GetBarracks(team, Barracks.BotMelee),
+        GetBarracks(team, Barracks.BotRanged)
+    }
+    for ____, b in ipairs(barracks) do
+        if b and IsValidUnit(b) and b:IsAlive() and jmz.Utils.CountEnemyHeroesNear(b:GetLocation(), 1800) >= 1 then
+            return true
+        end
+    end
+    return jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1
+end
 function ____exports.GetPushDesireHelper(bot, lane)
     if bot.laneToPush == nil then
         bot.laneToPush = lane
@@ -179,10 +200,13 @@ function ____exports.GetPushDesireHelper(bot, lane)
     )
     local team = gameState.team
     local ourAncient = gameState.ourAncient
-    local enemiesAtAncient = jmz.Utils.CountEnemyHeroesNear(
+    local enemiesAtAncient = ourAncient and jmz.Utils.CountEnemyHeroesNear(
         ourAncient:GetLocation(),
         BASE_ANC_RADIUS
-    )
+    ) or 0
+    if IsEnemyThreatNearOurBase() then
+        return BotModeDesire.ExtraLow
+    end
     if enemiesAtAncient >= 1 then
         return BotModeDesire.ExtraLow
     end

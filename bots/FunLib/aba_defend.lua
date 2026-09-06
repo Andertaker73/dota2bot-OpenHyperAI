@@ -979,7 +979,14 @@ function ____exports.GetDefendDesireHelper(bot, lane)
         2200
     ) or 0
     local enemiesOnHG = jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team)
-    if enemiesOnHG >= 2 and not recentlyHit then
+    local laneBarracks = lane == Lane.Top and {GetBarracks(nTeam, Barracks.TopMelee), GetBarracks(nTeam, Barracks.TopRanged)} or (lane == Lane.Mid and {GetBarracks(nTeam, Barracks.MidMelee), GetBarracks(nTeam, Barracks.MidRanged)} or {GetBarracks(nTeam, Barracks.BotMelee), GetBarracks(nTeam, Barracks.BotRanged)})
+    local enemiesAtLaneBarracks = 0
+    for ____, b in ipairs(laneBarracks) do
+        if b then
+            enemiesAtLaneBarracks = enemiesAtLaneBarracks + jmz.Utils.CountEnemyHeroesNear(b:GetLocation(), 1800)
+        end
+    end
+    if (enemiesOnHG >= 2 or enemiesAtLaneBarracks >= 1) and not recentlyHit then
         if lane ~= threatenedLane then
             return BotModeDesire.VeryLow
         end
@@ -1012,7 +1019,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
             baseThreatUntil = DotaTime() + BASE_THREAT_HOLD + 4
         end
     end
-    if enemiesAtAncient >= 1 then
+    if enemiesAtAncient >= 1 or enemiesAtLaneBarracks >= 1 then
         if lane ~= threatenedLane then
             return BotModeDesire.VeryLow
         end

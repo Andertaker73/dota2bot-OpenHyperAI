@@ -281,23 +281,25 @@ function GetThreatenedLane(): Lane {
 
     for (const ln of lanes) {
         const [bld, _urgent, tier] = GetFurthestBuildingOnLane(ln);
-        // for tier >=3, use lane HG edge; for t1/2, use the building
         const anchor = IsValidBuildingTarget(bld) && tier < 3 ? bld.GetLocation() : GetHighGroundEdgeWaitPoint(nTeam, ln);
 
-        // Hero-first scoring
         const enemyHeroCnt = _recentHeroCountNear(anchor, 1800);
-        let score = enemyHeroCnt * 10; // heroes dominate the score
+        let score = enemyHeroCnt * 10;
 
-        // 自定义：高地/基地威胁直接拉满——敌方在我方高地/基地附近时该路必选
-        // （修复：敌方上高但不在 anchor 1800 内时原逻辑选错路，bot 去守兵线路）
         const hgEdge = GetHighGroundEdgeWaitPoint(nTeam, ln);
         const enemiesAtHGBuilding = jmz.GetLastSeenEnemiesNearLoc(hgEdge, 2000);
         const ourAncient = GetAncient(nTeam);
         const enemiesAtBase = ourAncient ? jmz.GetLastSeenEnemiesNearLoc(ourAncient.GetLocation(), 2600) : [];
-        // 修复平局：威胁人数多的路分数更高（999 + 人数），两条路同时有威胁时不随机取第一条
-        const threatCount = enemiesAtHGBuilding.length + enemiesAtBase.length;
+
+        const barracksForLane =
+            ln === Lane.Top ? [GetBarracks(nTeam, Barracks.TopMelee), GetBarracks(nTeam, Barracks.TopRanged)] :
+            ln === Lane.Mid ? [GetBarracks(nTeam, Barracks.MidMelee), GetBarracks(nTeam, Barracks.MidRanged)] :
+            [GetBarracks(nTeam, Barracks.BotMelee), GetBarracks(nTeam, Barracks.BotRanged)];
+        const enemiesAtBarracks = barracksForLane.filter(b => !!b).reduce((acc, b) => acc + (b ? jmz.GetLastSeenEnemiesNearLoc(b.GetLocation(), 1800).length : 0), 0);
+
+        const threatCount = enemiesAtHGBuilding.length + enemiesAtBase.length + enemiesAtBarracks;
         if (threatCount >= 1) {
-            score = 999 + threatCount; // 高地/基地有敌人 → 必守此路，且人多者优先
+            score = 999 + threatCount;
         }
 
         if (enemyHeroCnt === 0) {
@@ -719,12 +721,17 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         panic = { active: true, floor: 0.9, forceLoc: GetLaneFrontLocation(nTeam, lane, -250) };
     }
 
-    // Count enemies around Ancient & on our high ground
+    // Count enemies around Ancient, barracks and our high ground
     const enemiesAtAncient = ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) : 0;
     const enemiesOnHG = jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team);
+    const laneBarracks =
+        lane === Lane.Top ? [GetBarracks(nTeam, Barracks.TopMelee), GetBarracks(nTeam, Barracks.TopRanged)] :
+        lane === Lane.Mid ? [GetBarracks(nTeam, Barracks.MidMelee), GetBarracks(nTeam, Barracks.MidRanged)] :
+        [GetBarracks(nTeam, Barracks.BotMelee), GetBarracks(nTeam, Barracks.BotRanged)];
+    const enemiesAtLaneBarracks = laneBarracks.reduce((acc, b) => acc + (b ? jmz.Utils.CountEnemyHeroesNear(b.GetLocation(), 1800) : 0), 0);
 
-    // If more than 1 enemy hero on our high ground → force everyone to defend the threatened lane
-    if (enemiesOnHG >= 2 && !recentlyHit) {
+    // If more than 1 enemy hero on our high ground or any enemy is near our barracks → force defend
+    if ((enemiesOnHG >= 2 || enemiesAtLaneBarracks >= 1) && !recentlyHit) {
         if (lane !== threatenedLane) return BotModeDesire.VeryLow;
         baseThreatUntil = DotaTime() + BASE_THREAT_HOLD;
         panic = { active: true, floor: 0.96, forceLoc: ancient ? jmz.AdjustLocationWithOffsetTowardsFountain(ancient.GetLocation(), 300) : ds.defendLoc };
@@ -743,7 +750,7 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     // If Ancient under attack → ensure at least one support goes (lane-gated)
-    if (enemiesAtAncient >= 1) {
+    if (enemiesAtAncient >= 1 || enemiesAtLaneBarracks >= 1) {
         if (lane !== threatenedLane) return BotModeDesire.VeryLow;
 
         if (ancient) {
