@@ -292,8 +292,9 @@ function GetHumanLanePressureLane(): Lane | null {
 function IsEnemyThreatNearOurBase(): boolean {
     const team = GetTeam();
     const ancient = GetAncient(team);
-    if (ancient && jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) return true;
+    if (ancient && jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1) return true;
 
+    const highGroundThreat = jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1;
     const barracks = [
         GetBarracks(team, Barracks.TopMelee),
         GetBarracks(team, Barracks.TopRanged),
@@ -303,13 +304,16 @@ function IsEnemyThreatNearOurBase(): boolean {
         GetBarracks(team, Barracks.BotRanged),
     ];
 
+    let barracksThreat = 0;
     for (const b of barracks) {
-        if (b && IsValidUnit(b) && b.IsAlive() && jmz.Utils.CountEnemyHeroesNear(b.GetLocation(), 1800) >= 1) {
-            return true;
+        if (!b || !IsValidUnit(b) || !b.IsAlive()) continue;
+        if (jmz.Utils.CountEnemyHeroesNear(b.GetLocation(), 1700) >= 1) {
+            barracksThreat += 1;
         }
     }
 
-    return jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1;
+    // Só é verdade quando existe ameaça real à base: Ancient + High Ground ou 2+ barracks sob pressão.
+    return highGroundThreat && barracksThreat >= 1 || barracksThreat >= 2;
 }
 
 export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
@@ -347,6 +351,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const team = gameState.team;
     const ourAncient = gameState.ourAncient;
     const enemiesAtAncient = ourAncient ? jmz.Utils.CountEnemyHeroesNear(ourAncient.GetLocation(), BASE_ANC_RADIUS) : 0;
+    // Hard override: if our base or any defensive structure is being pressured, do not keep pushing elsewhere.
     if (IsEnemyThreatNearOurBase()) return BotModeDesire.ExtraLow;
     // If Ancient under direct pressure → strongly deprioritize pushes
     if (enemiesAtAncient >= 1) return BotModeDesire.ExtraLow;
@@ -365,10 +370,14 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     const humanLanePressure = GetHumanLanePressureLane();
-    if (humanLanePressure !== null && humanLanePressure !== lane) {
-        // O jogador humano está atacando outra lane. Não manter um push paralelo em outra rota;
-        // o time deve seguir a pressão ativa em vez de abrir uma rota descartável.
-        nMaxDesire = math.min(nMaxDesire, 0.2);
+    if (humanLanePressure !== null) {
+        if (humanLanePressure === lane) {
+            nMaxDesire = math.max(nMaxDesire, 0.94);
+        } else {
+            // O jogador está pressionando outra rota; não ignorar a ação ativa do time só porque a rota local é diferente.
+            // Mas também não empurrar uma linha completamente paralela quando a base está em risco.
+            nMaxDesire = math.min(nMaxDesire, 0.25);
+        }
     }
 
     // --- Push safety gates ---
