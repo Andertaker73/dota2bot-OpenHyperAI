@@ -142,11 +142,16 @@ function GetDesireHelper()
             vInvasionCenter = vInvasionCenter / nEnemiesInOurHalfTotal
         end
 
-        -- 守家特判：基地被 4+ 人压（大后期）→ 绝对回防；2+ 人逼近高地 → 紧急集合
-        if nEnemiesNearBase >= 4 and J.IsLateGame() then
+        -- 守家特判：只要敌人已进我方基地/高地且我方没有大幅劣势，就必须回防。
+        -- 这堵住了“敌人压塔/进基地但团队却向 lane 开溜”的失误。
+        local bNoMajorDisadvantage = gameState.aliveAllyCount >= gameState.aliveEnemyCount - 1
+            or (gameState.aliveAllyCount >= 2 and gameState.aliveAllyCount >= gameState.aliveEnemyCount - 2)
+        if nEnemiesNearBase >= 4 and (J.IsLateGame() or bNoMajorDisadvantage) then
             return 1.0
-        elseif nEnemiesNearBase >= 2 then
+        elseif nEnemiesNearBase >= 2 and bNoMajorDisadvantage then
             return 0.95
+        elseif nEnemiesNearBase >= 1 and bNoMajorDisadvantage and J.GetHP(bot) > 0.45 then
+            return 0.9
         end
 
         -- 就近支援：有入侵时才触发（我方半场 ≥2 敌人）
