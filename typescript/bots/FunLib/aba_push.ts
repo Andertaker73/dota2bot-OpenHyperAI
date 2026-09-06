@@ -270,7 +270,10 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // the desire ceiling and tolerate more of a hero-count disadvantage while grouped.
     const forceGroupPushLevel = math.max(1, math.min(3, (Customize as any).Force_Group_Push_Level || 1));
 
-    let nMaxDesire = 0.82 + (forceGroupPushLevel - 1) * 0.06;
+    // OHA MOD 2026/09/06: push deve priorizar o fim de jogo quando há vantagem clara.
+    // Reduzir bloqueios artificiais e permitir avanço mesmo com números parecidos se o time
+    // estiver em powerplay, com networth/level superiores ou com a base inimiga vulnerável.
+    let nMaxDesire = 0.92 + (forceGroupPushLevel - 1) * 0.06;
     const nSearchRange = 2000;
     const botActiveMode = bot.GetActiveMode();
     const nModeDesire = bot.GetActiveModeDesire();
@@ -304,34 +307,41 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     // --- Push safety gates ---
-    // Never push alone when 3+ enemies alive, unless we are in a powerplay window (2+ enemies dead)
-    if (alliesHere.length <= 1 && gameState.aliveEnemyCount >= 3 && (5 - gameState.aliveEnemyCount) < 2) {
+    // Não bloquear um push em vantagem clara. Em powerplay ou com networth/level superiores,
+    // o bot precisa pressionar a base inimiga em vez de ficar "segurando" a linha.
+    const enemyDeadCount = 5 - gameState.aliveEnemyCount;
+    const networthAdvantage = gameState.teamNetworth - gameState.enemyNetworth;
+    const enemyAverageLevel = jmz.GetAverageLevel(true);
+    const levelAdvantage = gameState.averageLevel - enemyAverageLevel;
+    const hasSignificantAdvantage = networthAdvantage > 15000 || levelAdvantage > 2;
+
+    if (alliesHere.length <= 1 && gameState.aliveEnemyCount >= 3 && enemyDeadCount < 2 && !hasSignificantAdvantage) {
         return BotModeDesire.None;
     }
-    // Never push with too big a hero count disadvantage — Force_Group_Push_Level widens
-    // the tolerated deficit (2 at level 1, up to 4 at level 3) since grouping up is the point.
-    if (gameState.aliveAllyCount <= gameState.aliveEnemyCount - (1 + forceGroupPushLevel)) {
+    // Aceitar desvantagem numérica pequena quando há vantagem real de equipe.
+    if (gameState.aliveAllyCount <= gameState.aliveEnemyCount - (1 + forceGroupPushLevel) && !hasSignificantAdvantage && enemyDeadCount < 2) {
         return BotModeDesire.None;
     }
-    // Don't push deep (past T2 toward enemy base) when alone or outnumbered
+    // Não travar um push profundo em powerplay ou quando a equipe está claramente melhor.
     const enemyFountain = gameState.team === Team.Radiant ? DireFountainTpPoint : RadiantFountainTpPoint;
     const laneFront = GetLaneFrontLocation(gameState.team, lane, 0);
     if (GetLocationToLocationDistance(laneFront, enemyFountain) < 5000) {
-        if (alliesHere.length < 3 || gameState.aliveAllyCount < gameState.aliveEnemyCount) {
-            nMaxDesire = math.min(nMaxDesire, 0.08);
+        const isPowerplayWindow = enemyDeadCount >= 1 || hasSignificantAdvantage;
+        if (alliesHere.length < 3 || (gameState.aliveAllyCount < gameState.aliveEnemyCount && !isPowerplayWindow)) {
+            nMaxDesire = math.min(nMaxDesire, isPowerplayWindow ? 0.7 : 0.2);
         }
     }
     // Reduce desire when low HP
     if (jmz.GetHP(bot) < 0.5) {
         nMaxDesire = math.min(nMaxDesire, 0.25);
     }
-    // Caution when all enemies alive and no advantage
-    if (gameState.aliveEnemyCount >= 5 && gameState.aliveAllyCount <= gameState.aliveEnemyCount) {
+    // Só travar em 5v5 sem vantagem real; em powerplay ou em vantagem numérica, o bot deve pressionar.
+    if (gameState.aliveEnemyCount >= 5 && gameState.aliveAllyCount <= gameState.aliveEnemyCount && !hasSignificantAdvantage && enemyDeadCount < 2) {
         nMaxDesire = math.min(nMaxDesire, 0.41);
     }
     // Cap push desire when enemy heroes are very close — bot should fight, not push
     const closeEnemies = getCachedEnemiesNearLoc(bot.GetLocation(), 900);
-    if (closeEnemies.length > 0 && alliesHere.length >= closeEnemies.length) {
+    if (closeEnemies.length > 0 && alliesHere.length >= closeEnemies.length && !hasSignificantAdvantage && enemyDeadCount < 2) {
         nMaxDesire = math.min(nMaxDesire, 0.3);
     }
 
@@ -437,20 +447,23 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const levelAdvantage = gameState.averageLevel - enemyAverageLevel;
     const hasSignificantAdvantage = networthAdvantage > 15000 || levelAdvantage > 2;
 
-    // POWERPLAY: jika >=2 enemy dead, boost desire + unlock cap
+    // POWERPLAY: >=1 enemy dead já deve empurrar mais forte; >=2 remove praticamente o freio
     const enemyDeadCount = 5 - gameState.aliveEnemyCount;
     let powerplayBonus = 0;
-    if (enemyDeadCount >= 2) {
+    if (enemyDeadCount >= 1) {
+        powerplayBonus = RemapValClamped(enemyDeadCount, 1, 4, 0.3, 1.0);
+        nMaxDesire = 0.98;
+    } else if (enemyDeadCount >= 2) {
         powerplayBonus = RemapValClamped(enemyDeadCount, 2, 4, 0.4, 1.0);
-        nMaxDesire = 0.95; // override cap saat powerplay
+        nMaxDesire = 0.99;
     }
 
-    // If outnumbered in *local* area, desire is very low (avoid feed)
-    // But be more lenient when team has significant advantages
+    // Se estivermos localmente em desvantagem, ainda assim ajudar com vantagem de equipe.
+    // O bot precisa pressionar quando a montanha de valor estiver a seu favor, mesmo que o grupo local não
+    // seja perfeito; a prioridade é o fim da partida.
     if (alliesHere.length < enemiesHere.length && alliesHere.length <= eAliveCount - 1 && aAliveCount < eAliveCount) {
-        if (hasSignificantAdvantage && alliesHere.length >= enemiesHere.length - 1) {
-            // Allow pushing when team has big advantage even if slightly outnumbered locally
-            nMaxDesire = Math.min(nMaxDesire, 0.6); // Reduce but don't eliminate
+        if (hasSignificantAdvantage || enemyDeadCount >= 1 || networthAdvantage > 8000 || levelAdvantage > 1) {
+            nMaxDesire = Math.min(nMaxDesire, 0.72);
         } else {
             return BotModeDesire.VeryLow;
         }
@@ -496,13 +509,13 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         // Allow pushes more easily when we have significant advantages
         const allowNumbers =
             eAliveCount === 0 ||
-            enemyDeadCount >= 2 || // Powerplay override
+            enemyDeadCount >= 1 ||
             aAliveCoreCount >= eAliveCoreCount ||
-            (aAliveCoreCount >= 1 && aAliveCount >= eAliveCount + 2) ||
-            // New: Allow pushes with networth advantage even if slightly outnumbered
-            (networthAdvantage > 8000 && aAliveCount >= eAliveCount - 1) ||
-            // New: Allow pushes with level advantage
-            (levelAdvantage > 2 && aAliveCount >= eAliveCount - 1);
+            aAliveCount >= eAliveCount ||
+            (aAliveCoreCount >= 1 && aAliveCount >= eAliveCount - 1) ||
+            (networthAdvantage > 6000 && aAliveCount >= eAliveCount - 1) ||
+            (levelAdvantage > 1 && aAliveCount >= eAliveCount - 1) ||
+            (hasSignificantAdvantage && aAliveCount >= eAliveCount - 1);
 
         if (allowNumbers) {
             // Aegis bonus

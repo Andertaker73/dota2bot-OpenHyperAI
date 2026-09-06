@@ -136,7 +136,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
         1,
         math.min(3, Customize.Force_Group_Push_Level or 1)
     )
-    local nMaxDesire = 0.82 + (forceGroupPushLevel - 1) * 0.06
+    local nMaxDesire = 0.92 + (forceGroupPushLevel - 1) * 0.06
     local nSearchRange = 2000
     local botActiveMode = bot:GetActiveMode()
     local nModeDesire = bot:GetActiveModeDesire()
@@ -187,30 +187,36 @@ function ____exports.GetPushDesireHelper(bot, lane)
             end
         end
     end
-    if #alliesHere <= 1 and gameState.aliveEnemyCount >= 3 and 5 - gameState.aliveEnemyCount < 2 then
+    local enemyDeadCount = 5 - gameState.aliveEnemyCount
+    local networthAdvantage = gameState.teamNetworth - gameState.enemyNetworth
+    local enemyAverageLevel = jmz.GetAverageLevel(true)
+    local levelAdvantage = gameState.averageLevel - enemyAverageLevel
+    local hasSignificantAdvantage = networthAdvantage > 15000 or levelAdvantage > 2
+    if #alliesHere <= 1 and gameState.aliveEnemyCount >= 3 and enemyDeadCount < 2 and not hasSignificantAdvantage then
         return BotModeDesire.None
     end
-    if gameState.aliveAllyCount <= gameState.aliveEnemyCount - (1 + forceGroupPushLevel) then
+    if gameState.aliveAllyCount <= gameState.aliveEnemyCount - (1 + forceGroupPushLevel) and not hasSignificantAdvantage and enemyDeadCount < 2 then
         return BotModeDesire.None
     end
     local enemyFountain = gameState.team == Team.Radiant and DireFountainTpPoint or RadiantFountainTpPoint
     local laneFront = GetLaneFrontLocation(gameState.team, lane, 0)
     if GetLocationToLocationDistance(laneFront, enemyFountain) < 5000 then
-        if #alliesHere < 3 or gameState.aliveAllyCount < gameState.aliveEnemyCount then
-            nMaxDesire = math.min(nMaxDesire, 0.08)
+        local isPowerplayWindow = enemyDeadCount >= 1 or hasSignificantAdvantage
+        if #alliesHere < 3 or (gameState.aliveAllyCount < gameState.aliveEnemyCount and not isPowerplayWindow) then
+            nMaxDesire = math.min(nMaxDesire, isPowerplayWindow and 0.7 or 0.2)
         end
     end
     if jmz.GetHP(bot) < 0.5 then
         nMaxDesire = math.min(nMaxDesire, 0.25)
     end
-    if gameState.aliveEnemyCount >= 5 and gameState.aliveAllyCount <= gameState.aliveEnemyCount then
+    if gameState.aliveEnemyCount >= 5 and gameState.aliveAllyCount <= gameState.aliveEnemyCount and not hasSignificantAdvantage and enemyDeadCount < 2 then
         nMaxDesire = math.min(nMaxDesire, 0.41)
     end
     local closeEnemies = getCachedEnemiesNearLoc(
         bot:GetLocation(),
         900
     )
-    if #closeEnemies > 0 and #alliesHere >= #closeEnemies then
+    if #closeEnemies > 0 and #alliesHere >= #closeEnemies and not hasSignificantAdvantage and enemyDeadCount < 2 then
         nMaxDesire = math.min(nMaxDesire, 0.3)
     end
     if botActiveMode == BotMode.PushTowerTop then
@@ -289,7 +295,16 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local hasSignificantAdvantage = networthAdvantage > 15000 or levelAdvantage > 2
     local enemyDeadCount = 5 - gameState.aliveEnemyCount
     local powerplayBonus = 0
-    if enemyDeadCount >= 2 then
+    if enemyDeadCount >= 1 then
+        powerplayBonus = RemapValClamped(
+            enemyDeadCount,
+            1,
+            4,
+            0.3,
+            1
+        )
+        nMaxDesire = 0.98
+    elseif enemyDeadCount >= 2 then
         powerplayBonus = RemapValClamped(
             enemyDeadCount,
             2,
@@ -297,11 +312,11 @@ function ____exports.GetPushDesireHelper(bot, lane)
             0.4,
             1
         )
-        nMaxDesire = 0.95
+        nMaxDesire = 0.99
     end
     if #alliesHere < #enemiesHere and #alliesHere <= eAliveCount - 1 and aAliveCount < eAliveCount then
-        if hasSignificantAdvantage and #alliesHere >= #enemiesHere - 1 then
-            nMaxDesire = math.min(nMaxDesire, 0.6)
+        if hasSignificantAdvantage or enemyDeadCount >= 1 or networthAdvantage > 8000 or levelAdvantage > 1 then
+            nMaxDesire = math.min(nMaxDesire, 0.72)
         else
             return BotModeDesire.VeryLow
         end
@@ -337,7 +352,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local pushLane = ____exports.WhichLaneToPush(bot, lane)
     local isCurrentLanePushLane = pushLane == lane
     if not jmz.IsCore(bot) and isCurrentLanePushLane or jmz.IsCore(bot) and (jmz.IsLateGame() and isCurrentLanePushLane or isMidOrEarlyGame) then
-        local allowNumbers = eAliveCount == 0 or enemyDeadCount >= 2 or aAliveCoreCount >= eAliveCoreCount or aAliveCoreCount >= 1 and aAliveCount >= eAliveCount + 2 or networthAdvantage > 8000 and aAliveCount >= eAliveCount - 1 or levelAdvantage > 2 and aAliveCount >= eAliveCount - 1
+        local allowNumbers = eAliveCount == 0 or enemyDeadCount >= 1 or aAliveCoreCount >= eAliveCoreCount or aAliveCount >= eAliveCount or aAliveCoreCount >= 1 and aAliveCount >= eAliveCount - 1 or networthAdvantage > 6000 and aAliveCount >= eAliveCount - 1 or levelAdvantage > 1 and aAliveCount >= eAliveCount - 1 or hasSignificantAdvantage and aAliveCount >= eAliveCount - 1
         if allowNumbers then
             if gameState.hasAegis then
                 nPushDesire = nPushDesire + 0.3
