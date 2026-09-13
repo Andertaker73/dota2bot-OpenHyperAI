@@ -713,7 +713,11 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     // --- Base-first policy ---
     const humanPressureLane = GetHumanLanePressureLane();
-    const threatenedLane = humanPressureLane !== null ? humanPressureLane : GetThreatenedLane();
+    const baseThreatActiveNow =
+        IsEnemyThreatNearOurBase() ||
+        jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team) >= 1 ||
+        (ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1 : false);
+    const threatenedLane = baseThreatActiveNow ? GetThreatenedLane() : (humanPressureLane !== null ? humanPressureLane : GetThreatenedLane());
 
     // Panic hint (no early return): HG pressure or ancient poke
     let panic: PanicHint = { active: false, floor: 0 };
@@ -732,7 +736,7 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     // If more than 1 enemy hero on our high ground or any enemy is near our barracks → force defend
     if ((enemiesOnHG >= 2 || enemiesAtLaneBarracks >= 1) && !recentlyHit) {
-        if (lane !== threatenedLane) return BotModeDesire.VeryLow;
+        if (!baseThreatActiveNow && lane !== threatenedLane) return BotModeDesire.VeryLow;
         baseThreatUntil = DotaTime() + BASE_THREAT_HOLD;
         panic = { active: true, floor: 0.96, forceLoc: ancient ? jmz.AdjustLocationWithOffsetTowardsFountain(ancient.GetLocation(), 300) : ds.defendLoc };
         (bot as any).laneToDefend = lane;
@@ -751,7 +755,7 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     // If Ancient under attack → ensure at least one support goes (lane-gated)
     if (enemiesAtAncient >= 1 || enemiesAtLaneBarracks >= 1) {
-        if (lane !== threatenedLane) return BotModeDesire.VeryLow;
+        if (!baseThreatActiveNow && lane !== threatenedLane) return BotModeDesire.VeryLow;
 
         if (ancient) {
             const defenders = jmz.GetAlliesNearLoc(ancient.GetLocation(), 1600);
@@ -790,8 +794,8 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     if (isBaseThreatActive) {
-        // defend near Ancient but only on the threatened lane
-        if (lane !== threatenedLane) {
+        // defend near Ancient but only on the threatened lane; however, active base pressure wins over human lane pressure
+        if (!baseThreatActiveNow && lane !== threatenedLane) {
             return BotModeDesire.VeryLow;
         }
     } else {

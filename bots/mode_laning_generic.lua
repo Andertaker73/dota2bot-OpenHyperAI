@@ -158,25 +158,25 @@ function GetBestLastHitCreep(hCreepList)
 end
 
 function GetBestDenyCreep(hCreepList)
-	-- OHA MOD 2026/08/29: pick the CLOSEST valid deny target instead of the first
-	-- match in the list, so the bot doesn't ignore a nearby deny to chase a farther one.
-	-- OHA MOD 2026/08/30: use J.WillKillTarget (same kill-prediction as last-hit, accounts
-	-- for attack delay/incoming damage) instead of a naive "health <= attackDamage" check,
-	-- which missed valid denies. Also returns a pre-position target (creep not lethal yet
-	-- but close to the deny threshold) so the bot is already in range when the window opens.
+	-- Deny must be prioritized even without enemy heroes nearby. A deny is a lane-saving action,
+	-- not a reaction only to enemy pressure.
 	local bestCreep = nil
 	local bestDist = math.huge
 	local bestMoveToCreep = nil
 	local bestMoveToDist = math.huge
 	for _, creep in pairs(hCreepList)
 	do
-		if J.IsValid(creep)
-		and J.GetHP(creep) < 0.49
-		and J.CanBeAttacked(creep)
-		and string.find(creep:GetUnitName(), 'npc_dota_creep_')
-		then
-			local nDist = GetUnitToUnitDistance(bot, creep)
-			local nDelay = J.GetAttackProDelayTime(bot, creep)
+		if not J.IsValid(creep) or not J.CanBeAttacked(creep) then
+			goto continue
+		end
+		if not string.find(creep:GetUnitName(), 'npc_dota_creep_') then
+			goto continue
+		end
+
+		local nDist = GetUnitToUnitDistance(bot, creep)
+		local nDelay = J.GetAttackProDelayTime(bot, creep)
+		local hpPct = J.GetHP(creep)
+		if hpPct < 0.49 then
 			if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
 				if nDist < bestDist then
 					bestDist = nDist
@@ -186,18 +186,11 @@ function GetBestDenyCreep(hCreepList)
 				bestMoveToDist = nDist
 				bestMoveToCreep = creep
 			end
-		elseif J.IsValid(creep)
-		and J.GetHP(creep) < 0.65
-		and J.CanBeAttacked(creep)
-		and string.find(creep:GetUnitName(), 'npc_dota_creep_')
-		then
-			-- not in the deny window yet, but close — pre-position for it
-			local nDist = GetUnitToUnitDistance(bot, creep)
-			if nDist < bestMoveToDist then
-				bestMoveToDist = nDist
-				bestMoveToCreep = creep
-			end
+		elseif hpPct < 0.7 and nDist < bestMoveToDist then
+			bestMoveToDist = nDist
+			bestMoveToCreep = creep
 		end
+		::continue::
 	end
 
 	return bestCreep, bestMoveToCreep
@@ -205,22 +198,20 @@ end
 
 function Think()
 		local denyCreep, denyMoveToCreep = GetBestDenyCreep(nAllyCreeps)
-		-- PRIORIDADE DE DENY: se há inimigo próximo e um creep aliado está em janela de deny,
-		-- o bot deve impedir a morte antes de forçar um last-hit. Isso evita perder o lane por
-		-- conceder o creep ao inimigo em troca de um ataque menor.
-		if nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
-			if J.IsValid(denyCreep) then
-				if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
-					bot:Action_MoveToUnit(denyCreep)
-					return
-				end
-				bot:SetTarget(denyCreep)
-				bot:Action_AttackUnit(denyCreep, true)
-				return
-			elseif J.IsValid(denyMoveToCreep) and GetUnitToUnitDistance(bot, denyMoveToCreep) > botAttackRange * 0.6 then
-				bot:Action_MoveToUnit(denyMoveToCreep)
+		-- PRIORIDADE DE DENY: sempre que um creep aliado estiver em janela de deny ou perto dela,
+		-- o bot precisa salvar o creep antes de tentar last-hit. Isso evita que o lane fique sem
+		-- controle apenas porque não havia um herói inimigo imediatamente ao alcance.
+		if J.IsValid(denyCreep) then
+			if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
+				bot:Action_MoveToUnit(denyCreep)
 				return
 			end
+			bot:SetTarget(denyCreep)
+			bot:Action_AttackUnit(denyCreep, true)
+			return
+		elseif J.IsValid(denyMoveToCreep) and GetUnitToUnitDistance(bot, denyMoveToCreep) > botAttackRange * 0.6 then
+			bot:Action_MoveToUnit(denyMoveToCreep)
+			return
 		end
 
 		local hitCreep, moveToCreep = GetBestLastHitCreep(nEnemyCreeps)

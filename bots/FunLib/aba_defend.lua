@@ -969,7 +969,8 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     end
     local recentlyHit = bot:WasRecentlyDamagedByAnyHero(5) or bot:WasRecentlyDamagedByTower(5)
     local humanPressureLane = GetHumanLanePressureLane()
-    local threatenedLane = humanPressureLane ~= nil and humanPressureLane or GetThreatenedLane()
+    local baseThreatActiveNow = IsEnemyThreatNearOurBase() or jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team) >= 1 or (ancient and jmz.Utils.CountEnemyHeroesNear(ancient:GetLocation(), 2200) >= 1 or false)
+    local threatenedLane = baseThreatActiveNow and GetThreatenedLane() or (humanPressureLane ~= nil and humanPressureLane or GetThreatenedLane())
     local panic = {active = false, floor = 0}
     if humanPressureLane ~= nil and lane == humanPressureLane then
         panic = {active = true, floor = 0.9, forceLoc = GetLaneFrontLocation(nTeam, lane, -250)}
@@ -987,7 +988,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
         end
     end
     if (enemiesOnHG >= 2 or enemiesAtLaneBarracks >= 1) and not recentlyHit then
-        if lane ~= threatenedLane then
+        if not baseThreatActiveNow and lane ~= threatenedLane then
             return BotModeDesire.VeryLow
         end
         baseThreatUntil = DotaTime() + BASE_THREAT_HOLD
@@ -1020,7 +1021,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
         end
     end
     if enemiesAtAncient >= 1 or enemiesAtLaneBarracks >= 1 then
-        if lane ~= threatenedLane then
+        if not baseThreatActiveNow and lane ~= threatenedLane then
             return BotModeDesire.VeryLow
         end
         if ancient then
@@ -1080,7 +1081,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
         )
     end
     if isBaseThreatActive then
-        if lane ~= threatenedLane then
+        if not baseThreatActiveNow and lane ~= threatenedLane then
             return BotModeDesire.VeryLow
         end
     else

@@ -105,10 +105,10 @@ function X.Think()
 		end
 	end
 
-	-- Deny first when an enemy is pressuring the lane. Preventing the allied creep from dying is
-	-- higher priority than taking a safer, lower-value last-hit.
+	-- Deny first whenever the allied creep is in danger, not only when an enemy hero is already
+	-- visible in the lane. This keeps allied creeps alive and avoids lane loss from late denials.
 	local denyCreep = GetBestDenyCreep(nAllyCreeps)
-	if J.IsValid(denyCreep) and #tEnemyHeroes > 0 then
+	if J.IsValid(denyCreep) then
 		if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
 			bot:Action_MoveToUnit(denyCreep)
 		else
@@ -191,17 +191,22 @@ function GetBestLastHitCreep(hCreepList)
 end
 
 function GetBestDenyCreep(hCreepList)
+	local best = nil
+	local bestDist = math.huge
 	for _, creep in pairs(hCreepList) do
-		if J.IsValid(creep)
-		and J.GetHP(creep) < 0.49
-		and J.CanBeAttacked(creep)
-		and creep:GetHealth() <= bot:GetAttackDamage()
-		and string.find(creep:GetUnitName(), 'npc_dota_creep_')
-		then
-			return creep
+		if J.IsValid(creep) and J.CanBeAttacked(creep) and string.find(creep:GetUnitName(), 'npc_dota_creep_') then
+			local hpPct = J.GetHP(creep)
+			local dist = GetUnitToUnitDistance(bot, creep)
+			if hpPct < 0.49 and dist < bestDist then
+				best = creep
+				bestDist = dist
+			elseif hpPct < 0.7 and dist < bestDist then
+				best = creep
+				bestDist = dist
+			end
 		end
 	end
-	return nil
+	return best
 end
 
 function GetHarassTarget(hEnemyList)
