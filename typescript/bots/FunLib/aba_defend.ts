@@ -726,11 +726,26 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         if (b.GetHealth() >= b.GetMaxHealth() * 0.95) return false;
         return jmz.Utils.CountEnemyHeroesNear(b.GetLocation(), 1800) >= 1;
     });
+    const enemyNearAnyAllyStructure = [
+        GetTower(nTeam, Tower.Top1), GetTower(nTeam, Tower.Top2), GetTower(nTeam, Tower.Top3),
+        GetTower(nTeam, Tower.Mid1), GetTower(nTeam, Tower.Mid2), GetTower(nTeam, Tower.Mid3),
+        GetTower(nTeam, Tower.Bot1), GetTower(nTeam, Tower.Bot2), GetTower(nTeam, Tower.Bot3),
+        GetBarracks(nTeam, Barracks.TopMelee), GetBarracks(nTeam, Barracks.TopRanged),
+        GetBarracks(nTeam, Barracks.MidMelee), GetBarracks(nTeam, Barracks.MidRanged),
+        GetBarracks(nTeam, Barracks.BotMelee), GetBarracks(nTeam, Barracks.BotRanged),
+        ancient,
+    ].some((b) => {
+        if (!b || !IsValidUnit(b) || !b.IsAlive()) return false;
+        if (GetUnitToLocationDistance(b, b.GetLocation()) < 0) return false;
+        const nearby = jmz.GetEnemiesNearLoc(b.GetLocation(), 2200);
+        return nearby.length >= 1 || jmz.Utils.CountEnemyHeroesNear(b.GetLocation(), 2200) >= 1;
+    });
     const baseThreatActiveNow =
         IsEnemyThreatNearOurBase() ||
         jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team) >= 1 ||
         (ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1 : false) ||
-        damagedOurStructure;
+        damagedOurStructure ||
+        enemyNearAnyAllyStructure;
     const threatenedLane = baseThreatActiveNow ? GetThreatenedLane() : (humanPressureLane !== null ? humanPressureLane : GetThreatenedLane());
 
     // Panic hint (no early return): HG pressure or ancient poke
@@ -950,6 +965,7 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // Apply floors (panic/ping) after all dampeners
     if (panic.active) nDefendDesire = math.max(nDefendDesire, panic.floor);
     if (pingFloor > 0) nDefendDesire = math.max(nDefendDesire, pingFloor);
+    if (baseThreatActiveNow) nDefendDesire = math.max(nDefendDesire, 0.9);
 
     // Ask for help if needed
     ConsiderPingedDefend(bot, lane, nDefendDesire, furthestBuilding, buildingTier, nEffAllies, lEnemies.length);

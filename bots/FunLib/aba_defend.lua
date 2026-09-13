@@ -985,7 +985,26 @@ function ____exports.GetDefendDesireHelper(bot, lane)
             break
         end
     end
-    local baseThreatActiveNow = IsEnemyThreatNearOurBase() or jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team) >= 1 or (ancient and jmz.Utils.CountEnemyHeroesNear(ancient:GetLocation(), 2200) >= 1 or false) or damagedOurStructure
+    local enemyNearAnyAllyStructure = false
+    local allStructures = {
+        GetTower(nTeam, Tower.Top1), GetTower(nTeam, Tower.Top2), GetTower(nTeam, Tower.Top3),
+        GetTower(nTeam, Tower.Mid1), GetTower(nTeam, Tower.Mid2), GetTower(nTeam, Tower.Mid3),
+        GetTower(nTeam, Tower.Bot1), GetTower(nTeam, Tower.Bot2), GetTower(nTeam, Tower.Bot3),
+        GetBarracks(nTeam, Barracks.TopMelee), GetBarracks(nTeam, Barracks.TopRanged),
+        GetBarracks(nTeam, Barracks.MidMelee), GetBarracks(nTeam, Barracks.MidRanged),
+        GetBarracks(nTeam, Barracks.BotMelee), GetBarracks(nTeam, Barracks.BotRanged),
+        ancient
+    }
+    for ____, b in ipairs(allStructures) do
+        if b and IsValidUnit(b) and b:IsAlive() then
+            local nearby = jmz.GetEnemiesNearLoc(b:GetLocation(), 2200)
+            if #nearby >= 1 or jmz.Utils.CountEnemyHeroesNear(b:GetLocation(), 2200) >= 1 then
+                enemyNearAnyAllyStructure = true
+                break
+            end
+        end
+    end
+    local baseThreatActiveNow = IsEnemyThreatNearOurBase() or jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team) >= 1 or (ancient and jmz.Utils.CountEnemyHeroesNear(ancient:GetLocation(), 2200) >= 1 or false) or damagedOurStructure or enemyNearAnyAllyStructure
     local threatenedLane = baseThreatActiveNow and GetThreatenedLane() or (humanPressureLane ~= nil and humanPressureLane or GetThreatenedLane())
     local panic = {active = false, floor = 0}
     if humanPressureLane ~= nil and lane == humanPressureLane then
@@ -1241,6 +1260,9 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     end
     if pingFloor > 0 then
         nDefendDesire = math.max(nDefendDesire, pingFloor)
+    end
+    if baseThreatActiveNow then
+        nDefendDesire = math.max(nDefendDesire, 0.9)
     end
     ConsiderPingedDefend(
         bot,
