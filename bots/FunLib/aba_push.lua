@@ -150,9 +150,7 @@ end
 local function IsEnemyThreatNearOurBase()
     local team = GetTeam()
     local ancient = GetAncient(team)
-    if ancient and jmz.Utils.CountEnemyHeroesNear(ancient:GetLocation(), 2200) >= 1 then
-        return true
-    end
+    local ancientThreat = ancient and jmz.Utils.CountEnemyHeroesNear(ancient:GetLocation(), 2200) >= 1 or false
     local highGroundThreat = jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1
     local barracks = {
         GetBarracks(team, Barracks.TopMelee),
@@ -168,7 +166,7 @@ local function IsEnemyThreatNearOurBase()
             barracksThreat = barracksThreat + 1
         end
     end
-    return (highGroundThreat and barracksThreat >= 1) or barracksThreat >= 2
+    return (ancientThreat and (highGroundThreat or barracksThreat >= 1)) or barracksThreat >= 2
 end
 function ____exports.GetPushDesireHelper(bot, lane)
     if bot.laneToPush == nil then
@@ -193,7 +191,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
         if humanLanePressure == lane then
             nMaxDesire = math.max(nMaxDesire, 0.94)
         else
-            nMaxDesire = math.min(nMaxDesire, 0.25)
+            nMaxDesire = math.min(nMaxDesire, 0.55)
         end
     end
     local alliesHere = getCachedAlliesNearLoc(
@@ -213,7 +211,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
     if IsEnemyThreatNearOurBase() then
         return BotModeDesire.ExtraLow
     end
-    if enemiesAtAncient >= 1 then
+    if enemiesAtAncient >= 1 and (gameState.aliveEnemyCount >= 3 or jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) then
         return BotModeDesire.ExtraLow
     end
     for ____, slot in ipairs(NonTier1Towers) do

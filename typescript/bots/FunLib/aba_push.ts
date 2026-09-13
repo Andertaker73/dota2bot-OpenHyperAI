@@ -292,8 +292,7 @@ function GetHumanLanePressureLane(): Lane | null {
 function IsEnemyThreatNearOurBase(): boolean {
     const team = GetTeam();
     const ancient = GetAncient(team);
-    if (ancient && jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1) return true;
-
+    const ancientThreat = ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1 : false;
     const highGroundThreat = jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1;
     const barracks = [
         GetBarracks(team, Barracks.TopMelee),
@@ -312,8 +311,9 @@ function IsEnemyThreatNearOurBase(): boolean {
         }
     }
 
-    // Só é verdade quando existe ameaça real à base: Ancient + High Ground ou 2+ barracks sob pressão.
-    return highGroundThreat && barracksThreat >= 1 || barracksThreat >= 2;
+    // Só bloquear push quando há ameaça real à base: Ancient + HG/barracks, ou 2+ barracks sob pressão.
+    // Não transformar qualquer presença perto do Ancien em "base sob ameaça" global.
+    return (ancientThreat && (highGroundThreat || barracksThreat >= 1)) || barracksThreat >= 2;
 }
 
 export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
@@ -351,10 +351,12 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const team = gameState.team;
     const ourAncient = gameState.ourAncient;
     const enemiesAtAncient = ourAncient ? jmz.Utils.CountEnemyHeroesNear(ourAncient.GetLocation(), BASE_ANC_RADIUS) : 0;
-    // Hard override: if our base or any defensive structure is being pressured, do not keep pushing elsewhere.
+    // Hard override: only if there is a real base threat, not just a hero near the Ancient.
     if (IsEnemyThreatNearOurBase()) return BotModeDesire.ExtraLow;
-    // If Ancient under direct pressure → strongly deprioritize pushes
-    if (enemiesAtAncient >= 1) return BotModeDesire.ExtraLow;
+    // Ancient being pressured alone should not fully cancel pushes unless the team is also losing the fight around the base.
+    if (enemiesAtAncient >= 1 && (gameState.aliveEnemyCount >= 3 || jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1)) {
+        return BotModeDesire.ExtraLow;
+    }
 
     // 自定义：己方塔被推（tier≥2 塔血量不满 + 附近有敌人）→ 同样放弃推塔，优先回防
     // 修复：对面 3 人推中二塔时 2 号位带线不 TP 回防（push 渴望度压过 defend）
@@ -374,9 +376,9 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         if (humanLanePressure === lane) {
             nMaxDesire = math.max(nMaxDesire, 0.94);
         } else {
-            // O jogador está pressionando outra rota; não ignorar a ação ativa do time só porque a rota local é diferente.
-            // Mas também não empurrar uma linha completamente paralela quando a base está em risco.
-            nMaxDesire = math.min(nMaxDesire, 0.25);
+            // Pressão do jogador em outra rota deve reduzir o push, mas não congelar todo o time
+            // quando não há ameaça real à base.
+            nMaxDesire = math.min(nMaxDesire, 0.55);
         }
     }
 
