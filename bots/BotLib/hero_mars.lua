@@ -119,6 +119,10 @@ local ArenaOfBloodCastTime = 0
 local nAllyHeroes, nEnemyHeroes
 local botTarget
 
+local function IsMarsSupportRole()
+	return sRole == 'pos_4' or sRole == 'pos_5'
+end
+
 function X.SkillsComplement()
 	if J.CanNotUseAbility(bot) then return end
 
@@ -134,10 +138,15 @@ function X.SkillsComplement()
 	SpearToAllyDesire, SpearToAllyLocation, BlinkLocation = X.ConsiderSpearToAlly()
 	if SpearToAllyDesire > 0
 	then
-		bot:Action_ClearActions(false)
-		bot:ActionQueue_UseAbilityOnLocation(bot.Blink, BlinkLocation)
-		bot:ActionQueue_Delay(0.1)
-		bot:ActionQueue_UseAbilityOnLocation(SpearOfMars, SpearToAllyLocation)
+		if bot.Blink ~= nil and BlinkLocation ~= nil then
+			bot:Action_ClearActions(false)
+			bot:ActionQueue_UseAbilityOnLocation(bot.Blink, BlinkLocation)
+			bot:ActionQueue_Delay(0.1)
+			bot:ActionQueue_UseAbilityOnLocation(SpearOfMars, SpearToAllyLocation)
+			return
+		end
+
+		bot:Action_UseAbilityOnLocation(SpearOfMars, SpearToAllyLocation)
 		return
 	end
 
@@ -542,6 +551,20 @@ function X.ConsiderBulwark()
 		end
 	end
 
+	if IsMarsSupportRole() then
+		for _, allyHero in pairs(bot:GetNearbyHeroes(1000, false, BOT_MODE_NONE)) do
+			if J.IsValidHero(allyHero)
+			and allyHero:WasRecentlyDamagedByAnyHero(2.5)
+			and #J.GetEnemiesNearLoc(allyHero:GetLocation(), 800) >= 1
+			then
+				if Bulwark:GetToggleState() == false then
+					return BOT_ACTION_DESIRE_HIGH
+				end
+				return BOT_ACTION_DESIRE_NONE
+			end
+		end
+	end
+
 	if J.IsGoingOnSomeone(bot)
 	and J.IsInRange(bot, botTarget, nRange)
 	then
@@ -572,6 +595,22 @@ function X.ConsiderArenaOfBlood()
 	local nCastPoint = ArenaOfBlood:GetCastPoint()
 	local nRadius = ArenaOfBlood:GetSpecialValueInt('radius')
 	local nDuration = ArenaOfBlood:GetSpecialValueInt('duration')
+
+	if IsMarsSupportRole() then
+		for _, allyHero in pairs(bot:GetNearbyHeroes(1200, false, BOT_MODE_NONE)) do
+			if J.IsValidHero(allyHero)
+			and allyHero:WasRecentlyDamagedByAnyHero(2.5)
+			and #J.GetEnemiesNearLoc(allyHero:GetLocation(), 700) >= 2
+			and J.GetMP(bot) > 0.35
+			then
+				local nLocationAoE = bot:FindAoELocation(true, true, allyHero:GetLocation(), nCastRange, nRadius, nCastPoint, 0)
+				local nInRangeEnemy = J.GetEnemiesNearLoc(nLocationAoE.targetloc, nRadius)
+				if  nInRangeEnemy ~= nil and #nInRangeEnemy >= 2 then
+					return BOT_ACTION_DESIRE_HIGH, nLocationAoE.targetloc
+				end
+			end
+		end
+	end
 
 	if J.IsInTeamFight(bot, 1300)
 	then
@@ -686,7 +725,7 @@ end
 
 function X.CanSpearToAlly()
     if J.CanCastAbility(SpearOfMars)
-    and J.CanBlinkDagger(bot)
+    and (J.CanBlinkDagger(bot) or IsMarsSupportRole())
     then
         local nManaCost = SpearOfMars:GetManaCost()
 
