@@ -390,6 +390,11 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const enemyAverageLevel = jmz.GetAverageLevel(true);
     const levelAdvantage = gameState.averageLevel - enemyAverageLevel;
     const hasSignificantAdvantage = networthAdvantage > 15000 || levelAdvantage > 2;
+    const isStrongPowerplay = enemyDeadCount >= 1 || networthAdvantage > 8000 || levelAdvantage > 1;
+
+    if (isStrongPowerplay && !IsEnemyThreatNearOurBase()) {
+        nMaxDesire = math.max(nMaxDesire, 0.98);
+    }
 
     if (alliesHere.length <= 1 && gameState.aliveEnemyCount >= 3 && enemyDeadCount < 2 && !hasSignificantAdvantage) {
         return BotModeDesire.None;

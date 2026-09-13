@@ -208,7 +208,23 @@ function ____exports.GetPushDesireHelper(bot, lane)
         ourAncient:GetLocation(),
         BASE_ANC_RADIUS
     ) or 0
-    if IsEnemyThreatNearOurBase() then
+    local damagedOurStructure = false
+    local structures = {
+        GetTower(team, Tower.Top1), GetTower(team, Tower.Top2), GetTower(team, Tower.Top3),
+        GetTower(team, Tower.Mid1), GetTower(team, Tower.Mid2), GetTower(team, Tower.Mid3),
+        GetTower(team, Tower.Bot1), GetTower(team, Tower.Bot2), GetTower(team, Tower.Bot3),
+        GetBarracks(team, Barracks.TopMelee), GetBarracks(team, Barracks.TopRanged),
+        GetBarracks(team, Barracks.MidMelee), GetBarracks(team, Barracks.MidRanged),
+        GetBarracks(team, Barracks.BotMelee), GetBarracks(team, Barracks.BotRanged),
+        ourAncient
+    }
+    for ____, b in ipairs(structures) do
+        if b and IsValidUnit(b) and b:IsAlive() and b:GetHealth() < b:GetMaxHealth() * 0.95 and jmz.Utils.CountEnemyHeroesNear(b:GetLocation(), 1800) >= 1 then
+            damagedOurStructure = true
+            break
+        end
+    end
+    if IsEnemyThreatNearOurBase() or damagedOurStructure then
         return BotModeDesire.ExtraLow
     end
     if enemiesAtAncient >= 1 and (gameState.aliveEnemyCount >= 3 or jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) then
@@ -246,6 +262,10 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local enemyAverageLevel = jmz.GetAverageLevel(true)
     local levelAdvantage = gameState.averageLevel - enemyAverageLevel
     local hasSignificantAdvantage = networthAdvantage > 15000 or levelAdvantage > 2
+    local isStrongPowerplay = enemyDeadCount >= 1 or networthAdvantage > 8000 or levelAdvantage > 1
+    if isStrongPowerplay and not IsEnemyThreatNearOurBase() then
+        nMaxDesire = math.max(nMaxDesire, 0.98)
+    end
     if #alliesHere <= 1 and gameState.aliveEnemyCount >= 3 and enemyDeadCount < 2 and not hasSignificantAdvantage then
         return BotModeDesire.None
     end

@@ -713,10 +713,24 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     // --- Base-first policy ---
     const humanPressureLane = GetHumanLanePressureLane();
+    const damagedOurStructure = [
+        GetTower(nTeam, Tower.Top1), GetTower(nTeam, Tower.Top2), GetTower(nTeam, Tower.Top3),
+        GetTower(nTeam, Tower.Mid1), GetTower(nTeam, Tower.Mid2), GetTower(nTeam, Tower.Mid3),
+        GetTower(nTeam, Tower.Bot1), GetTower(nTeam, Tower.Bot2), GetTower(nTeam, Tower.Bot3),
+        GetBarracks(nTeam, Barracks.TopMelee), GetBarracks(nTeam, Barracks.TopRanged),
+        GetBarracks(nTeam, Barracks.MidMelee), GetBarracks(nTeam, Barracks.MidRanged),
+        GetBarracks(nTeam, Barracks.BotMelee), GetBarracks(nTeam, Barracks.BotRanged),
+        ancient,
+    ].some((b) => {
+        if (!b || !IsValidUnit(b) || !b.IsAlive()) return false;
+        if (b.GetHealth() >= b.GetMaxHealth() * 0.95) return false;
+        return jmz.Utils.CountEnemyHeroesNear(b.GetLocation(), 1800) >= 1;
+    });
     const baseThreatActiveNow =
         IsEnemyThreatNearOurBase() ||
         jmz.Utils.CountEnemyHeroesOnHighGround(gameState.team) >= 1 ||
-        (ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1 : false);
+        (ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1 : false) ||
+        damagedOurStructure;
     const threatenedLane = baseThreatActiveNow ? GetThreatenedLane() : (humanPressureLane !== null ? humanPressureLane : GetThreatenedLane());
 
     // Panic hint (no early return): HG pressure or ancient poke
