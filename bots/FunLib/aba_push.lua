@@ -175,11 +175,26 @@ function ____exports.GetPushDesireHelper(bot, lane)
     autoCleanupCache()
     local gameState = getGlobalGameState()
     local locationState = getGlobalLocationState()
+    local enemyBarracks = {
+        GetBarracks(gameState.enemyTeam, Barracks.TopMelee),
+        GetBarracks(gameState.enemyTeam, Barracks.TopRanged),
+        GetBarracks(gameState.enemyTeam, Barracks.MidMelee),
+        GetBarracks(gameState.enemyTeam, Barracks.MidRanged),
+        GetBarracks(gameState.enemyTeam, Barracks.BotMelee),
+        GetBarracks(gameState.enemyTeam, Barracks.BotRanged)
+    }
+    local enemyBarracksRemaining = 0
+    for ____, b in ipairs(enemyBarracks) do
+        if b and IsValidUnit(b) and b:IsAlive() then
+            enemyBarracksRemaining = enemyBarracksRemaining + 1
+        end
+    end
+    local finishGame = enemyBarracksRemaining <= 4
     local forceGroupPushLevel = math.max(
         1,
         math.min(3, Customize.Force_Group_Push_Level or 1)
     )
-    local nMaxDesire = 0.92 + (forceGroupPushLevel - 1) * 0.06
+    local nMaxDesire = finishGame and 0.99 or 0.92 + (forceGroupPushLevel - 1) * 0.06
     local nSearchRange = 2000
     local botActiveMode = bot:GetActiveMode()
     local nModeDesire = bot:GetActiveModeDesire()
@@ -188,7 +203,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
     hEnemyAncient = gameState.enemyAncient
     local humanLanePressure = GetHumanLanePressureLane()
     if humanLanePressure ~= nil then
-        if humanLanePressure == lane then
+        if humanLanePressure == lane or finishGame then
             nMaxDesire = math.max(nMaxDesire, 0.94)
         else
             nMaxDesire = math.min(nMaxDesire, 0.55)
@@ -262,7 +277,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local enemyAverageLevel = jmz.GetAverageLevel(true)
     local levelAdvantage = gameState.averageLevel - enemyAverageLevel
     local hasSignificantAdvantage = networthAdvantage > 15000 or levelAdvantage > 2
-    local isStrongPowerplay = enemyDeadCount >= 1 or networthAdvantage > 8000 or levelAdvantage > 1
+    local isStrongPowerplay = finishGame or enemyDeadCount >= 1 or networthAdvantage > 8000 or levelAdvantage > 1
     if isStrongPowerplay and not IsEnemyThreatNearOurBase() then
         nMaxDesire = math.max(nMaxDesire, 0.98)
     end
@@ -275,22 +290,22 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local enemyFountain = gameState.team == Team.Radiant and DireFountainTpPoint or RadiantFountainTpPoint
     local laneFront = GetLaneFrontLocation(gameState.team, lane, 0)
     if GetLocationToLocationDistance(laneFront, enemyFountain) < 5000 then
-        local isPowerplayWindow = enemyDeadCount >= 1 or hasSignificantAdvantage
+        local isPowerplayWindow = finishGame or enemyDeadCount >= 1 or hasSignificantAdvantage
         if #alliesHere < 3 or (gameState.aliveAllyCount < gameState.aliveEnemyCount and not isPowerplayWindow) then
-            nMaxDesire = math.min(nMaxDesire, isPowerplayWindow and 0.7 or 0.2)
+            nMaxDesire = math.min(nMaxDesire, finishGame and 0.85 or isPowerplayWindow and 0.7 or 0.2)
         end
     end
     if jmz.GetHP(bot) < 0.5 then
         nMaxDesire = math.min(nMaxDesire, 0.25)
     end
-    if gameState.aliveEnemyCount >= 5 and gameState.aliveAllyCount <= gameState.aliveEnemyCount and not hasSignificantAdvantage and enemyDeadCount < 2 then
+    if not finishGame and gameState.aliveEnemyCount >= 5 and gameState.aliveAllyCount <= gameState.aliveEnemyCount and not hasSignificantAdvantage and enemyDeadCount < 2 then
         nMaxDesire = math.min(nMaxDesire, 0.41)
     end
     local closeEnemies = getCachedEnemiesNearLoc(
         bot:GetLocation(),
         900
     )
-    if #closeEnemies > 0 and #alliesHere >= #closeEnemies and not hasSignificantAdvantage and enemyDeadCount < 2 then
+    if not finishGame and #closeEnemies > 0 and #alliesHere >= #closeEnemies and not hasSignificantAdvantage and enemyDeadCount < 2 then
         nMaxDesire = math.min(nMaxDesire, 0.3)
     end
     if botActiveMode == BotMode.PushTowerTop then
@@ -331,7 +346,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
     if nH > 0 and currentTime <= StartToPushTime then
         return BOT_MODE_DESIRE_EXTRA_LOW
     end
-    if jmz.IsDefending(bot) and nModeDesire >= 0.8 then
+    if not finishGame and jmz.IsDefending(bot) and nModeDesire >= 0.8 then
         nMaxDesire = 0.75
     end
     local human, humanPing = jmz.GetHumanPing()
@@ -356,7 +371,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local aAliveCoreCount = gameState.aliveAllyCoreCount
     local eAliveCoreCount = gameState.aliveEnemyCoreCount
     local hAncient = gameState.ourAncient
-    local nPushDesire = 0.5
+    local nPushDesire = finishGame and 1.2 or 0.5
     local teamAncientLoc = hAncient:GetLocation()
     local nEffAlliesNearAncient = #jmz.GetAlliesNearLoc(teamAncientLoc, 4500) + #jmz.Utils.GetAllyIdsInTpToLocation(teamAncientLoc, 4500)
     local nEnemiesAroundAncient = jmz.GetEnemiesAroundLoc(teamAncientLoc, 4500)
@@ -368,7 +383,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local levelAdvantage = gameState.averageLevel - enemyAverageLevel
     local hasSignificantAdvantage = networthAdvantage > 15000 or levelAdvantage > 2
     local enemyDeadCount = 5 - gameState.aliveEnemyCount
-    local powerplayBonus = 0
+    local powerplayBonus = finishGame and 0.35 or 0
     if enemyDeadCount >= 1 then
         powerplayBonus = RemapValClamped(
             enemyDeadCount,
@@ -397,7 +412,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
     end
     local vEnemyLaneFrontLocation = GetLaneFrontLocation(gameState.enemyTeam, lane, 0)
     local waitForSpells = ____exports.ShouldWaitForImportantItemsSpells(vEnemyLaneFrontLocation)
-    if waitForSpells and eAliveCount >= aAliveCount and eAliveCoreCount >= aAliveCoreCount then
+    if not finishGame and waitForSpells and eAliveCount >= aAliveCount and eAliveCoreCount >= aAliveCoreCount then
         nMaxDesire = math.min(nMaxDesire, 0.5)
     end
     local botTarget = bot:GetAttackTarget()
@@ -567,6 +582,18 @@ function ____exports.WhichLaneToPush(_bot, _lane)
         midLaneScore = midLaneScore / 1.2
     else
         midLaneScore = midLaneScore * 2
+    end
+    local hasLaneWithBuildings = topTier < 4 or midTier < 4 or botTier < 4
+    if hasLaneWithBuildings then
+        if topTier >= 4 then
+            topLaneScore = math.huge
+        end
+        if midTier >= 4 then
+            midLaneScore = math.huge
+        end
+        if botTier >= 4 then
+            botLaneScore = math.huge
+        end
     end
     if topLaneScore < midLaneScore and topLaneScore < botLaneScore then
         return Lane.Top

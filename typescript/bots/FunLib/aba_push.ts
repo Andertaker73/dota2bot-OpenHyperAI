@@ -326,6 +326,17 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const locationState = getGlobalLocationState();
     // const unitState = updateUnitStateCache(); // Not used in this function
 
+    const enemyBarracks = [
+        GetBarracks(gameState.enemyTeam, Barracks.TopMelee),
+        GetBarracks(gameState.enemyTeam, Barracks.TopRanged),
+        GetBarracks(gameState.enemyTeam, Barracks.MidMelee),
+        GetBarracks(gameState.enemyTeam, Barracks.MidRanged),
+        GetBarracks(gameState.enemyTeam, Barracks.BotMelee),
+        GetBarracks(gameState.enemyTeam, Barracks.BotRanged),
+    ];
+    const enemyBarracksRemaining = enemyBarracks.filter(b => b && IsValidUnit(b) && b.IsAlive()).length;
+    const finishGame = enemyBarracksRemaining <= 4;
+
     // OHA MOD 2026/08/30: Customize.Force_Group_Push_Level was documented in general.lua
     // but never actually read anywhere — wire it in. 1: baseline (unchanged), 2-3: raise
     // the desire ceiling and tolerate more of a hero-count disadvantage while grouped.
@@ -334,7 +345,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // OHA MOD 2026/09/06: push deve priorizar o fim de jogo quando há vantagem clara.
     // Reduzir bloqueios artificiais e permitir avanço mesmo com números parecidos se o time
     // estiver em powerplay, com networth/level superiores ou com a base inimiga vulnerável.
-    let nMaxDesire = 0.92 + (forceGroupPushLevel - 1) * 0.06;
+    let nMaxDesire = finishGame ? 0.99 : 0.92 + (forceGroupPushLevel - 1) * 0.06;
     const nSearchRange = 2000;
     const botActiveMode = bot.GetActiveMode();
     const nModeDesire = bot.GetActiveModeDesire();
@@ -373,7 +384,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     const humanLanePressure = GetHumanLanePressureLane();
     if (humanLanePressure !== null) {
-        if (humanLanePressure === lane) {
+        if (humanLanePressure === lane || finishGame) {
             nMaxDesire = math.max(nMaxDesire, 0.94);
         } else {
             // Pressão do jogador em outra rota deve reduzir o push, mas não congelar todo o time
@@ -390,7 +401,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const enemyAverageLevel = jmz.GetAverageLevel(true);
     const levelAdvantage = gameState.averageLevel - enemyAverageLevel;
     const hasSignificantAdvantage = networthAdvantage > 15000 || levelAdvantage > 2;
-    const isStrongPowerplay = enemyDeadCount >= 1 || networthAdvantage > 8000 || levelAdvantage > 1;
+    const isStrongPowerplay = finishGame || enemyDeadCount >= 1 || networthAdvantage > 8000 || levelAdvantage > 1;
 
     if (isStrongPowerplay && !IsEnemyThreatNearOurBase()) {
         nMaxDesire = math.max(nMaxDesire, 0.98);
@@ -407,9 +418,9 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const enemyFountain = gameState.team === Team.Radiant ? DireFountainTpPoint : RadiantFountainTpPoint;
     const laneFront = GetLaneFrontLocation(gameState.team, lane, 0);
     if (GetLocationToLocationDistance(laneFront, enemyFountain) < 5000) {
-        const isPowerplayWindow = enemyDeadCount >= 1 || hasSignificantAdvantage;
+        const isPowerplayWindow = finishGame || enemyDeadCount >= 1 || hasSignificantAdvantage;
         if (alliesHere.length < 3 || (gameState.aliveAllyCount < gameState.aliveEnemyCount && !isPowerplayWindow)) {
-            nMaxDesire = math.min(nMaxDesire, isPowerplayWindow ? 0.7 : 0.2);
+            nMaxDesire = math.min(nMaxDesire, finishGame ? 0.85 : isPowerplayWindow ? 0.7 : 0.2);
         }
     }
     // Reduce desire when low HP
@@ -417,12 +428,12 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         nMaxDesire = math.min(nMaxDesire, 0.25);
     }
     // Só travar em 5v5 sem vantagem real; em powerplay ou em vantagem numérica, o bot deve pressionar.
-    if (gameState.aliveEnemyCount >= 5 && gameState.aliveAllyCount <= gameState.aliveEnemyCount && !hasSignificantAdvantage && enemyDeadCount < 2) {
+    if (!finishGame && gameState.aliveEnemyCount >= 5 && gameState.aliveAllyCount <= gameState.aliveEnemyCount && !hasSignificantAdvantage && enemyDeadCount < 2) {
         nMaxDesire = math.min(nMaxDesire, 0.41);
     }
     // Cap push desire when enemy heroes are very close — bot should fight, not push
     const closeEnemies = getCachedEnemiesNearLoc(bot.GetLocation(), 900);
-    if (closeEnemies.length > 0 && alliesHere.length >= closeEnemies.length && !hasSignificantAdvantage && enemyDeadCount < 2) {
+    if (!finishGame && closeEnemies.length > 0 && alliesHere.length >= closeEnemies.length && !hasSignificantAdvantage && enemyDeadCount < 2) {
         nMaxDesire = math.min(nMaxDesire, 0.3);
     }
 
@@ -479,7 +490,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     // If we are actively defending, cap the max desire slightly lower
-    if (jmz.IsDefending(bot) && nModeDesire >= 0.8) {
+    if (!finishGame && jmz.IsDefending(bot) && nModeDesire >= 0.8) {
         nMaxDesire = 0.75;
     }
 
@@ -509,7 +520,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     const hAncient = gameState.ourAncient;
     // Base push desire calculation - missing function implementation
-    let nPushDesire = 0.5; // Default base desire
+    let nPushDesire = finishGame ? 1.2 : 0.5; // Default base desire
     //   const allyKills = jmz.GetNumOfTeamTotalKills(false) + 1;
     //   const enemyKills = jmz.GetNumOfTeamTotalKills(true) + 1;
     //   const teamKillsRatio = allyKills / enemyKills; // (not used later but retained)
@@ -530,7 +541,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     // POWERPLAY: >=1 enemy dead já deve empurrar mais forte; >=2 remove praticamente o freio
     const enemyDeadCount = 5 - gameState.aliveEnemyCount;
-    let powerplayBonus = 0;
+    let powerplayBonus = finishGame ? 0.35 : 0;
     if (enemyDeadCount >= 1) {
         powerplayBonus = RemapValClamped(enemyDeadCount, 1, 4, 0.3, 1.0);
         nMaxDesire = 0.98;
@@ -553,7 +564,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // If critical items/spells are cooling down near the push location → be cautious
     const vEnemyLaneFrontLocation = GetLaneFrontLocation(gameState.enemyTeam, lane, 0);
     const waitForSpells = ShouldWaitForImportantItemsSpells(vEnemyLaneFrontLocation);
-    if (waitForSpells && eAliveCount >= aAliveCount && eAliveCoreCount >= aAliveCoreCount) {
+    if (!finishGame && waitForSpells && eAliveCount >= aAliveCount && eAliveCoreCount >= aAliveCoreCount) {
         nMaxDesire = Math.min(nMaxDesire, 0.5);
     }
 
@@ -850,6 +861,13 @@ export function WhichLaneToPush(_bot: Unit, _lane: Lane): Lane {
         midLaneScore /= 1.2;
     } else {
         midLaneScore *= 2;
+    }
+
+    const hasLaneWithBuildings = topTier < 4 || midTier < 4 || botTier < 4;
+    if (hasLaneWithBuildings) {
+        if (topTier >= 4) topLaneScore = Number.POSITIVE_INFINITY;
+        if (midTier >= 4) midLaneScore = Number.POSITIVE_INFINITY;
+        if (botTier >= 4) botLaneScore = Number.POSITIVE_INFINITY;
     }
 
     if (topLaneScore < midLaneScore && topLaneScore < botLaneScore) return Lane.Top;
