@@ -917,6 +917,16 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     if botLevel < 3 then
         return BotModeDesire.None
     end
+    local ____ancient_immediateBaseOrHighGroundThreat
+    if ancient then
+        ____ancient_immediateBaseOrHighGroundThreat = jmz.Utils.CountEnemyHeroesNear(
+            ancient:GetLocation(),
+            2200
+        ) >= 1
+    else
+        ____ancient_immediateBaseOrHighGroundThreat = false
+    end
+    local immediateBaseOrHighGroundThreat = ____ancient_immediateBaseOrHighGroundThreat or jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1
     local closeEnemiesDefend = jmz.GetEnemiesNearLoc(
         bot:GetLocation(),
         900
@@ -925,7 +935,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
         bot:GetLocation(),
         900
     )
-    if #closeEnemiesDefend > 0 and #closeAlliesDefend >= #closeEnemiesDefend then
+    if not immediateBaseOrHighGroundThreat and #closeEnemiesDefend > 0 and #closeAlliesDefend >= #closeEnemiesDefend then
         return math.min(0.3, BotModeDesire.Moderate)
     end
     local forceGroupPushLevel = math.max(
@@ -1138,7 +1148,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     ds.weAreStronger = jmz.WeAreStronger(bot, 2500)
     local pos = jmz.GetPosition(bot)
     local bMyLane = bot:GetAssignedLane() == lane
-    if #ds.nInRangeEnemy > 0 or not bMyLane and pos == 1 and gameState.isLaningPhase or jmz.IsDoingRoshan(bot) and #jmz.GetAlliesNearLoc(
+    if (not baseThreatActiveNow and #ds.nInRangeEnemy > 0) or not bMyLane and pos == 1 and gameState.isLaningPhase or jmz.IsDoingRoshan(bot) and #jmz.GetAlliesNearLoc(
         jmz.GetCurrentRoshanLocation(),
         2800
     ) >= 3 or jmz.IsDoingTormentor(bot) and (#jmz.GetAlliesNearLoc(

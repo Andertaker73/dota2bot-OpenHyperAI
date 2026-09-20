@@ -672,10 +672,14 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         return BotModeDesire.None;
     }
 
-    // Cap defend desire when enemy heroes are very close — bot should fight, not defend
+    // Cap defend desire when enemy heroes are very close — bot should fight, not defend.
+    // Do not apply this during base/high-ground threats; in that case fighting nearby
+    // enemies is the defense, and lowering defend desire lets farm/push modes steal control.
+    const immediateBaseOrHighGroundThreat =
+        (ancient ? jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2200) >= 1 : false) || jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1;
     const closeEnemiesDefend = jmz.GetEnemiesNearLoc(bot.GetLocation(), 900);
     const closeAlliesDefend = jmz.GetAlliesNearLoc(bot.GetLocation(), 900);
-    if (closeEnemiesDefend.length > 0 && closeAlliesDefend.length >= closeEnemiesDefend.length) {
+    if (!immediateBaseOrHighGroundThreat && closeEnemiesDefend.length > 0 && closeAlliesDefend.length >= closeEnemiesDefend.length) {
         return math.min(0.3, BotModeDesire.Moderate) as BotModeDesire;
     }
 
@@ -851,7 +855,7 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const pos = jmz.GetPosition(bot);
     const bMyLane = bot.GetAssignedLane() === lane;
     if (
-        ds.nInRangeEnemy.length > 0 ||
+        (!baseThreatActiveNow && ds.nInRangeEnemy.length > 0) ||
         (!bMyLane && pos === 1 && gameState.isLaningPhase) || // keep carry safe early
         (jmz.IsDoingRoshan(bot) && jmz.GetAlliesNearLoc(jmz.GetCurrentRoshanLocation(), 2800).length >= 3) ||
         (jmz.IsDoingTormentor(bot) &&

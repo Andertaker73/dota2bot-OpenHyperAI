@@ -144,8 +144,10 @@ function GetDesireHelper()
 
         -- 守家特判：只要敌人已进我方基地/高地且我方没有大幅劣势，就必须回防。
         -- 这堵住了“敌人压塔/进基地但团队却向 lane 开溜”的失误。
-        local bNoMajorDisadvantage = gameState.aliveAllyCount >= gameState.aliveEnemyCount - 1
-            or (gameState.aliveAllyCount >= 2 and gameState.aliveAllyCount >= gameState.aliveEnemyCount - 2)
+        local nAliveAllyCount = J.GetNumOfAliveHeroes(false)
+        local nAliveEnemyCount = J.GetNumOfAliveHeroes(true)
+        local bNoMajorDisadvantage = nAliveAllyCount >= nAliveEnemyCount - 1
+            or (nAliveAllyCount >= 2 and nAliveAllyCount >= nAliveEnemyCount - 2)
         if nEnemiesNearBase >= 4 and (J.IsLateGame() or bNoMajorDisadvantage) then
             return 1.0
         elseif nEnemiesNearBase >= 2 and bNoMajorDisadvantage then
