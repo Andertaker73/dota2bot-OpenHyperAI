@@ -57,10 +57,10 @@ end
 -- End of Lua Library inline imports
 local ____exports = {}
 local GetHeroNetWorth, GetHeroOffensivePower, NormalizeSores, ItemOffensiveness, NET_WORTH_WEIGHT, OFFENSIVE_POWER_WEIGHT, LEVEL_WEIGHT
-local ____dota = require("bots.ts_libs.dota.index")
+local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
 local UnitType = ____dota.UnitType
 local AttributeType = ____dota.AttributeType
-local ____utils = require("bots.FunLib.utils")
+local ____utils = require(GetScriptDirectory().."/FunLib/utils")
 local IsValidHero = ____utils.IsValidHero
 function GetHeroNetWorth(hero)
     local totalNetWorth = 0

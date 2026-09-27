@@ -150,9 +150,9 @@ local function __TS__ArrayIncludes(self, searchElement, fromIndex)
 end
 -- End of Lua Library inline imports
 local ____exports = {}
-local ____heroes = require("bots.ts_libs.dota.heroes")
+local ____heroes = require(GetScriptDirectory().."/ts_libs/dota/heroes")
 local HeroName = ____heroes.HeroName
-local ____aba_hero_roles_map = require("bots.FunLib.aba_hero_roles_map")
+local ____aba_hero_roles_map = require(GetScriptDirectory().."/FunLib/aba_hero_roles_map")
 local HeroRolesMap = ____aba_hero_roles_map.HeroRolesMap
 local IsRanged = ____aba_hero_roles_map.IsRanged
 local STARTING_ITEMS = {

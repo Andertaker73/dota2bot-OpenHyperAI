@@ -1,17 +1,17 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
-local jmz = require("bots/FunLib/jmz_func")
-local ____dota = require("bots.ts_libs.dota.index")
+local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
+local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
 local BotActionDesire = ____dota.BotActionDesire
 local BotMode = ____dota.BotMode
 local UnitType = ____dota.UnitType
-local ____aba_buff = require("bots.FunLib.aba_buff")
+local ____aba_buff = require(GetScriptDirectory().."/FunLib/aba_buff")
 local hero_is_healing = ____aba_buff.hero_is_healing
-local ____utils = require("bots.FunLib.utils")
+local ____utils = require(GetScriptDirectory().."/FunLib/utils")
 local GetTeamFountainTpPoint = ____utils.GetTeamFountainTpPoint
 local HasAnyEffect = ____utils.HasAnyEffect
 local IsValidHero = ____utils.IsValidHero
 local bot = GetBot()
-local minion = dofile("bots/FunLib/aba_minion")
+local minion = dofile(GetScriptDirectory().."/FunLib/aba_minion")
 local role = jmz.Item.GetRoleItemsBuyList(bot)
 local defaultAbilityBuild = {
     1,

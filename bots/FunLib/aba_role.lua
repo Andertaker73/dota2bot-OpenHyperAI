@@ -1,14 +1,14 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
-local ____dota = require("bots.ts_libs.dota.index")
+local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
 local GameMode = ____dota.GameMode
 local GameState = ____dota.GameState
 local Lane = ____dota.Lane
 local Team = ____dota.Team
-local ____utils = require("bots.FunLib.utils")
+local ____utils = require(GetScriptDirectory().."/FunLib/utils")
 local NumHumanBotPlayersInTeam = ____utils.NumHumanBotPlayersInTeam
-local HeroRolesMap = require("bots.FunLib.aba_hero_roles_map")
-local ____enemy_role_estimation = require("bots.FunLib.enemy_role_estimation")
+local HeroRolesMap = require(GetScriptDirectory().."/FunLib/aba_hero_roles_map")
+local ____enemy_role_estimation = require(GetScriptDirectory().."/FunLib/enemy_role_estimation")
 local GetEnemyPosition = ____enemy_role_estimation.GetEnemyPosition
 ____exports.RoleAssignment = {TEAM_RADIANT = {
     1,

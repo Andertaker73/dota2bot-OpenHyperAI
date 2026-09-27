@@ -534,13 +534,11 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     // Enhanced local threat assessment - consider team advantages
-    const networthAdvantage = gameState.teamNetworth - gameState.enemyNetworth;
-    const enemyAverageLevel = jmz.GetAverageLevel(true);
-    const levelAdvantage = gameState.averageLevel - enemyAverageLevel;
-    const hasSignificantAdvantage = networthAdvantage > 15000 || levelAdvantage > 2;
+    // (networthAdvantage, enemyAverageLevel, levelAdvantage, hasSignificantAdvantage
+    //  e enemyDeadCount já foram declarados no bloco "--- Push safety gates ---"
+    //  acima. Não redeclarar — o TSTL/TS abortam com TS2451.)
 
     // POWERPLAY: >=1 enemy dead já deve empurrar mais forte; >=2 remove praticamente o freio
-    const enemyDeadCount = 5 - gameState.aliveEnemyCount;
     let powerplayBonus = finishGame ? 0.35 : 0;
     if (enemyDeadCount >= 1) {
         powerplayBonus = RemapValClamped(enemyDeadCount, 1, 4, 0.3, 1.0);

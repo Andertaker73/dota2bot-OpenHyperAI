@@ -15,7 +15,7 @@ local ____exports = {}
 -- 2. Dynamically load hero builds from 3rd party sources like dotabuff in game.
 -- 
 -- Please feel very welcome to help us utilize the existing functionality to build more challenging bots!
-local JSON = require("bots.ts_libs.utils.json")
+local JSON = require(GetScriptDirectory().."/ts_libs/utils/json")
 ____exports.Request = __TS__Class()
 local Request = ____exports.Request
 Request.name = "Request"

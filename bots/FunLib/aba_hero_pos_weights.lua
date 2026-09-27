@@ -1,6 +1,6 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
-local ____heroes = require("bots.ts_libs.dota.heroes")
+local ____heroes = require(GetScriptDirectory().."/ts_libs/dota/heroes")
 local HeroName = ____heroes.HeroName
 local HeroPositions = {
     [HeroName.Abaddon] = {

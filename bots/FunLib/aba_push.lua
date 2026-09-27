@@ -24,8 +24,8 @@ end
 -- End of Lua Library inline imports
 local ____exports = {}
 local updateGameStateCache, updateLocationStateCache, updateUnitStateCache, GetHumanLanePressureLane, IsEnemyThreatNearOurBase, presence_adjust, Customize, pingTimeDelta, StartToPushTime, BOT_MODE_DESIRE_EXTRA_LOW, hEnemyAncient, PUSH_CACHE_TTL, gameStateCache, locationStateCache, unitStateCache, BASE_ANC_RADIUS
-local jmz = require("bots/FunLib/jmz_func")
-local ____dota = require("bots.ts_libs.dota.index")
+local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
+local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
 local Barracks = ____dota.Barracks
 local BotMode = ____dota.BotMode
 local BotModeDesire = ____dota.BotModeDesire
@@ -34,13 +34,13 @@ local Lane = ____dota.Lane
 local Team = ____dota.Team
 local Tower = ____dota.Tower
 local UnitType = ____dota.UnitType
-local ____utils = require("bots.FunLib.utils")
+local ____utils = require(GetScriptDirectory().."/FunLib/utils")
 local IsValidUnit = ____utils.IsValidUnit
 local GetLocationToLocationDistance = ____utils.GetLocationToLocationDistance
 local RadiantFountainTpPoint = ____utils.RadiantFountainTpPoint
 local DireFountainTpPoint = ____utils.DireFountainTpPoint
 local NonTier1Towers = ____utils.NonTier1Towers
-local ____global_cache = require("bots.FunLib.global_cache")
+local ____global_cache = require(GetScriptDirectory().."/FunLib/global_cache")
 local getGlobalGameState = ____global_cache.getGlobalGameState
 local getGlobalLocationState = ____global_cache.getGlobalLocationState
 local getCachedAlliesNearLoc = ____global_cache.getCachedAlliesNearLoc
@@ -424,11 +424,6 @@ function ____exports.GetPushDesireHelper(bot, lane)
     if nEnemiesAroundAncient > 0 and nEffAlliesNearAncient < 1 then
         nMaxDesire = 0.65
     end
-    local networthAdvantage = gameState.teamNetworth - gameState.enemyNetworth
-    local enemyAverageLevel = jmz.GetAverageLevel(true)
-    local levelAdvantage = gameState.averageLevel - enemyAverageLevel
-    local hasSignificantAdvantage = networthAdvantage > 15000 or levelAdvantage > 2
-    local enemyDeadCount = 5 - gameState.aliveEnemyCount
     local powerplayBonus = finishGame and 0.35 or 0
     if enemyDeadCount >= 1 then
         powerplayBonus = RemapValClamped(
@@ -772,7 +767,7 @@ function ____exports.IsAnyTargetBackdooredAt(_bot, lane)
     end
     return not not (nearest and ____exports.HasBackdoorProtect(nearest))
 end
-Customize = require("bots.Customize.general")
+Customize = require(GetScriptDirectory().."/Customize/general")
 local ____Customize_1 = Customize
 local ____Customize_Enable_0
 if Customize.Enable then
