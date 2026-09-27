@@ -630,12 +630,65 @@ function X.ConsiderLilShredder()
 end
 
 function X.ConsiderMortimerKisses()
+    local bChanneling = bot:HasModifier('modifier_snapfire_mortimer_kisses')
+    local nMinDistance = MortimerKisses:GetSpecialValueInt('min_range')
+
+    ----------------------------------------------------------------
+    -- CASO 1: Canalizando — re-mira contínua em direção ao alvo.
+    -- Não dependemos de J.IsGoingOnSomeone (retorna false em canal).
+    ----------------------------------------------------------------
+    if bChanneling
+    then
+        -- Previsão curta: cada salva leva ~0.1s pra sair do canhão.
+        local nLookahead = 0.1
+
+        -- 1) Alvo "próprio" do bot (o que ele estava atacando antes de canalizar)
+        local botTarget = J.GetProperTarget(bot)
+        if J.IsValidHero(botTarget)
+        and J.CanCastOnNonMagicImmune(botTarget)
+        and not J.IsSuspiciousIllusion(botTarget)
+        and not J.IsInRange(bot, botTarget, nMinDistance)
+        and not botTarget:HasModifier('modifier_abaddon_borrowed_time')
+        and not botTarget:HasModifier('modifier_dazzle_shallow_grave')
+        and not botTarget:HasModifier('modifier_necrolyte_reapers_scythe')
+        and not botTarget:HasModifier('modifier_oracle_false_promise_timer')
+        and not botTarget:HasModifier('modifier_templar_assassin_refraction_absorb')
+        then
+            return BOT_ACTION_DESIRE_HIGH,
+                   botTarget:GetExtrapolatedLocation(nLookahead)
+        end
+
+        -- 2) Senão, re-adquire o inimigo mais próximo em range que ainda possa ser alvo
+        local nInRangeEnemy = J.GetNearbyHeroes(bot, 1600, true, BOT_MODE_NONE)
+        for _, enemyHero in pairs(nInRangeEnemy)
+        do
+            if J.IsValidHero(enemyHero)
+            and J.CanCastOnNonMagicImmune(enemyHero)
+            and not J.IsInRange(bot, enemyHero, nMinDistance)
+            and not J.IsSuspiciousIllusion(enemyHero)
+            and not enemyHero:HasModifier('modifier_abaddon_borrowed_time')
+            and not enemyHero:HasModifier('modifier_dazzle_shallow_grave')
+            and not enemyHero:HasModifier('modifier_necrolyte_reapers_scythe')
+            and not enemyHero:HasModifier('modifier_oracle_false_promise_timer')
+            and not enemyHero:HasModifier('modifier_templar_assassin_refraction_absorb')
+            then
+                return BOT_ACTION_DESIRE_HIGH,
+                       enemyHero:GetExtrapolatedLocation(nLookahead)
+            end
+        end
+
+        -- 3) Sem alvo visível — devolve NONE. O SkillsComplement
+        -- deixa o canal seguir até o fim (as salvas batem no último ponto).
+        return BOT_ACTION_DESIRE_NONE, 0
+    end
+
+    ----------------------------------------------------------------
+    -- CASO 2: Não está canalizando — lógica original de INICIAR o ult.
+    ----------------------------------------------------------------
     if not MortimerKisses:IsFullyCastable()
     then
         return BOT_ACTION_DESIRE_NONE, 0
     end
-
-    local nMinDistance = MortimerKisses:GetSpecialValueInt('min_range')
 
 	if J.IsGoingOnSomeone(bot)
 	then

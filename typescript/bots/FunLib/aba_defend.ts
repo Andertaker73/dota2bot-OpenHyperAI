@@ -23,7 +23,6 @@ const MAX_DESIRE_CAP = 0.98;
 
 // Base threat (Ancient defense)
 const BASE_THREAT_RADIUS = 2600;
-const BASE_LEASH_OUTBOUND = 1200;
 const BASE_THREAT_HOLD = 8.0; // 自定义：4→8 秒，给队友 TP/走路到场时间（防"人来不齐就散"）
 
 // Perf: cache intervals (seconds)
@@ -760,7 +759,7 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const team = gameState.team;
     const ancient = gameState.ourAncient;
 
-    // NOVO: indicador unificado 0..3 (fonte de verdade)
+    // Indicador unificado 0..3 (fonte de verdade)
     const baseThreatLevel = GetBaseThreatLevel();
     const baseThreatActiveNow = baseThreatLevel >= 2;
     const baseThreatSevere = baseThreatLevel >= 3;
@@ -966,10 +965,14 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         }
     }
 
-    // Não abandonar defesa por chase de low-HP
-    const botTarget = jmz.GetProperTarget(bot);
-    if (jmz.IsValidHero(botTarget) && jmz.GetHP(botTarget) < 0.6 && jmz.GetHP(bot) > jmz.GetHP(botTarget) && GetUnitToUnitDistance(bot, botTarget) < 1500) {
-        nDefendDesire = nDefendDesire * 0.4;
+    // Não abandonar defesa por chase de low-HP — OHA MOD: gating adicional
+    // quando a base está sob ameaça real. Antes, ver um alvo low-HP perto
+    // derrubava o desejo para 40%, e o bot saía da defesa no meio do cerco.
+    if (!baseThreatActiveNow) {
+        const botTarget = jmz.GetProperTarget(bot);
+        if (jmz.IsValidHero(botTarget) && jmz.GetHP(botTarget) < 0.6 && jmz.GetHP(bot) > jmz.GetHP(botTarget) && GetUnitToUnitDistance(bot, botTarget) < 1500) {
+            nDefendDesire = nDefendDesire * 0.4;
+        }
     }
 
     // Sanidade TP/distância — pula decay quando a base está ameaçada
@@ -1034,21 +1037,33 @@ export function DefendThink(bot: Unit, lane: Lane) {
         if (jmz.CanNotUseAction(bot)) return;
         if (jmz.Utils.IsBotThinkingMeaningfulAction(bot, Customize.ThinkLess, "defend")) return;
     }
-        // ---- EMERGÊNCIA: Ancient apanhando e estamos longe → TP/anda pra base AGORA ----
+
+    // ---- EMERGÊNCIA: base sob ameaça real (T3/rax/Ancient) e estamos longe → TP/anda pra LÁ ----
+    // OHA MOD: antes mandava o bot pro Ancient mesmo com cerco em T3/rax, o que fazia ele
+    // "chegar e sair" — o bot TPava, então entrava no bloco de base-defense (abaixo) que
+    // ancorava no Ancient, ficava a >1200 dele, e era forçado a andar pra trás. Agora
+    // miramos no prédio realmente ameaçado desta lane.
     {
-        const anc = GetAncient(nTeam);
-        if (anc && IsValidBuildingTarget(anc)) {
-            const enemiesAtAncient = jmz.Utils.CountEnemyHeroesNear(anc.GetLocation(), 2400);
-            const distToAncient = GetUnitToUnitDistance(bot, anc);
-            if (enemiesAtAncient >= 1 && distToAncient > 1800) {
-                const dest = add(jmz.AdjustLocationWithOffsetTowardsFountain(anc.GetLocation(), 300), jmz.RandomForwardVector(150));
-                const tp = jmz.GetItem2(bot, "item_tpscroll");
-                if (jmz.CanCastAbility(tp)) {
-                    bot.Action_UseAbilityOnLocation(tp, dest);
+        const baseThreat = GetBaseThreatLevel();
+        if (baseThreat >= 2) {
+            const [threatBld] = GetFurthestBuildingOnLane(lane);
+            const anc = GetAncient(nTeam);
+            const targetLoc = IsValidBuildingTarget(threatBld)
+                ? threatBld.GetLocation()
+                : (anc && IsValidBuildingTarget(anc) ? anc.GetLocation() : null);
+
+            if (targetLoc) {
+                const distToTarget = GetUnitToLocationDistance(bot, targetLoc);
+                if (distToTarget > 2000) {
+                    const dest = add(jmz.AdjustLocationWithOffsetTowardsFountain(targetLoc, 250), jmz.RandomForwardVector(150));
+                    const tp = jmz.GetItem2(bot, "item_tpscroll");
+                    if (jmz.CanCastAbility(tp)) {
+                        bot.Action_UseAbilityOnLocation(tp, dest);
+                        return;
+                    }
+                    bot.Action_MoveToLocation(dest);
                     return;
                 }
-                bot.Action_MoveToLocation(dest);
-                return;
             }
         }
     }
@@ -1071,51 +1086,60 @@ export function DefendThink(bot: Unit, lane: Lane) {
     }
 
     const ds = getDefendState(bot);
-    if (bot.WasRecentlyDamagedByAnyHero(5) && pathEnemies.length > ds.nInRangeEnemy.length) {
-        // step back toward fountain a bit, then re-eval next tick
+
+    // Flinch: recuar quando tomamos dano de herói E estamos em desvantagem visível.
+    // OHA MOD: NÃO fazer flinch quando a base está sob ameaça real — o objetivo é
+    // segurar o prédio, então mesmo sob foco o bot continua lá.
+    const inBaseThreatNow = IsBaseThreatActive();
+    if (!inBaseThreatNow && bot.WasRecentlyDamagedByAnyHero(5) && pathEnemies.length > ds.nInRangeEnemy.length) {
         const safe = jmz.AdjustLocationWithOffsetTowardsFountain(bot.GetLocation(), 700);
         bot.Action_MoveToLocation(add(safe, jmz.RandomForwardVector(120)));
         return;
     }
 
-    // Base-defense leash: anchor near Ancient, don't drift out
-    if (IsBaseThreatActive()) {
-        const ancient = GetAncient(nTeam);
-        const anchor = jmz.AdjustLocationWithOffsetTowardsFountain(ancient.GetLocation(), 200);
+    // ---- Defesa ativa da base: ancorar no PRÉDIO AMEAÇADO e engajar ----
+    // OHA MOD 2026/09/27: o bloco antigo ancorava o bot no Ancient (200 unidades na
+    // direção da fonte) e forçava retorno ao Ancient sempre que o bot ficava >1200 dele.
+    // Isso fazia o bot "chegar e sair" de T3/rax: ele TPava pro T3, entrava neste bloco,
+    // via que estava longe do Ancient, e andava de volta — sem nunca engajar o invasor.
+    //
+    // Agora:
+    //   1. A âncora é o PRÉDIO AMEAÇADO desta lane (T3 > rax > Ancient).
+    //   2. Se houver herói vivo por perto, o bot ATACA ou AVANÇA sobre ele.
+    //   3. Sem herói visível, o bot fica no prédio (não no Ancient) e segura posição.
+    if (inBaseThreatNow) {
+        const [threatBld] = GetFurthestBuildingOnLane(lane);
+        const threatAnchor = IsValidBuildingTarget(threatBld)
+            ? threatBld.GetLocation()
+            : GetLaneFrontLocation(nTeam, lane, 0);
 
-        const toAnc = GetUnitToUnitDistance(bot, ancient);
-        if (toAnc > BASE_LEASH_OUTBOUND) {
-            const moveLoc = add(anchor, jmz.RandomForwardVector(250));
-            bot.Action_MoveToLocation(moveLoc);
+        // 1) Inimigos VIVOS e visíveis: engajar diretamente
+        const liveEnemies = bot.GetNearbyHeroes(1600, true, BotMode.None);
+        for (const e of liveEnemies) {
+            if (!jmz.IsValidHero(e) || jmz.IsSuspiciousIllusion(e)) continue;
+            if (jmz.IsInRange(bot, e, bot.GetAttackRange() + 250)) {
+                bot.Action_AttackUnit(e, true);
+                return;
+            }
+            // Fora de alcance: avançar sobre o inimigo (não sobre o Ancient)
+            bot.Action_MoveToLocation(e.GetLocation());
             return;
         }
 
-        const nSearchRange = 1400;
-        const ancientLoc = ancient.GetLocation();
-        // Use a simpler cache approach for Lua compatibility
-        const enemiesCacheKey = `ancientEnemies_${Math.floor(now * 5)}`;
-        let enemiesNear: Unit[];
-        if (!(jmz.Utils as any)[enemiesCacheKey]) {
-            enemiesNear = jmz.GetEnemiesNearLoc(ancientLoc, nSearchRange);
-            (jmz.Utils as any)[enemiesCacheKey] = enemiesNear;
-            // Clean old cache entries
-            const utils = jmz.Utils as any;
-            Object.keys(utils).forEach(key => {
-                if (typeof key === "string" && key.startsWith("ancientEnemies_") && key !== enemiesCacheKey) {
-                    delete utils[key];
-                }
-            });
-        } else {
-            enemiesNear = (jmz.Utils as any)[enemiesCacheKey];
-        }
-
-        if (jmz.IsValidHero(enemiesNear[0]) && jmz.IsInRange(bot, enemiesNear[0], nSearchRange)) {
-            bot.Action_AttackUnit(enemiesNear[0], true);
+        // 2) Sem herói vivo visível: usar last-seen como referência (fog parcial)
+        const seenEnemies = jmz.GetLastSeenEnemiesNearLoc(threatAnchor, 1600);
+        if (seenEnemies.length > 0) {
+            bot.Action_MoveToLocation(add(threatAnchor, jmz.RandomForwardVector(200)));
             return;
         }
 
-        const attackMoveLoc = add(anchor, jmz.RandomForwardVector(300));
-        bot.Action_AttackMove(attackMoveLoc);
+        // 3) Sem inimigo nenhum: ficar no prédio ameaçado, NÃO voltar pro Ancient
+        const distToAnchor = GetUnitToLocationDistance(bot, threatAnchor);
+        if (distToAnchor > 400) {
+            bot.Action_MoveToLocation(add(threatAnchor, jmz.RandomForwardVector(200)));
+            return;
+        }
+        bot.Action_AttackMove(add(threatAnchor, jmz.RandomForwardVector(300)));
         return;
     }
 
