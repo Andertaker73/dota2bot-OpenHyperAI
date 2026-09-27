@@ -23,9 +23,9 @@ local function __TS__StringIncludes(self, searchString, position)
 end
 -- End of Lua Library inline imports
 local ____exports = {}
-local updateGameStateCache, updateLocationStateCache, updateUnitStateCache, presence_adjust, Customize, pingTimeDelta, StartToPushTime, BOT_MODE_DESIRE_EXTRA_LOW, hEnemyAncient, PUSH_CACHE_TTL, gameStateCache, locationStateCache, unitStateCache, BASE_ANC_RADIUS
-local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
-local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
+local updateGameStateCache, updateLocationStateCache, updateUnitStateCache, GetHumanLanePressureLane, IsEnemyThreatNearOurBase, presence_adjust, Customize, pingTimeDelta, StartToPushTime, BOT_MODE_DESIRE_EXTRA_LOW, hEnemyAncient, PUSH_CACHE_TTL, gameStateCache, locationStateCache, unitStateCache, BASE_ANC_RADIUS
+local jmz = require("bots/FunLib/jmz_func")
+local ____dota = require("bots.ts_libs.dota.index")
 local Barracks = ____dota.Barracks
 local BotMode = ____dota.BotMode
 local BotModeDesire = ____dota.BotModeDesire
@@ -34,13 +34,13 @@ local Lane = ____dota.Lane
 local Team = ____dota.Team
 local Tower = ____dota.Tower
 local UnitType = ____dota.UnitType
-local ____utils = require(GetScriptDirectory().."/FunLib/utils")
+local ____utils = require("bots.FunLib.utils")
 local IsValidUnit = ____utils.IsValidUnit
 local GetLocationToLocationDistance = ____utils.GetLocationToLocationDistance
 local RadiantFountainTpPoint = ____utils.RadiantFountainTpPoint
 local DireFountainTpPoint = ____utils.DireFountainTpPoint
 local NonTier1Towers = ____utils.NonTier1Towers
-local ____global_cache = require(GetScriptDirectory().."/FunLib/global_cache")
+local ____global_cache = require("bots.FunLib.global_cache")
 local getGlobalGameState = ____global_cache.getGlobalGameState
 local getGlobalLocationState = ____global_cache.getGlobalLocationState
 local getCachedAlliesNearLoc = ____global_cache.getCachedAlliesNearLoc
@@ -125,32 +125,80 @@ function updateUnitStateCache()
     }
     return unitStateCache
 end
-local function GetHumanLanePressureLane()
+function GetHumanLanePressureLane()
     local team = GetTeam()
     local enemyTeam = GetOpposingTeam()
     local lanes = {Lane.Top, Lane.Mid, Lane.Bot}
-    for i = 1, #GetTeamPlayers(team) do
-        local member = GetTeamMember(i)
-        if member and member:IsAlive() and member:IsHero() and not member:IsBot() and not member:IsIllusion() then
-            for ____, laneId in ipairs(lanes) do
-                local laneFront = GetLaneFrontLocation(enemyTeam, laneId, 0)
-                local enemyTower = laneId == Lane.Top and GetTower(enemyTeam, Tower.Top1) or laneId == Lane.Mid and GetTower(enemyTeam, Tower.Mid1) or GetTower(enemyTeam, Tower.Bot1)
-                local enemyPriorityTower = laneId == Lane.Top and GetTower(enemyTeam, Tower.Top2) or laneId == Lane.Mid and GetTower(enemyTeam, Tower.Mid2) or GetTower(enemyTeam, Tower.Bot2)
-                local nearLaneFront = GetUnitToLocationDistance(member, laneFront) < 2200
-                local nearPriorityTower = enemyTower and jmz.IsValidBuilding(enemyTower) and GetUnitToUnitDistance(member, enemyTower) < 2200
-                local nearSecondTower = enemyPriorityTower and jmz.IsValidBuilding(enemyPriorityTower) and GetUnitToUnitDistance(member, enemyPriorityTower) < 2400
-                if (nearLaneFront or nearPriorityTower or nearSecondTower) and member:GetAssignedLane() == laneId then
-                    return laneId
+    do
+        local i = 1
+        while i <= #GetTeamPlayers(team) do
+            do
+                local __continue16
+                repeat
+                    local member = GetTeamMember(i)
+                    if not member or member:IsBot() or not member:IsAlive() or not member:IsHero() or member:IsIllusion() then
+                        __continue16 = true
+                        break
+                    end
+                    for ____, laneId in ipairs(lanes) do
+                        local laneFront = GetLaneFrontLocation(enemyTeam, laneId, 0)
+                        local ____temp_3
+                        if laneId == Lane.Top then
+                            ____temp_3 = GetTower(enemyTeam, Tower.Top1)
+                        else
+                            local ____temp_2
+                            if laneId == Lane.Mid then
+                                ____temp_2 = GetTower(enemyTeam, Tower.Mid1)
+                            else
+                                ____temp_2 = GetTower(enemyTeam, Tower.Bot1)
+                            end
+                            ____temp_3 = ____temp_2
+                        end
+                        local enemyTower = ____temp_3
+                        local ____temp_5
+                        if laneId == Lane.Top then
+                            ____temp_5 = GetTower(enemyTeam, Tower.Top2)
+                        else
+                            local ____temp_4
+                            if laneId == Lane.Mid then
+                                ____temp_4 = GetTower(enemyTeam, Tower.Mid2)
+                            else
+                                ____temp_4 = GetTower(enemyTeam, Tower.Bot2)
+                            end
+                            ____temp_5 = ____temp_4
+                        end
+                        local enemyPriorityTower = ____temp_5
+                        local nearLaneFront = GetUnitToLocationDistance(member, laneFront) < 2200
+                        local nearPriorityTower = enemyTower and jmz.IsValidBuilding(enemyTower) and GetUnitToUnitDistance(member, enemyTower) < 2200
+                        local nearSecondTower = enemyPriorityTower and jmz.IsValidBuilding(enemyPriorityTower) and GetUnitToUnitDistance(member, enemyPriorityTower) < 2400
+                        if (nearLaneFront or nearPriorityTower or nearSecondTower) and member:GetAssignedLane() == laneId then
+                            return laneId
+                        end
+                    end
+                    __continue16 = true
+                until true
+                if not __continue16 then
+                    break
                 end
             end
+            i = i + 1
         end
     end
     return nil
 end
-local function IsEnemyThreatNearOurBase()
+function IsEnemyThreatNearOurBase()
     local team = GetTeam()
     local ancient = GetAncient(team)
-    local ancientThreat = ancient and jmz.Utils.CountEnemyHeroesNear(ancient:GetLocation(), 2200) >= 1 or false
+    local ____ancient_6
+    if ancient then
+        ____ancient_6 = jmz.Utils.CountEnemyHeroesNear(
+            ancient:GetLocation(),
+            2200
+        ) >= 1
+    else
+        ____ancient_6 = false
+    end
+    local ancientThreat = ____ancient_6
     local highGroundThreat = jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1
     local barracks = {
         GetBarracks(team, Barracks.TopMelee),
@@ -162,11 +210,27 @@ local function IsEnemyThreatNearOurBase()
     }
     local barracksThreat = 0
     for ____, b in ipairs(barracks) do
-        if b and IsValidUnit(b) and b:IsAlive() and jmz.Utils.CountEnemyHeroesNear(b:GetLocation(), 1700) >= 1 then
-            barracksThreat = barracksThreat + 1
+        do
+            local __continue22
+            repeat
+                if not b or not IsValidUnit(b) or not b:IsAlive() then
+                    __continue22 = true
+                    break
+                end
+                if jmz.Utils.CountEnemyHeroesNear(
+                    b:GetLocation(),
+                    1700
+                ) >= 1 then
+                    barracksThreat = barracksThreat + 1
+                end
+                __continue22 = true
+            until true
+            if not __continue22 then
+                break
+            end
         end
     end
-    return (ancientThreat and (highGroundThreat or barracksThreat >= 1)) or barracksThreat >= 2
+    return ancientThreat and (highGroundThreat or barracksThreat >= 1) or barracksThreat >= 2
 end
 function ____exports.GetPushDesireHelper(bot, lane)
     if bot.laneToPush == nil then
@@ -183,12 +247,10 @@ function ____exports.GetPushDesireHelper(bot, lane)
         GetBarracks(gameState.enemyTeam, Barracks.BotMelee),
         GetBarracks(gameState.enemyTeam, Barracks.BotRanged)
     }
-    local enemyBarracksRemaining = 0
-    for ____, b in ipairs(enemyBarracks) do
-        if b and IsValidUnit(b) and b:IsAlive() then
-            enemyBarracksRemaining = enemyBarracksRemaining + 1
-        end
-    end
+    local enemyBarracksRemaining = #__TS__ArrayFilter(
+        enemyBarracks,
+        function(____, b) return b and IsValidUnit(b) and b:IsAlive() end
+    )
     local finishGame = enemyBarracksRemaining <= 4
     local forceGroupPushLevel = math.max(
         1,
@@ -201,14 +263,6 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local bMyLane = bot:GetAssignedLane() == lane
     local isMidOrEarlyGame = gameState.isEarlyGame or gameState.isMidGame
     hEnemyAncient = gameState.enemyAncient
-    local humanLanePressure = GetHumanLanePressureLane()
-    if humanLanePressure ~= nil then
-        if humanLanePressure == lane or finishGame then
-            nMaxDesire = math.max(nMaxDesire, 0.94)
-        else
-            nMaxDesire = math.min(nMaxDesire, 0.55)
-        end
-    end
     local alliesHere = getCachedAlliesNearLoc(
         bot:GetLocation(),
         1600
@@ -223,23 +277,7 @@ function ____exports.GetPushDesireHelper(bot, lane)
         ourAncient:GetLocation(),
         BASE_ANC_RADIUS
     ) or 0
-    local damagedOurStructure = false
-    local structures = {
-        GetTower(team, Tower.Top1), GetTower(team, Tower.Top2), GetTower(team, Tower.Top3),
-        GetTower(team, Tower.Mid1), GetTower(team, Tower.Mid2), GetTower(team, Tower.Mid3),
-        GetTower(team, Tower.Bot1), GetTower(team, Tower.Bot2), GetTower(team, Tower.Bot3),
-        GetBarracks(team, Barracks.TopMelee), GetBarracks(team, Barracks.TopRanged),
-        GetBarracks(team, Barracks.MidMelee), GetBarracks(team, Barracks.MidRanged),
-        GetBarracks(team, Barracks.BotMelee), GetBarracks(team, Barracks.BotRanged),
-        ourAncient
-    }
-    for ____, b in ipairs(structures) do
-        if b and IsValidUnit(b) and b:IsAlive() and b:GetHealth() < b:GetMaxHealth() * 0.95 and jmz.Utils.CountEnemyHeroesNear(b:GetLocation(), 1800) >= 1 then
-            damagedOurStructure = true
-            break
-        end
-    end
-    if IsEnemyThreatNearOurBase() or damagedOurStructure then
+    if IsEnemyThreatNearOurBase() then
         return BotModeDesire.ExtraLow
     end
     if enemiesAtAncient >= 1 and (gameState.aliveEnemyCount >= 3 or jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) then
@@ -247,15 +285,15 @@ function ____exports.GetPushDesireHelper(bot, lane)
     end
     for ____, slot in ipairs(NonTier1Towers) do
         do
-            local __continue18
+            local __continue31
             repeat
                 local tw = GetTower(team, slot)
                 if not tw or not IsValidUnit(tw) or not tw:IsAlive() then
-                    __continue18 = true
+                    __continue31 = true
                     break
                 end
                 if tw:GetHealth() >= tw:GetMaxHealth() then
-                    __continue18 = true
+                    __continue31 = true
                     break
                 end
                 local enemiesAtTower = jmz.GetLastSeenEnemiesNearLoc(
@@ -265,11 +303,19 @@ function ____exports.GetPushDesireHelper(bot, lane)
                 if #enemiesAtTower >= 2 then
                     return BotModeDesire.ExtraLow
                 end
-                __continue18 = true
+                __continue31 = true
             until true
-            if not __continue18 then
+            if not __continue31 then
                 break
             end
+        end
+    end
+    local humanLanePressure = GetHumanLanePressureLane()
+    if humanLanePressure ~= nil then
+        if humanLanePressure == lane or finishGame then
+            nMaxDesire = math.max(nMaxDesire, 0.94)
+        else
+            nMaxDesire = math.min(nMaxDesire, 0.55)
         end
     end
     local enemyDeadCount = 5 - gameState.aliveEnemyCount
@@ -291,8 +337,8 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local laneFront = GetLaneFrontLocation(gameState.team, lane, 0)
     if GetLocationToLocationDistance(laneFront, enemyFountain) < 5000 then
         local isPowerplayWindow = finishGame or enemyDeadCount >= 1 or hasSignificantAdvantage
-        if #alliesHere < 3 or (gameState.aliveAllyCount < gameState.aliveEnemyCount and not isPowerplayWindow) then
-            nMaxDesire = math.min(nMaxDesire, finishGame and 0.85 or isPowerplayWindow and 0.7 or 0.2)
+        if #alliesHere < 3 or gameState.aliveAllyCount < gameState.aliveEnemyCount and not isPowerplayWindow then
+            nMaxDesire = math.min(nMaxDesire, finishGame and 0.85 or (isPowerplayWindow and 0.7 or 0.2))
         end
     end
     if jmz.GetHP(bot) < 0.5 then
@@ -726,7 +772,7 @@ function ____exports.IsAnyTargetBackdooredAt(_bot, lane)
     end
     return not not (nearest and ____exports.HasBackdoorProtect(nearest))
 end
-Customize = require(GetScriptDirectory().."/Customize/general")
+Customize = require("bots.Customize.general")
 local ____Customize_1 = Customize
 local ____Customize_Enable_0
 if Customize.Enable then
@@ -1004,24 +1050,24 @@ function ____exports.PushThink(bot, lane)
     local towerDistanceToFountain = bTowerNearby and GetUnitToLocationDistance(nEnemyTowers[1], vTeamFountain) or 0
     for ____, creep in ipairs(nCreeps) do
         do
-            local __continue135
+            local __continue157
             repeat
                 if not jmz.IsValid(creep) or not jmz.CanBeAttacked(creep) then
-                    __continue135 = true
+                    __continue157 = true
                     break
                 end
                 if jmz.IsTormentor(creep) or jmz.IsRoshan(creep) then
-                    __continue135 = true
+                    __continue157 = true
                     break
                 end
                 if bTowerNearby and GetUnitToLocationDistance(creep, vTeamFountain) >= towerDistanceToFountain then
-                    __continue135 = true
+                    __continue157 = true
                     break
                 end
                 bot:Action_AttackUnit(creep, true)
                 return
             until true
-            if not __continue135 then
+            if not __continue157 then
                 break
             end
         end

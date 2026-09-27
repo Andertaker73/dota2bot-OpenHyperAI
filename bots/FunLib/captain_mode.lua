@@ -80,12 +80,12 @@ end
 -- End of Lua Library inline imports
 local ____exports = {}
 local BansHero, PicksHero, AlreadyInTable, IsUnavailableHero, RandomHero, WasHumansDonePicking, SelectsHero, GetTeamSelectedHeroes, UpdateSelectedHeroes, FillLaneAssignmentTable, UnImplementedHeroes, ListPickedHeroes, AllHeroesSelected, BanCycle, PickCycle, UnavailableHeroes, HeroLanes, allBotHeroes, humanPick, RoleAssignment
-local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
+local ____dota = require("bots.ts_libs.dota.index")
 local GameState = ____dota.GameState
 local HeroPickState = ____dota.HeroPickState
 local Lane = ____dota.Lane
 local Team = ____dota.Team
-local ____aba_role = require(GetScriptDirectory().."/FunLib/aba_role")
+local ____aba_role = require("bots.FunLib.aba_role")
 local CanBeOfflaner = ____aba_role.CanBeOfflaner
 local CanBeMidlaner = ____aba_role.CanBeMidlaner
 local CanBeSupport = ____aba_role.CanBeSupport

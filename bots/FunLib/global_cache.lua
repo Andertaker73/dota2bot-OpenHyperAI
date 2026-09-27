@@ -185,10 +185,10 @@ local function __TS__ArrayForEach(self, callbackFn, thisArg)
 end
 -- End of Lua Library inline imports
 local ____exports = {}
-local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
+local ____dota = require("bots.ts_libs.dota.index")
 local Lane = ____dota.Lane
 local UnitType = ____dota.UnitType
-local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
+local jmz = require("bots/FunLib/jmz_func")
 local globalCache = {}
 local GLOBAL_CACHE_TTL = 0.5
 local globalGameStateCache = nil
@@ -235,7 +235,7 @@ function ____exports.getGlobalUnitState()
     if globalUnitStateCache and now - globalUnitStateCache.lastUpdate < GLOBAL_CACHE_TTL then
         return globalUnitStateCache
     end
-    local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
+    local jmz = require("bots/FunLib/jmz_func")
     globalUnitStateCache = {
         lastUpdate = now,
         enemyBuildings = GetUnitList(UnitType.EnemyBuildings),
@@ -258,7 +258,7 @@ function ____exports.getGlobalLocationState()
     if globalLocationStateCache and now - globalLocationStateCache.lastUpdate < GLOBAL_CACHE_TTL then
         return globalLocationStateCache
     end
-    local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
+    local jmz = require("bots/FunLib/jmz_func")
     local team = GetTeam()
     globalLocationStateCache = {
         lastUpdate = now,
@@ -318,7 +318,7 @@ function ____exports.getCachedAlliesNearLoc(location, radius)
         key,
         0.5,
         function()
-            local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
+            local jmz = require("bots/FunLib/jmz_func")
             return jmz.GetAlliesNearLoc(location, radius)
         end
     )
@@ -330,7 +330,7 @@ function ____exports.getCachedEnemiesNearLoc(location, radius)
         key,
         0.5,
         function()
-            local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
+            local jmz = require("bots/FunLib/jmz_func")
             return jmz.GetEnemiesNearLoc(location, radius)
         end
     )
