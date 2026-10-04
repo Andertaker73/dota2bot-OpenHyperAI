@@ -87,12 +87,12 @@ function GetDesireHelper()
 			runTime = 0;
 			runMode = false;
 		end
-		
+
 		shouldRunTime = X.ShouldRun(bot);
 		if shouldRunTime ~= 0
 		then
-			if runTime == 0 then 
-				runTime = DotaTime(); 
+			if runTime == 0 then
+				runTime = DotaTime();
 				runMode = true;
 				preferedCamp = nil;
 				bot:Action_ClearActions(true);
@@ -150,34 +150,84 @@ function GetDesireHelper()
     then
         return BOT_MODE_DESIRE_NONE
     end
-	
+
 	if teamPlayers == nil then teamPlayers = GetTeamPlayers(GetTeam()) end
 
 	if DotaTime() < 50 or botActiveMode == BOT_MODE_RUNE then
 		return 0.0
 	end
-	
-	if X.IsUnitAroundLocation(GetAncient(GetTeam()):GetLocation(), 3000) 
-	-- and aliveAllyCount >= aliveEnemyCount
-	then
-		return BOT_MODE_DESIRE_NONE;
-	end
-	
+
+        if X.IsUnitAroundLocation(GetAncient(GetTeam()):GetLocation(), 3000)
+        -- and aliveAllyCount >= aliveEnemyCount
+        then
+                return BOT_MODE_DESIRE_NONE;
+        end
+
+        -- OHA MOD: o check acima só cobre raio de 3000 ao redor do Ancient.
+        -- Inimigos pressionando T3/rax (dentro do mapa, fora desse raio) não
+        -- acionavam o gate, e o bot ia para campos distantes.
+        -- (1) Estruturas internas (T3/rax) sob pressão → bloqueia farm.
+        -- (2) Sem TP + T2 sob pressão (≥2 inimigos) → bloqueia farm.
+        -- Isso evita o cenário "bot farma jungle longe, sem TP, base cai".
+        local ourAncientForFarm = GetAncient(GetTeam())
+        if ourAncientForFarm ~= nil then
+            local innerStructures = {
+                GetTower(GetTeam(), TOWER_TOP_3),
+                GetTower(GetTeam(), TOWER_MID_3),
+                GetTower(GetTeam(), TOWER_BOT_3),
+                GetBarracks(GetTeam(), BARRACKS_TOP_MELEE),
+                GetBarracks(GetTeam(), BARRACKS_TOP_RANGED),
+                GetBarracks(GetTeam(), BARRACKS_MID_MELEE),
+                GetBarracks(GetTeam(), BARRACKS_MID_RANGED),
+                GetBarracks(GetTeam(), BARRACKS_BOT_MELEE),
+                GetBarracks(GetTeam(), BARRACKS_BOT_RANGED),
+            }
+            for _, s in ipairs(innerStructures) do
+                if s ~= nil and s:IsAlive() then
+                    if J.Utils.CountEnemyHeroesNear(s:GetLocation(), 1800) >= 1
+                        or #J.GetLastSeenEnemiesNearLoc(s:GetLocation(), 1800) >= 1
+                    then
+                        return BOT_MODE_DESIRE_NONE
+                    end
+                end
+            end
+
+            -- Sem TP: bot não consegue voltar a tempo mesmo percebendo a
+            -- ameaça depois, então exige-se mais cautela com T2.
+            local tpScrollForFarm = J.Utils.GetItemFromFullInventory(bot, 'item_tpscroll')
+            if not J.CanCastAbility(tpScrollForFarm) then
+                local outerT2 = {
+                    GetTower(GetTeam(), TOWER_TOP_2),
+                    GetTower(GetTeam(), TOWER_MID_2),
+                    GetTower(GetTeam(), TOWER_BOT_2),
+                }
+                for _, s in ipairs(outerT2) do
+                    if s ~= nil and s:IsAlive() then
+                        if J.Utils.CountEnemyHeroesNear(s:GetLocation(), 1500) >= 2
+                            or #J.GetLastSeenEnemiesNearLoc(s:GetLocation(), 1500) >= 2
+                        then
+                            return BOT_MODE_DESIRE_NONE
+                        end
+                    end
+                end
+            end
+        end
+
 	sec = math.floor(DotaTime()) % 60;
-	
+
 	if not J.Role.IsCampRefreshDone()
 	   and J.Role.GetAvailableCampCount() < J.Role.GetCampCount()
-	   and ( DotaTime() > 20 and  sec > 0 and sec < 2 )  
+	   and ( DotaTime() > 20 and  sec > 0 and sec < 2 )
 	then
 		J.Role['availableCampTable'], J.Role['campCount'] = J.Site.RefreshCamp(bot);
 		J.Role['hasRefreshDone'] = true;
 	end
-	
+
 	if J.Role.IsCampRefreshDone() and sec > 52
 	then
 		J.Role['hasRefreshDone'] = false;
 	end
-	
+
 	availableCamp = J.Role['availableCampTable'];
 
     local nEnemyHeroes = J.GetEnemiesNearLoc(bot:GetLocation(), 1600)
@@ -275,39 +325,39 @@ function GetDesireHelper()
             end
         end
     end
-	
+
 	if J.DoesTeamHaveAegis() and nAliveAllyCount >= 4 then
 		return BOT_MODE_DESIRE_NONE;
 	end
-		
+
 	if DotaTime() > countTime + countCD
 	then
 		countTime  = DotaTime();
 		allyKills  = J.GetNumOfTeamTotalKills(false);
 		enemyKills = J.GetNumOfTeamTotalKills(true);
 
-		
-		if enemyKills > allyKills + nLostCount and J.Role.NotSayRate() 
+
+		if enemyKills > allyKills + nLostCount and J.Role.NotSayRate()
 		then
 			J.Role['sayRate'] = true;
-			if RandomInt(1,6) < 3 
+			if RandomInt(1,6) < 3
 			then
 				bot:ActionImmediate_Chat(Localization.Get('say_will_lose'),true);
 			else
 				bot:ActionImmediate_Chat(Localization.Get('say_will_lose_2'),true);
 			end
 		end
-		if allyKills > enemyKills + nWinCount and J.Role.NotSayRate() 
+		if allyKills > enemyKills + nWinCount and J.Role.NotSayRate()
 		then
 		    J.Role['sayRate'] = true;
-			if RandomInt(1,6) < 3 
+			if RandomInt(1,6) < 3
 			then
 				bot:ActionImmediate_Chat(Localization.Get('say_will_win'),true);
 			else
 				bot:ActionImmediate_Chat(Localization.Get('say_will_win_2'),true);
 			end
 		end
-	
+
 	end
 	if allyKills > enemyKills + 20 and nAliveAllyCount >= 4
 	then return BOT_MODE_DESIRE_NONE; end
@@ -317,9 +367,9 @@ function GetDesireHelper()
 	   or (bot:GetLevel() >= 23 and nAlliesCount >= 3)
 	   or GetRoshanDesire() > BOT_MODE_DESIRE_VERYHIGH
 	then
-		local nNeutrals = bot:GetNearbyNeutralCreeps( bot:GetAttackRange() ); 
-		if #nNeutrals == 0 
-		then 
+		local nNeutrals = bot:GetNearbyNeutralCreeps( bot:GetAttackRange() );
+		if #nNeutrals == 0
+		then
 		    teamTime = DotaTime();
 		end
 	end
@@ -645,10 +695,10 @@ function Think()
 		local old = preferedCamp
 		if old then
 			local oldDist = old and GetUnitToLocationDistance(bot, old.cattr.location) or 9e9
-	
+
 			local avail = J.Role['availableCampTable']
 			local nearest = J.Site.GetClosestNeutralSpwan(bot, avail)
-	
+
 			if nearest then
 				local newDist = GetUnitToLocationDistance(bot, nearest.cattr.location)
 				-- switch if we save >800 units or ETA improves a lot and danger isn’t worse
@@ -660,8 +710,8 @@ function Think()
 			preferedCamp = J.Site.GetClosestNeutralSpwan(bot, availableCamp);
 		end
 	end
-	
-	
+
+
 	if preferedCamp == nil then preferedCamp = J.Site.GetClosestNeutralSpwan(bot, availableCamp);end
 	if preferedCamp ~= nil then
 		local targetFarmLoc = preferedCamp.cattr.location;
@@ -743,7 +793,7 @@ function Think()
 				bot:Action_AttackUnit(nNeutrals[1], true);
 				return;
 			end
-			
+
 		elseif  farmState == FARM_STATE_NONE
 				and (#nNeutrals == 0 and GetUnitToLocationDistance(bot, targetFarmLoc) < 600)
 		        and cDist > 240
@@ -754,20 +804,20 @@ function Think()
 					bot:Action_MoveToLocation( hLaneCreepList[1]:GetLocation() );
 					return;
 				end
-				
+
 				if X.CouldBlink(bot,targetFarmLoc) then return end;
-				
+
 				if X.CouldBlade(bot,targetFarmLoc) then return end;
-							
+
 				bot:Action_MoveToLocation(targetFarmLoc);
 				return;
 		else
-			local neutralCreeps = bot:GetNearbyCreeps(1000, true); 
-			
+			local neutralCreeps = bot:GetNearbyCreeps(1000, true);
+
 			if #neutralCreeps >= 2 then
 
 				farmState = FARM_STATE_FARM;
-				
+
 				local farmTarget = J.Site.FindFarmNeutralTarget(neutralCreeps)
 				if J.IsValid(farmTarget)
 				then
@@ -775,13 +825,13 @@ function Think()
 					bot:Action_AttackUnit(farmTarget, true);
 					return;
 				end
-				
+
 			elseif ( X.IsLocCanBeSeen(targetFarmLoc) and cDist <= 600 ) or cDist <= 240
 				then
-					
+
 					farmState = FARM_STATE_NONE;
 					J.Role['availableCampTable'], preferedCamp = J.Site.UpdateAvailableCamp(bot, preferedCamp, J.Role['availableCampTable']);
-					availableCamp = J.Role['availableCampTable'];	
+					availableCamp = J.Role['availableCampTable'];
 					preferedCamp  = J.Site.GetClosestNeutralSpwan(bot, availableCamp);
 
 
@@ -793,7 +843,7 @@ function Think()
 						return;
 					end
 			else
-			
+
 				local farmTarget = J.Site.FindFarmNeutralTarget(neutralCreeps)
 				if J.IsValid(farmTarget)
 				then
@@ -801,12 +851,12 @@ function Think()
 					bot:Action_AttackUnit(farmTarget, true);
 					return;
 				end
-				
+
 				if cDist > 200 then bot:Action_MoveToLocation(targetFarmLoc) return end
 			end
-		end			
+		end
 	end
-	
+
 	bot:Action_MoveToLocation( ( RB + DB )/2 );
 	return;
 end
@@ -819,7 +869,7 @@ function X.IsNearLaneFront( bot )
 		if GetUnitToLocationDistance(bot,tFLoc) <= testDist
 		then
 		    return true;
-		end		
+		end
 	end
 	return false;
 end
@@ -840,12 +890,12 @@ function X.IsUnitAroundLocation(vLoc, nRadius)
 	return false;
 end
 
-function X.CouldBlade(bot,nLocation) 
+function X.CouldBlade(bot,nLocation)
 	local blade = J.IsItemAvailable("item_quelling_blade");
 	if blade == nil then blade = J.IsItemAvailable("item_bfury"); end
-	
-	if blade ~= nil 
-	   and blade:IsFullyCastable() 
+
+	if blade ~= nil
+	   and blade:IsFullyCastable()
 	then
 		local trees = bot:GetNearbyTrees(380);
 		local dist = GetUnitToLocationDistance(bot,nLocation);
@@ -857,42 +907,42 @@ function X.CouldBlade(bot,nLocation)
 			then
 				local treeLoc = GetTreeLocation(t);
 				local tResult = PointToLineDistance(vStart, vEnd, treeLoc);
-				if tResult ~= nil 
-				   and tResult.within 
+				if tResult ~= nil
+				   and tResult.within
 				   and tResult.distance <= 96
 				   and J.GetLocationToLocationDistance(treeLoc,nLocation) < dist
 				then
 					bot:Action_UseAbilityOnTree(blade, t);
 					return true;
 				end
-			end			
+			end
 		end
 	end
-	
+
 	return false;
 end
 
 
 function X.CouldBlink(bot,nLocation)
-	
-	
+
+
 	local maxBlinkDist = 1199;
 	local blink = J.IsItemAvailable("item_blink");
-	
+
 	if botName == "npc_dota_hero_antimage"
 	then
 		blink = bot:GetAbilityByName( "antimage_blink" );
 		maxBlinkDist = blink:GetSpecialValueInt('AbilityCastRange')
 	end
-	
+
 	if botName == "npc_dota_hero_queenofpain"
 	then
 		blink = bot:GetAbilityByName( "queenofpain_blink" );
 		maxBlinkDist = J.GetProperCastRange(false, bot, blink:GetCastRange())
 	end
-	
-	if blink ~= nil 
-	   and blink:IsFullyCastable() 
+
+	if blink ~= nil
+	   and blink:IsFullyCastable()
        and J.IsRunning(bot)
 	then
 		local bDist = GetUnitToLocationDistance(bot,nLocation);
@@ -905,36 +955,36 @@ function X.CouldBlink(bot,nLocation)
 				if botName == "npc_dota_hero_antimage"
 				then
 					bot:Action_ClearActions(true);
-		
-					if not J.IsPTReady(bot,ATTRIBUTE_INTELLECT) 
+
+					if not J.IsPTReady(bot,ATTRIBUTE_INTELLECT)
 					then
 						J.SetQueueSwitchPtToINT(bot);
 					end
-							
+
 					bot:ActionQueue_UseAbilityOnLocation(blink, nLocation);
-									
+
 					return true;
 				end
-			
+
 				bot:Action_UseAbilityOnLocation(blink, nLocation);
 				return true;
 		elseif IsLocationPassable(maxBlinkLoc)
 			then
-				
+
 				if botName == "npc_dota_hero_antimage"
 				then
 					bot:Action_ClearActions(true);
-		
-					if not J.IsPTReady(bot,ATTRIBUTE_INTELLECT) 
+
+					if not J.IsPTReady(bot,ATTRIBUTE_INTELLECT)
 					then
 						J.SetQueueSwitchPtToINT(bot);
 					end
-							
+
 					bot:ActionQueue_UseAbilityOnLocation(blink, maxBlinkLoc);
-									
+
 					return true;
 				end
-				
+
 				bot:Action_UseAbilityOnLocation(blink, maxBlinkLoc);
 				return true;
 		end
@@ -947,15 +997,15 @@ end
 function X.IsLocCanBeSeen(vLoc)
 
 	if GetUnitToLocationDistance(GetBot(),vLoc) < 180 then return true end
-	
+
 	local tempLocUp    = vLoc + Vector(5  ,0  );
 	local tempLocDown  = vLoc + Vector(0  ,10 );
 	local tempLocLeft  = vLoc + Vector(-15,0  );
 	local tempLocRight = vLoc + Vector(0  ,-20);
-	
-	return IsLocationVisible(tempLocRight) 
-		   and IsLocationVisible(tempLocLeft) 
-	       and IsLocationVisible(tempLocUp) 
+
+	return IsLocationVisible(tempLocRight)
+		   and IsLocationVisible(tempLocLeft)
+	       and IsLocationVisible(tempLocUp)
 		   and IsLocationVisible(tempLocDown)
 		   and IsRadiusVisible(vLoc,10)
 
@@ -1018,25 +1068,25 @@ end
 
 local enemyPids = nil;
 function X.ShouldRun(bot)
-	if bot:HasModifier('modifier_medusa_stone_gaze_facing') 
+	if bot:HasModifier('modifier_medusa_stone_gaze_facing')
 	then
 		AttackTarget=bot:GetAttackTarget()
-		if AttackTarget~=nil and AttackTarget:GetUnitName() == "npc_dota_hero_medusa"  
+		if AttackTarget~=nil and AttackTarget:GetUnitName() == "npc_dota_hero_medusa"
 		and J.IsOtherAllyCanKillTarget( bot, AttackTarget )
 		then
-			
-		else  
+
+		else
 			return 3.33
 		end
 	end
 
-		
-	if bot:IsChanneling() 
+
+	if bot:IsChanneling()
 	   or not bot:IsAlive()
 	then
 		return 0
-	end	   
-	
+	end
+
 	local botLevel    = bot:GetLevel();
 	local botMode     = bot:GetActiveMode();
 	local botTarget   = J.GetProperTarget(bot);
@@ -1067,15 +1117,15 @@ function X.ShouldRun(bot)
 	then
 		if botTarget ~= nil and botTarget:IsHero()
 		   and J.GetHP(botTarget) > 0.35
-		   and (  not J.IsInRange(bot,botTarget,bot:GetAttackRange() + 150) 
+		   and (  not J.IsInRange(bot,botTarget,bot:GetAttackRange() + 150)
 				  or not J.CanKillTarget(botTarget, bot:GetAttackDamage() * 2.33, DAMAGE_TYPE_PHYSICAL) )
 		then
 			return 2.88;
 		end
 	end
 
-	if not X.IsThereT3Detroyed() 
-	   and aliveEnemyCount >= 3 
+	if not X.IsThereT3Detroyed()
+	   and aliveEnemyCount >= 3
 	   and #hAllyHeroList < aliveEnemyCount + 2
 	   and not J.Role.IsPvNMode()
 	   and ( DotaTime() % 600 > 285 or DotaTime() < 18 * 60 )--处于夜间或小于18分钟
@@ -1092,9 +1142,9 @@ function X.ShouldRun(bot)
 				return 1.33;
 			end
 		end
-				
+
 	end
-	
+
 	-- 前期线上别顶着小兵打太凶
 	if botLevel < 5
 	and bot:WasRecentlyDamagedByCreep(1)
@@ -1106,7 +1156,7 @@ function X.ShouldRun(bot)
 
 	local nEnemyTowers = bot:GetNearbyTowers(898, true);
 	local nEnemyBrracks = bot:GetNearbyBarracks(800,true);
-	
+
 	if #nEnemyBrracks >= 1 and aliveEnemyCount >= 2 and #hEnemyHeroList >= #hAllyHeroList
 	then
 		if #nEnemyTowers >= 2
@@ -1116,7 +1166,7 @@ function X.ShouldRun(bot)
 			return 2;
 		end
 	end
-	
+
 
 	if nEnemyTowers[1] ~= nil and botLevel < 16
 	then
@@ -1124,7 +1174,7 @@ function X.ShouldRun(bot)
 		then
 			return 2.5;
 		end
-		
+
 		if  enemyAncientDistance > 2100
 			and enemyAncientDistance < GetUnitToUnitDistance(nEnemyTowers[1],enemyAncient) - rushEnemyTowerDistance
 		then
@@ -1133,12 +1183,12 @@ function X.ShouldRun(bot)
 			then
 				return 3.9;
 			end
-			
+
 			if J.IsValidHero(nTarget) and aliveEnemyCount > 2
 			then
-				
+
 				local assistAlly = false;
-				
+
 				for _,ally in pairs(hAllyHeroList)
 				do
 					if GetUnitToUnitDistance(ally,nTarget) <= ally:GetAttackRange() + 100
@@ -1148,16 +1198,16 @@ function X.ShouldRun(bot)
 						break;
 					end
 				end
-				
-				if not assistAlly 
+
+				if not assistAlly
 				then
 					return 2.5;
 				end
-				
+
 			end
 		end
 	end
-	
+
 
 	-- 前期谨慎冲塔
 	if botLevel <= 10 and DotaTime() > 0
@@ -1193,21 +1243,21 @@ function X.ShouldRun(bot)
 		and (#hEnemyHeroList > 0 or bot:GetHealth() < 700)
 	then
 		local nLongEnemyTowers = bot:GetNearbyTowers(999, true);
-		if bot:GetAssignedLane() == LANE_MID 
-		then 
-			 nLongEnemyTowers = bot:GetNearbyTowers(988, true); 
-			 nEnemyTowers     = bot:GetNearbyTowers(966, true); 
+		if bot:GetAssignedLane() == LANE_MID
+		then
+			 nLongEnemyTowers = bot:GetNearbyTowers(988, true);
+			 nEnemyTowers     = bot:GetNearbyTowers(966, true);
 		end
 		if ( botLevel <= 2 or DotaTime() < 2 * 60 )
 			and nLongEnemyTowers[1] ~= nil
 		then
 			return 1;
-		end	
+		end
 		if ( botLevel <= 4 or DotaTime() < 3 * 60 )
 			and nEnemyTowers[1] ~= nil
 		then
 			return 1;
-		end	
+		end
 		if botLevel <= 9
 			and nEnemyTowers[1] ~= nil
 			and nEnemyTowers[1]:CanBeSeen()
@@ -1218,29 +1268,29 @@ function X.ShouldRun(bot)
 		end
 	end
 
-	if #hAllyHeroList <= 1 
+	if #hAllyHeroList <= 1
 	   and botMode ~= BOT_MODE_TEAM_ROAM
 	   and botMode ~= BOT_MODE_LANING
 	   and botMode ~= BOT_MODE_RETREAT
-	   and ( botLevel <= 1 or botLevel > 5 ) 
+	   and ( botLevel <= 1 or botLevel > 5 )
 	   and bot:DistanceFromFountain() > 1400
 	then
 		if enemyPids == nil then
 			enemyPids = GetTeamPlayers(GetOpposingTeam())
-		end	
+		end
 		local enemyCount = 0
 		for i = 1, #enemyPids do
 			local info = GetHeroLastSeenInfo(enemyPids[i])
 			if info ~= nil then
-				local dInfo = info[1]; 
-				if dInfo ~= nil and dInfo.time_since_seen < 2.0  
-					and GetUnitToLocationDistance(bot,dInfo.location) < 1000 
+				local dInfo = info[1];
+				if dInfo ~= nil and dInfo.time_since_seen < 2.0
+					and GetUnitToLocationDistance(bot,dInfo.location) < 1000
 				then
 					enemyCount = enemyCount +1;
 				end
-			end	
+			end
 		end
-		if (enemyCount >= 4 or #hEnemyHeroList >= 4) 
+		if (enemyCount >= 4 or #hEnemyHeroList >= 4)
 			and botMode ~= BOT_MODE_ATTACK
 			and botMode ~= BOT_MODE_TEAM_ROAM
 			and bot:GetCurrentMovementSpeed() > 300
@@ -1250,9 +1300,9 @@ function X.ShouldRun(bot)
 	        then
 				return 4;
 			end
-		end	
-		if  botLevel >= 9 and botLevel <= 17  
-			and (enemyCount >= 3 or #hEnemyHeroList >= 3) 
+		end
+		if  botLevel >= 9 and botLevel <= 17
+			and (enemyCount >= 3 or #hEnemyHeroList >= 3)
 			and botMode ~= BOT_MODE_LANING
 			and bot:GetCurrentMovementSpeed() > 300
 		then
@@ -1279,18 +1329,18 @@ function X.ShouldRun(bot)
 end
 
 function X.IsThereT3Detroyed()
-	
+
 	local T3s = {
 		TOWER_TOP_3,
 		TOWER_MID_3,
 		TOWER_BOT_3
 	}
-	
+
 	for _,t in pairs(T3s) do
 		local tower = GetTower(GetOpposingTeam(), t);
 		if tower == nil or not tower:IsAlive() then
 			return true;
 		end
-	end	
+	end
 	return false;
 end

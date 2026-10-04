@@ -1025,13 +1025,28 @@ export function DefendThink(bot: Unit, lane: Lane) {
     // farm camp, ACTIVITY_RUN counts as "meaningful") as busy — so when a ping/threat just
     // switched the bot into Defend, it kept executing the old order instead of defending.
     // Skip those two gates for the tick Defend just became active; still respect real
-    // un-interruptible states (channel/stun/etc) via IsBotBusyChannelingOrStunned.
+        // un-interruptible states (channel/stun/etc) via IsBotBusyChannelingOrStunned.
     const activeMode = bot.GetActiveMode();
     const isDefendMode = activeMode === BotMode.DefendTowerTop || activeMode === BotMode.DefendTowerMid || activeMode === BotMode.DefendTowerBot;
     const justEnteredDefend = isDefendMode && (bot as any)._lastActiveMode !== activeMode;
     (bot as any)._lastActiveMode = activeMode;
 
-    if (justEnteredDefend) {
+    // OHA MOD: pós-TP grace period.
+    // DefendThink costumava retornar cedo após um TP de defesa porque
+    // CanNotUseAction() / IsBotThinkingMeaningfulAction() tratavam a ordem de
+    // TP (ou o "acabei de chegar") como ação em andamento, deixando o bot
+    // parado no destino por 1-2s. Permitimos ação imediata nos primeiros ~1s
+    // após o TP, mantendo os gates reais (stun/channel).
+    const bWasTeleportingNow = bot.HasModifier("modifier_teleporting");
+    if (bWasTeleportingNow) {
+        (bot as any)._teleportingLastSeen = DotaTime();
+    }
+    const bJustFinishedTp =
+        !bWasTeleportingNow &&
+        (bot as any)._teleportingLastSeen != null &&
+        DotaTime() - (bot as any)._teleportingLastSeen < 1.0;
+
+    if (justEnteredDefend || bJustFinishedTp) {
         if (jmz.IsBotBusyChannelingOrStunned(bot)) return;
     } else {
         if (jmz.CanNotUseAction(bot)) return;

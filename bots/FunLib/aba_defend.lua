@@ -1539,7 +1539,12 @@ function ____exports.DefendThink(bot, lane)
     local isDefendMode = activeMode == BotMode.DefendTowerTop or activeMode == BotMode.DefendTowerMid or activeMode == BotMode.DefendTowerBot
     local justEnteredDefend = isDefendMode and bot._lastActiveMode ~= activeMode
     bot._lastActiveMode = activeMode
-    if justEnteredDefend then
+    local bWasTeleportingNow = bot:HasModifier("modifier_teleporting")
+    if bWasTeleportingNow then
+        bot._teleportingLastSeen = DotaTime()
+    end
+    local bJustFinishedTp = not bWasTeleportingNow and bot._teleportingLastSeen ~= nil and DotaTime() - bot._teleportingLastSeen < 1
+    if justEnteredDefend or bJustFinishedTp then
         if jmz.IsBotBusyChannelingOrStunned(bot) then
             return
         end
@@ -1611,10 +1616,10 @@ function ____exports.DefendThink(bot, lane)
         local liveEnemies = bot:GetNearbyHeroes(1600, true, BotMode.None)
         for ____, e in ipairs(liveEnemies) do
             do
-                local __continue238
+                local __continue239
                 repeat
                     if not jmz.IsValidHero(e) or jmz.IsSuspiciousIllusion(e) then
-                        __continue238 = true
+                        __continue239 = true
                         break
                     end
                     if jmz.IsInRange(
@@ -1628,7 +1633,7 @@ function ____exports.DefendThink(bot, lane)
                     bot:Action_MoveToLocation(e:GetLocation())
                     return
                 until true
-                if not __continue238 then
+                if not __continue239 then
                     break
                 end
             end
