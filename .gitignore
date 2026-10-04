@@ -67,3 +67,4 @@ dist
 # user's personal customized settings
 game/Customize
 build_merged.log
+yarn.lock
