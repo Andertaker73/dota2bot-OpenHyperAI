@@ -106,23 +106,21 @@ function GetDesireHelper()
     end
 
     -- ===== 自定义：敌方入侵我方区域 → 守家特判 + 就近支援 =====
-    -- 半场判断用"己方远古距离+768 < 敌方远古距离"（J.IsInAllyArea 同款逻辑）
-    -- 守家特判：逼近高地/基地 → 全员回防（大后期 4+ 人压基地 = 绝对优先）
-    -- 就近支援：辅助先动（0.65），核心只在"有健康辅助会跟"时才去（0.85），避免单人送头
     if DotaTime() > 0 then
         local hAllyAncient   = GetAncient(GetTeam())
         local hEnemyAncient  = GetAncient(GetOpposingTeam())
         local nEnemiesInOurHalf = 0
-        local nEnemiesNearBase  = 0
         local nEnemiesInOurHalfTotal = 0
+        local nEnemiesNearBase  = 0
+        local nEnemiesDeep      = 0    -- <3000 do Ancient (base interna)
+        local nEnemiesAttackingStructure = 0
         local vInvasionCenter = nil
 
         for _, enemy in pairs(GetUnitList(UNIT_LIST_ENEMY_HEROES)) do
             if J.IsValidHero(enemy) and not J.IsSuspiciousIllusion(enemy) then
                 local distAlly  = GetUnitToUnitDistance(enemy, hAllyAncient)
                 local distEnemy = GetUnitToUnitDistance(enemy, hEnemyAncient)
-                -- OHA MOD 2026/08/13: 768→1200，敌方需深入我方半场 430+ 码才算"入侵"
-                -- （原 768 让"刚过河/中路河道摩擦"就触发支援 → 20 分钟中路大乱斗）
+
                 if distAlly + 1200 < distEnemy then
                     nEnemiesInOurHalf = nEnemiesInOurHalf + 1
                     nEnemiesInOurHalfTotal = nEnemiesInOurHalfTotal + 1
@@ -132,8 +130,14 @@ function GetDesireHelper()
                         vInvasionCenter = vInvasionCenter + enemy:GetLocation()
                     end
                 end
-                if distAlly < 4000 then
-                    nEnemiesNearBase = nEnemiesNearBase + 1
+
+                if distAlly < 4000 then nEnemiesNearBase = nEnemiesNearBase + 1 end
+                if distAlly < 3000 then nEnemiesDeep = nEnemiesDeep + 1 end
+
+                -- Conta só ataque REAL a estrutura (não proximidade)
+                local atkTarget = enemy:GetAttackTarget()
+                if atkTarget ~= nil and atkTarget:IsBuilding() then
+                    nEnemiesAttackingStructure = nEnemiesAttackingStructure + 1
                 end
             end
         end
@@ -142,41 +146,34 @@ function GetDesireHelper()
             vInvasionCenter = vInvasionCenter / nEnemiesInOurHalfTotal
         end
 
-        -- 守家特判：只要敌人已进我方基地/高地且我方没有大幅劣势，就必须回防。
-        -- 这堵住了“敌人压塔/进基地但团队却向 lane 开溜”的失误。
-        local nAliveAllyCount = J.GetNumOfAliveHeroes(false)
-        local nAliveEnemyCount = J.GetNumOfAliveHeroes(true)
-        local bNoMajorDisadvantage = nAliveAllyCount >= nAliveEnemyCount - 1
-            or (nAliveAllyCount >= 2 and nAliveAllyCount >= nAliveEnemyCount - 2)
-        if nEnemiesNearBase >= 4 and (J.IsLateGame() or bNoMajorDisadvantage) then
+        -- 守家特判 — só dispara em situações genuinamente críticas.
+        -- Antes: 2 inimigos a <4000 do Ancient já forçava 0.95, o que
+        -- bloqueava todo o roam ofensivo. Agora exige ataque real, invasão
+        -- massiva ou presença profunda na base.
+        if nEnemiesAttackingStructure >= 2
+            or (nEnemiesNearBase >= 4 and J.IsLateGame()) then
             return 1.0
-        elseif nEnemiesNearBase >= 2 and bNoMajorDisadvantage then
+        elseif nEnemiesDeep >= 3 then
             return 0.95
-        elseif nEnemiesNearBase >= 1 and bNoMajorDisadvantage and J.GetHP(bot) > 0.45 then
-            return 0.9
         end
 
-        -- 就近支援：有入侵时才触发（我方半场 ≥2 敌人）
+        -- 就近支援 (mantém lógica original: só com 2+ invasores no nosso lado)
         if nEnemiesInOurHalf >= 2 and vInvasionCenter ~= nil then
             local botDist = GetUnitToLocationDistance(bot, vInvasionCenter)
 
-            -- 辅助先动：事发地 3500 码内 + 血量健康 → 0.65
             if IsSupport and botDist <= 3500 and J.GetHP(bot) > 0.5 then
-                bot.teamRoamTPLocation = vInvasionCenter  -- 供 TP 逻辑读取
-                bot.teamRoamTPTime = GameTime()  -- 时间戳：5 秒内有效，防过期乱 TP
+                bot.teamRoamTPLocation = vInvasionCenter
+                bot.teamRoamTPTime = GameTime()
                 return 0.65
             end
 
-            -- 核心看辅助：我是离事发地最近的核心 + 有健康辅助会跟 → 0.85
             if IsHeroCore and J.GetPosition(bot) <= 3 and botDist <= 5000 then
                 local bIsNearestCore = true
                 local nAllySupportNear = 0
                 for _, ally in pairs(GetUnitList(UNIT_LIST_ALLIED_HEROES)) do
                     if ally ~= bot and J.IsValidHero(ally) and not ally:IsIllusion() then
                         local allyDist = GetUnitToLocationDistance(ally, vInvasionCenter)
-                        if J.IsCore(ally) and allyDist < botDist then
-                            bIsNearestCore = false
-                        end
+                        if J.IsCore(ally) and allyDist < botDist then bIsNearestCore = false end
                         if not J.IsCore(ally) and allyDist <= 3500 and J.GetHP(ally) > 0.5 then
                             nAllySupportNear = nAllySupportNear + 1
                         end
@@ -184,11 +181,11 @@ function GetDesireHelper()
                 end
                 if bIsNearestCore then
                     if nAllySupportNear >= 1 then
-                        bot.teamRoamTPLocation = vInvasionCenter  -- 供 TP 逻辑读取
-                        bot.teamRoamTPTime = GameTime()  -- 时间戳：5 秒内有效，防过期乱 TP
+                        bot.teamRoamTPLocation = vInvasionCenter
+                        bot.teamRoamTPTime = GameTime()
                         return 0.85
                     else
-                        return 0.3  -- 没辅助会跟 → 观望，不深入送头
+                        return 0.3
                     end
                 end
             end
@@ -197,20 +194,25 @@ function GetDesireHelper()
     -- ===== 自定义结束 =====
 
     -- Success/failure tracking for Help Ally
+    -- OHA MOD: timeout subiu para 40s (dava para o bot chegar no alvo) e o
+    -- cooldown pós-timeout caiu de 90s→30s. Antes, um único timeout deixava o
+    -- bot 90s sem tentar ajudar, sufocando todo o roam ofensivo.
     if bot.helpAllyActive then
-        if DotaTime() - bot.helpAllyStartTime > 20.0 then
+        if DotaTime() - bot.helpAllyStartTime > 40.0 then
             bot.helpAllyActive = false
             bot.lastHelpAllyTime = DotaTime()
-            bot.helpAllyCooldown = 90.0
+            bot.helpAllyCooldown = 30.0
         else
             local targetDead = false
-            if bot.helpAllyTargetUnit ~= nil and (not J.IsValidHero(bot.helpAllyTargetUnit) or not bot.helpAllyTargetUnit:IsAlive()) then
+            if bot.helpAllyTargetUnit ~= nil
+                and (not J.IsValidHero(bot.helpAllyTargetUnit)
+                     or not bot.helpAllyTargetUnit:IsAlive()) then
                 targetDead = true
             end
             if targetDead then
                 bot.helpAllyActive = false
                 bot.lastHelpAllyTime = DotaTime()
-                bot.helpAllyCooldown = 30.0
+                bot.helpAllyCooldown = 15.0
             end
         end
     end
@@ -593,7 +595,7 @@ function X.CarryFindTarget()
     local nAttackRange = math.min(bot:GetAttackRange() + 50, 1170)
     if botName == "npc_dota_hero_templar_assassin" then nAttackRange = nAttackRange + 100 end
 
-	local nTarget = J.GetProperTarget(bot);	
+	local nTarget = J.GetProperTarget(bot);
 	local botHP   = bot:GetHealth()/bot:GetMaxHealth();
 	local botMode = bot:GetActiveMode();
 	local botLV   = bot:GetLevel();
@@ -662,13 +664,13 @@ function X.CarryFindTarget()
 			nTarget = X.GetNearbyLastHitCreep(true, true, echoDamage, 350, bot);
 			if nTarget ~= nil then return nTarget,BOT_MODE_DESIRE_ABSOLUTE *0.98; end
 		end
-		local nEnemyTowers = bot:GetNearbyTowers(1000,true);			
+		local nEnemyTowers = bot:GetNearbyTowers(1000,true);
 		if (cItem:IsFullyCastable() or cItem:GetCooldownTimeRemaining() <  bot:GetAttackPoint() +0.8)
 			and #nEnemyTowers == 0
 		then
 			for i=400, 580, 60 do
 				nTarget = X.GetExceptRangeLastHitCreep(true, echoDamage, 350, i, bot);
-				if nTarget ~= nil 
+				if nTarget ~= nil
 				   then return nTarget,BOT_MODE_DESIRE_HIGH; end
 			end
 		end
@@ -692,7 +694,7 @@ function X.CarryFindTarget()
 
 	local denyDamage = botAD + 3
 	local nNearbyEnemyHeroes = bot:GetNearbyHeroes(650,true,BOT_MODE_NONE);
-	if  IsModeSuitHit 
+	if  IsModeSuitHit
 		and ( botHP > 0.38 or not bot:WasRecentlyDamagedByAnyHero(3.0))
 		and (nNearbyEnemyHeroes[1] == nil or nNearbyEnemyHeroes[1]:GetLevel() < 12)
 		and bot:DistanceFromFountain() > 3800
@@ -773,7 +775,7 @@ function X.CarryFindTarget()
 		    end
 
 			local nWillAttackCreeps = X.GetExceptRangeLastHitCreep(true, centerAlly:GetAttackDamage() *1.2, 0, 800, centerAlly);
-			if nWillAttackCreeps == nil 
+			if nWillAttackCreeps == nil
 				or not X.IsOthersTarget(nWillAttackCreeps)
 			then
 				local nDenyCreeps = centerAlly:GetNearbyCreeps(1600,false);
@@ -791,7 +793,7 @@ function X.CarryFindTarget()
 						for _,ally in pairs(nAllies)
 						do
 							if X.CanAttackTogether(ally)
-								and GetUnitToUnitDistance(ally,creep) <= ally:GetAttackRange() + 150 
+								and GetUnitToUnitDistance(ally,creep) <= ally:GetAttackRange() + 150
 							then
 								togetherDamage = ally:GetAttackDamage() + togetherDamage;
 								togetherCount = togetherCount +1;
@@ -833,8 +835,8 @@ function X.CarryFindTarget()
 					if X.IsLastHitCreep(creep,attackDamage *2)
 					then
 						return creep,BOT_MODE_DESIRE_ABSOLUTE;
-					elseif X.IsLastHitCreep(creep,attackDamage *3 - 5) 
-							and #nAllyLaneCreep == 0 and botLV >= 3						
+					elseif X.IsLastHitCreep(creep,attackDamage *3 - 5)
+							and #nAllyLaneCreep == 0 and botLV >= 3
 						then
 							return creep,BOT_MODE_DESIRE_ABSOLUTE *0.9;
 					end
@@ -842,7 +844,7 @@ function X.CarryFindTarget()
 			end
 		end
 
-		if  bot:DistanceFromFountain() > 3800 
+		if  bot:DistanceFromFountain() > 3800
 			and not bePvNMode and bot:GetLevel() <= 6
 			and J.GetDistanceFromEnemyFountain(bot) > 5000
 			and nEnemyTowers[1] == nil
@@ -876,7 +878,7 @@ function X.CarryFindTarget()
 		and not J.IsRoshan(nEnemysCreeps[1])
 		and (nEnemysCreeps[1]:GetTeam() == TEAM_NEUTRAL or attackDamage > 110)
 		and ( not nEnemysCreeps[1]:IsAncientCreep() or attackDamage > 150 )
-		and ( not J.IsKeyWordUnit("warlock", nEnemysCreeps[1]) or J.GetHP(bot) > 0.58 )		
+		and ( not J.IsKeyWordUnit("warlock", nEnemysCreeps[1]) or J.GetHP(bot) > 0.58 )
 		and ( nTeamFightLocation == nil or GetUnitToLocationDistance(bot,nTeamFightLocation) >= 3000 )
 		and ( nDefendDesire <= 0.8 )
 		and botMode ~= BOT_MODE_FARM
@@ -886,7 +888,7 @@ function X.CarryFindTarget()
 		and botMode ~= BOT_MODE_SECRET_SHOP
 		and botMode ~= BOT_MODE_SIDE_SHOP
 		and botMode ~= BOT_MODE_WARD
-		and GetRoshanDesire() < BOT_MODE_DESIRE_HIGH	
+		and GetRoshanDesire() < BOT_MODE_DESIRE_HIGH
 		and not bot:WasRecentlyDamagedByAnyHero(2.0)
 		and bot:GetAttackTarget() == nil
 		and botLV >= 10
@@ -895,10 +897,10 @@ function X.CarryFindTarget()
 		and not J.IsTormentor(nEnemysCreeps[1])
 		and not J.IsRoshan(nEnemysCreeps[1])
 		then
-			if nEnemysCreeps[1]:GetTeam() == TEAM_NEUTRAL 
+			if nEnemysCreeps[1]:GetTeam() == TEAM_NEUTRAL
 			   and J.IsInRange(bot, nEnemysCreeps[1], nAttackRange + 100)
-			   and ( #nEnemysCreeps <= 2 
-			         or attackDamage > 220 
+			   and ( #nEnemysCreeps <= 2
+			         or attackDamage > 220
 					 or botName == "npc_dota_hero_antimage" )
 			then
 				J.Role['availableCampTable'] = X.UpdateCommonCamp(nEnemysCreeps[1], J.Role['availableCampTable']);
@@ -906,7 +908,7 @@ function X.CarryFindTarget()
 			return nEnemysCreeps[1],BOT_MODE_DESIRE_ABSOLUTE;
 		end
 
-		if bot:GetHealth() > 160 
+		if bot:GetHealth() > 160
 		   and J.IsWithoutTarget(bot)
 		then
 			local nNeutrals = bot:GetNearbyNeutralCreeps(nAttackRange + 150);
@@ -932,7 +934,7 @@ function X.CarryFindTarget()
 						and not J.IsRoshan(nNeutrals[i])
 						and X.IsLastHitCreep(nNeutrals[i],attackDamage * 2)
 					then
-						return nNeutrals[i],BOT_MODE_DESIRE_ABSOLUTE; 
+						return nNeutrals[i],BOT_MODE_DESIRE_ABSOLUTE;
 					end
 				end
 			end
@@ -954,7 +956,7 @@ function X.HasHumanAlly( bot )
 				bHumanAlly = true
 				break
 			end
-		end	
+		end
 		if bHumanAlly ~= true then bHumanAlly = false end
 	end
 	local allyHeroList = bot:GetNearbyHeroes( 900, false, BOT_MODE_NONE )
@@ -981,7 +983,7 @@ function X.IsCreepTarget(nUnit)
 			return true;
 		end
 	end
-	
+
 	local nCreeps = bot:GetNearbyCreeps(1200,false);
 	for _,creep in pairs(nCreeps)
 	do
@@ -1070,26 +1072,26 @@ function X.WeakestUnitExceptRangeCanBeAttacked(bHero, bEnemy, nRange, nRadius, b
 	local weakestHP = 4999;
 	local realHP = 0;
 	if nRadius > 1600 then nRadius = 1600 end;
-	
+
 	if bHero then
 		units = bot:GetNearbyHeroes(nRadius, bEnemy, BOT_MODE_NONE);
-	else	
+	else
 		units = bot:GetNearbyLaneCreeps(nRadius, bEnemy);
 	end
-	
+
 	for _,u in pairs(units) do
 		if  X.IsValid(u)
-		and GetUnitToUnitDistance(bot,u) > nRange 
+		and GetUnitToUnitDistance(bot,u) > nRange
 		and X.CanBeAttacked(u)
 		and not u:HasModifier("modifier_crystal_maiden_frostbite")
 		then
 			realHP = u:GetHealth() / 1;
-			
+
 			if realHP < weakestHP
 			then
 				weakest = u;
 				weakestHP = realHP;
-			end			
+			end
 		end
 	end
 	return weakest;
@@ -1103,7 +1105,7 @@ function X.GetNearbyLastHitCreep(ignorAlly, bEnemy, nDamage, nRadius, bot)
 	local botName = bot:GetUnitName();
 
 
-	if  bEnemy 
+	if  bEnemy
 		and botName == "npc_dota_hero_templar_assassin" --V bug
 		and bot:HasModifier("modifier_templar_assassin_refraction_damage")
 	then
@@ -1116,7 +1118,7 @@ function X.GetNearbyLastHitCreep(ignorAlly, bEnemy, nDamage, nRadius, bot)
 		and botName == "npc_dota_hero_kunkka"
 	then
 		local cAbility = bot:GetAbilityByName( "kunkka_tidebringer" );
-		if cAbility:IsFullyCastable() 
+		if cAbility:IsFullyCastable()
 		then
 			local bonusDamage = cAbility:GetSpecialValueInt( 'damage_bonus' );
 			nDamage = nDamage + bonusDamage;
@@ -1130,9 +1132,9 @@ function X.GetNearbyLastHitCreep(ignorAlly, bEnemy, nDamage, nRadius, bot)
 		and ( ignorAlly or not X.IsAllysTarget(nCreep) )
 		and ( bEnemy or string.find(nCreep:GetUnitName(), 'npc_dota_creep_') )
 		then
-		
+
 			local nAttackProDelayTime = J.GetAttackProDelayTime(bot,nCreep) ;
-			
+
 			if bEnemy and botName == "npc_dota_hero_antimage"
 				and J.IsKeyWordUnit("ranged",nCreep)
 			then
@@ -1143,36 +1145,36 @@ function X.GetNearbyLastHitCreep(ignorAlly, bEnemy, nDamage, nRadius, bot)
 					nDamage = nDamage + bonusDamage;
 				end
 			end
-		
-			
+
+
 			local nRealDamage = nDamage * 1
-				
+
 			if J.WillKillTarget(nCreep,nRealDamage,nDamageType,nAttackProDelayTime)
 			then
 				return nCreep;
 			end
-		
+
 		end
 	end
 	return nil;
 end
 
 function X.GetExceptRangeLastHitCreep(bEnemy,nDamage,nRange,nRadius,bot)
-	
+
 	local nCreep = X.WeakestUnitExceptRangeCanBeAttacked(false, bEnemy, nRange, nRadius, bot);
 	local nDamageType = DAMAGE_TYPE_PHYSICAL;
 
 	if X.IsValid(nCreep)
 	then
 		if not bEnemy and nCreep:GetHealth()/nCreep:GetMaxHealth() >= 0.5
-		then return nil end	
-	
+		then return nil end
+
 		nDamage = nDamage * 1 ;
 
 		local nAttackProDelayTime = J.GetAttackProDelayTime(bot,nCreep);
-		
+
 		if J.WillKillTarget(nCreep,nDamage,nDamageType,nAttackProDelayTime)
-		then		
+		then
 			return nCreep;
 		end
 
@@ -1182,34 +1184,34 @@ function X.GetExceptRangeLastHitCreep(bEnemy,nDamage,nRange,nRadius,bot)
 end
 
 function X.IsLastHitCreep(nCreep,nDamage)
-	
+
 	if X.CanBeAttacked(nCreep)
 	then
-		
+
 		nDamage = nDamage * 1;
-		
+
 		if nCreep:GetActualIncomingDamage(nDamage, DAMAGE_TYPE_PHYSICAL) + J.GetCreepAttackProjectileWillRealDamage(nCreep,0.66) > nCreep:GetHealth() +1
-		then 
+		then
 		    return true;
 		end
-		
+
 	end
-	 
+
 	return false;
-	
+
 end
 
 
 function X.GetLastHitHealth(bot,nCreep)
-	
+
 	if X.CanBeAttacked(nCreep)
 	then
-	   
+
        local nDamage = X.GetAttackDamageToCreep(bot) * 1
-		
+
 	   return nCreep:GetActualIncomingDamage(nDamage, DAMAGE_TYPE_PHYSICAL);
 	end
-	 
+
 	return bot:GetAttackDamage();
 
 end
@@ -1219,8 +1221,8 @@ function X.IsAllysTarget(unit)
 	local bot = GetBot();
 	local allies = bot:GetNearbyHeroes(1000,false,BOT_MODE_NONE);
 	if #allies < 2 then return false end;
-	
-	for _,ally in pairs(allies) 
+
+	for _,ally in pairs(allies)
 	do
 		if  ally ~= bot
 			and not ally:IsIllusion()
@@ -1236,9 +1238,9 @@ end
 function X.IsEnemysTarget(unit)
 	local bot = GetBot();
 	local enemys = bot:GetNearbyHeroes(1600,true,BOT_MODE_NONE);
-	for _,enemy in pairs(enemys) 
+	for _,enemy in pairs(enemys)
 	do
-		if  X.IsValid(enemy) and J.GetProperTarget(enemy) == unit 
+		if  X.IsValid(enemy) and J.GetProperTarget(enemy) == unit
 		then
 			return true;
 		end
@@ -1248,21 +1250,21 @@ end
 
 
 function X.CanAttackTogether(bot)
-   
+
    local allies = bot:GetNearbyHeroes(1200,false,BOT_MODE_NONE);
    local nNearbyEnemyHeroes = bot:GetNearbyHeroes(600,true,BOT_MODE_NONE);
-   
+
    return bot ~= nil and bot:IsAlive()
 		  and not bot:IsIllusion()
 		  and J.GetProperTarget(bot) == nil
 	      and #allies >= 2
 		  and (nNearbyEnemyHeroes[1] == nil or nNearbyEnemyHeroes[1]:GetLevel() < 10)
-   
+
 end
 
 
 function X.GetMostDamageUnit(nUnits)
-	
+
 	local mostAttackDamage = 0;
 	local mostUnit = nil;
 	for _,unit in pairs(nUnits)
@@ -1275,14 +1277,14 @@ function X.GetMostDamageUnit(nUnits)
 			mostUnit = unit;
 		end
 	end
-	
+
 	return mostUnit;
 
 end
 
 
 function X.GetCanTogetherCount(nAllies)
-	
+
 	local nNum = 0;
 	for _,ally in pairs(nAllies)
 	do
@@ -1291,7 +1293,7 @@ function X.GetCanTogetherCount(nAllies)
 			nNum = nNum +1;
 		end
 	end
-	
+
 	return nNum;
 
 end
@@ -1305,17 +1307,17 @@ function X.IsOthersTarget(nUnit)
 		then
 			return true;
 		end
-		
+
 		if X.IsEnemysTarget(nUnit)
 		then
 			return true;
 		end
-		
+
 		if X.IsCreepTarget(nUnit)
 		then
 			return true
 		end
-		
+
 		local nTowers = bot:GetNearbyTowers(1600,true);
 		for _,tower in pairs(nTowers)
 		do
@@ -1325,7 +1327,7 @@ function X.IsOthersTarget(nUnit)
 				return true;
 			end
 		end
-		
+
 		local nTowers = bot:GetNearbyTowers(1600,false);
 		for _,tower in pairs(nTowers)
 		do
@@ -1336,7 +1338,7 @@ function X.IsOthersTarget(nUnit)
 			end
 		end
 	end
-	
+
 	return false;
 
 end
@@ -1344,9 +1346,9 @@ end
 function X.CanBeInVisible(bot)
 
 	local nEnemyTowers = bot:GetNearbyTowers(800,true);
-	if #nEnemyTowers > 0 
+	if #nEnemyTowers > 0
 	   or bot:HasModifier("modifier_item_dustofappearance")
-	then 
+	then
 		return false;
 	end
 
@@ -1356,21 +1358,21 @@ function X.CanBeInVisible(bot)
 	end
 
 	local glimer = J.IsItemAvailable("item_glimmer_cape");
-	if glimer ~= nil and glimer:IsFullyCastable() 
+	if glimer ~= nil and glimer:IsFullyCastable()
 	then
-		return true;			
+		return true;
 	end
-	
+
 	local invissword = J.IsItemAvailable("item_invis_sword");
-	if invissword ~= nil and invissword:IsFullyCastable() 
+	if invissword ~= nil and invissword:IsFullyCastable()
 	then
-		return true;			
+		return true;
 	end
-	
+
 	local silveredge = J.IsItemAvailable("item_silver_edge");
-	if silveredge ~= nil and silveredge:IsFullyCastable() 
+	if silveredge ~= nil and silveredge:IsFullyCastable()
 	then
-		return true;			
+		return true;
 	end
 
 	return false;
@@ -1685,7 +1687,7 @@ function SwapSmokeSupport()
 			if bot:GetItemSlotType(smokeSlot) == ITEM_SLOT_TYPE_BACKPACK
 			then
 				local leastCostItem = J.FindLeastExpensiveItemSlot()
-	
+
 				if leastCostItem ~= -1
 				then
 					bot:ActionImmediate_SwapItems(smokeSlot, leastCostItem)

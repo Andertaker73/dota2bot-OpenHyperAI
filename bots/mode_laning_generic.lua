@@ -196,88 +196,182 @@ function GetBestDenyCreep(hCreepList)
 	return bestCreep, bestMoveToCreep
 end
 
+-- =====================================================================
+-- Seleciona o melhor alvo de harass (herói inimigo) na lane.
+-- Retorna nil se nenhuma troca vale a pena.
+--
+-- Regras de pontuação (quanto maior, melhor):
+--   +3   alvo com HP < 40%
+--   +3   alvo com HP < 25% (cumulativo — finisher vale muito)
+--   +1   bot tem mais HP que o alvo (troca favorável)
+--   +2   vantagem numérica local (mais aliados que inimigos em 700)
+--   +1   números iguais e bot com HP > 50% (troca "neutra" aceitável)
+--   +1.5 alvo é jogador humano (o usuário reportou que humanos têm muito espaço)
+--
+-- Rejeições:
+--   - Suspeita de ilusão, invulnerável, magic immune
+--   - Modifiers que anulam kill: Borrowed Time, Shallow Grave, Reaper's Scythe,
+--     False Promise
+--   - Distância > botAttackRange + 200
+--   - Bot com HP < 35% e em desvantagem numérica local (evita trade suicida)
+-- =====================================================================
+function GetBestHarassTarget(nEnemyList, nRange)
+        if nEnemyList == nil then return nil end
+
+        local bestTarget = nil
+        local bestScore = 0
+
+        local botHP = bot:GetHealth() / bot:GetMaxHealth()
+        local nAllyNearby = J.GetAlliesNearLoc(bot:GetLocation(), 700)
+        local nEnemyNearby = J.GetEnemiesNearLoc(bot:GetLocation(), 700)
+
+        for _, enemy in pairs(nEnemyList) do
+                local bValid = J.IsValidHero(enemy)
+                        and not J.IsSuspiciousIllusion(enemy)
+                        and not enemy:IsInvulnerable()
+                        and not enemy:IsMagicImmune()
+                        and not enemy:HasModifier('modifier_abaddon_borrowed_time')
+                        and not enemy:HasModifier('modifier_dazzle_shallow_grave')
+                        and not enemy:HasModifier('modifier_necrolyte_reapers_scythe')
+                        and not enemy:HasModifier('modifier_oracle_false_promise_timer')
+                        and GetUnitToUnitDistance(bot, enemy) <= nRange + 200
+
+                if bValid then
+                        local enemyHP = enemy:GetHealth() / enemy:GetMaxHealth()
+                        local score = 0
+
+                        if enemyHP < 0.4 then score = score + 3 end
+                        if enemyHP < 0.25 then score = score + 3 end
+                        if botHP > enemyHP + 0.15 then score = score + 1 end
+                        if #nAllyNearby > #nEnemyNearby then score = score + 2 end
+                        if #nAllyNearby == #nEnemyNearby and botHP > 0.5 then score = score + 1 end
+                        if not enemy:IsBot() then score = score + 1.5 end
+
+                        local bTooWeak = botHP < 0.35 and #nAllyNearby <= #nEnemyNearby
+
+                        if not bTooWeak and score > bestScore then
+                                bestScore = score
+                                bestTarget = enemy
+                        end
+                end
+        end
+
+        -- Sem nenhum motivo (nem HP baixo, nem vantagem), não vale trocar CS
+        -- por um hit de harass ruim. Score mínimo 1.
+        if bestScore < 1 then return nil end
+
+        return bestTarget
+end
+
 function Think()
-		local denyCreep, denyMoveToCreep = GetBestDenyCreep(nAllyCreeps)
-		-- PRIORIDADE DE DENY: sempre que um creep aliado estiver em janela de deny ou perto dela,
-		-- o bot precisa salvar o creep antes de tentar last-hit. Isso evita que o lane fique sem
-		-- controle apenas porque não havia um herói inimigo imediatamente ao alcance.
-		if J.IsValid(denyCreep) then
-			if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
-				bot:Action_MoveToUnit(denyCreep)
-				return
-			end
-			bot:SetTarget(denyCreep)
-			bot:Action_AttackUnit(denyCreep, true)
-			return
-		elseif J.IsValid(denyMoveToCreep) and GetUnitToUnitDistance(bot, denyMoveToCreep) > botAttackRange * 0.6 then
-			bot:Action_MoveToUnit(denyMoveToCreep)
-			return
-		end
+        -- =====================================================================
+        -- ORDEM DE PRIORIDADE DO LANE (após esta mudança):
+        --   1. Negar creep aliado (deny)          — do commit f3c52aa
+        --   2. Último hit (last hit)               — ouro garantido
+        --   3. Atacar herói inimigo (harass)      — NOVO: restaura agressão na lane
+        --   4. Farmar neutros próximos             — anti-idle
+        --   5. Ir para a frente da lane            — posicionamento
+        --
+        -- Regressão corrigida: após f3c52aa e db89678, o modo laning perdeu
+        -- completamente a fase de ataque a herói. Como laning é o modo ativo
+        -- durante toda a fase de rotas (desire ~0.45-0.9), os bots nunca
+        -- contestavam humanos visíveis na lane — o oponente farmava livre.
+        -- =====================================================================
 
-		local hitCreep, moveToCreep = GetBestLastHitCreep(nEnemyCreeps)
-		if J.IsValid(hitCreep) then
-			-- 让刀：旁边有己方真人玩家时不补刀（真人优先吃线，不看 bot 自己是什么角色）
-			-- 用 GetUnitList 遍历（与作者 J.IsPosxHuman 同款），不用 GetNearbyHeroes（其 botMode 参数语义不可靠）
-			-- 关键：没有真人时（对面/纯 bot 局）无条件补刀，避免影响 bot 之间正常对线
-			-- OHA MOD 2026/08/29: yield ONLY to a human ally assigned to the SAME lane, for ANY bot
-			-- position (previously pos 1/2 always ignored the human, contradicting the comment above).
-			local bHumanLaneAllyNearby = false
-			for _, ally in ipairs(GetUnitList(UNIT_LIST_ALLIED_HEROES)) do
-				if J.IsValidHero(ally) and not ally:IsBot()
-				and ally:GetAssignedLane() == botAssignedLane
-				and GetUnitToUnitDistance(bot, ally) <= 700 then
-					bHumanLaneAllyNearby = true
-					break
-				end
-			end
-			if not bHumanLaneAllyNearby
-			then
-				if GetUnitToUnitDistance(bot, hitCreep) > botAttackRange
-				or (moveToCreep and GetUnitToUnitDistance(bot, hitCreep) > botAttackRange * 0.8) then
-					bot:Action_MoveToUnit(hitCreep)
-					return
-				else
-					bot:SetTarget(hitCreep)
-					bot:Action_AttackUnit(hitCreep, true)
-					return
-				end
-			end
-		end
+        local denyCreep, denyMoveToCreep = GetBestDenyCreep(nAllyCreeps)
+        if J.IsValid(denyCreep) then
+                if GetUnitToUnitDistance(bot, denyCreep) > botAttackRange then
+                        bot:Action_MoveToUnit(denyCreep)
+                        return
+                end
+                bot:SetTarget(denyCreep)
+                bot:Action_AttackUnit(denyCreep, true)
+                return
+        elseif J.IsValid(denyMoveToCreep) and GetUnitToUnitDistance(bot, denyMoveToCreep) > botAttackRange * 0.6 then
+                bot:Action_MoveToUnit(denyMoveToCreep)
+                return
+        end
 
-		-- OHA MOD 2026/08/13: 没刀没反补 → 打附近野（800 内）——治"无事可做=站桩挂机"
-		local nNeutrals = bot:GetNearbyNeutralCreeps(800)
-		-- 真人玩家在刷这组野（【野怪】700 码内有真人，不是 bot 距离！）→ 不抢
-		local bHumanFarmingHere = false
-		for _, ally2 in ipairs(GetUnitList(UNIT_LIST_ALLIED_HEROES)) do
-			if J.IsValidHero(ally2) and not ally2:IsBot()
-			and #nNeutrals > 0
-			and GetUnitToUnitDistance(ally2, nNeutrals[1]) <= 700 then
-				bHumanFarmingHere = true
-				break
-			end
-		end
-		if not bHumanFarmingHere and #nNeutrals > 0 then
-			bot:SetTarget(nNeutrals[1])
-			bot:Action_AttackUnit(nNeutrals[1], true)
-			return
-		end
+        local hitCreep, moveToCreep = GetBestLastHitCreep(nEnemyCreeps)
+        if J.IsValid(hitCreep) then
+                -- Ceder last hit a humano aliado na mesma lane (comportamento existente)
+                local bHumanLaneAllyNearby = false
+                for _, ally in ipairs(GetUnitList(UNIT_LIST_ALLIED_HEROES)) do
+                        if J.IsValidHero(ally) and not ally:IsBot()
+                                and ally:GetAssignedLane() == botAssignedLane
+                                and GetUnitToUnitDistance(bot, ally) <= 700 then
+                                bHumanLaneAllyNearby = true
+                                break
+                        end
+                end
+                if not bHumanLaneAllyNearby then
+                        if GetUnitToUnitDistance(bot, hitCreep) > botAttackRange
+                                or (moveToCreep and GetUnitToUnitDistance(bot, hitCreep) > botAttackRange * 0.8) then
+                                bot:Action_MoveToUnit(hitCreep)
+                                return
+                        else
+                                bot:SetTarget(hitCreep)
+                                bot:Action_AttackUnit(hitCreep, true)
+                                return
+                        end
+                end
+        end
 
-		if local_mode_laning_generic then
-			local_mode_laning_generic.Think()
-		end
+        -- =====================================================================
+        -- NOVO: atacar herói inimigo na lane
+        -- Só chega aqui se não há deny nem last hit pendente — priorizamos CS
+        -- primeiro. Depois, se houver herói em alcance, ataca.
+        -- =====================================================================
+        local harassTarget = GetBestHarassTarget(nInRangeEnemy, botAttackRange)
+        if J.IsValidHero(harassTarget) then
+                local dist = GetUnitToUnitDistance(bot, harassTarget)
+                if dist > botAttackRange then
+                        -- Fora de alcance: só avança se estiver perto. Não perseguir
+                        -- muito — perderia last hits e levaria aggro de creeps.
+                        if dist <= botAttackRange + 200 then
+                                bot:Action_MoveToUnit(harassTarget)
+                                return
+                        end
+                else
+                        bot:SetTarget(harassTarget)
+                        bot:Action_AttackUnit(harassTarget, true)
+                        return
+                end
+        end
 
-		local fLaneFrontAmount = GetLaneFrontAmount(GetTeam(), botAssignedLane, false)
-		local fLaneFrontAmount_enemy = GetLaneFrontAmount(GetOpposingTeam(), botAssignedLane, false)
+        -- Anti-idle: atacar neutros próximos (comportamento existente)
+        local nNeutrals = bot:GetNearbyNeutralCreeps(800)
+        local bHumanFarmingHere = false
+        for _, ally2 in ipairs(GetUnitList(UNIT_LIST_ALLIED_HEROES)) do
+                if J.IsValidHero(ally2) and not ally2:IsBot()
+                        and #nNeutrals > 0
+                        and GetUnitToUnitDistance(ally2, nNeutrals[1]) <= 700 then
+                        bHumanFarmingHere = true
+                        break
+                end
+        end
+        if not bHumanFarmingHere and #nNeutrals > 0 then
+                bot:SetTarget(nNeutrals[1])
+                bot:Action_AttackUnit(nNeutrals[1], true)
+                return
+        end
 
-		local nLongestAttackRange = math.max(botAttackRange, 250, nFurthestEnemyAttackRange)
+        if local_mode_laning_generic then
+                local_mode_laning_generic.Think()
+        end
 
-		local target_loc = GetLaneFrontLocation(GetTeam(), botAssignedLane, -nLongestAttackRange)
-		if fLaneFrontAmount_enemy < fLaneFrontAmount then
-			target_loc = GetLaneFrontLocation(GetOpposingTeam(), botAssignedLane, -nLongestAttackRange)
-		end
+        local fLaneFrontAmount = GetLaneFrontAmount(GetTeam(), botAssignedLane, false)
+        local fLaneFrontAmount_enemy = GetLaneFrontAmount(GetOpposingTeam(), botAssignedLane, false)
 
-		bot:Action_MoveToLocation(target_loc + RandomVector(50))
-	end
+        local nLongestAttackRange = math.max(botAttackRange, 250, nFurthestEnemyAttackRange)
+
+        local target_loc = GetLaneFrontLocation(GetTeam(), botAssignedLane, -nLongestAttackRange)
+        if fLaneFrontAmount_enemy < fLaneFrontAmount then
+                target_loc = GetLaneFrontLocation(GetOpposingTeam(), botAssignedLane, -nLongestAttackRange)
+        end
+
+        bot:Action_MoveToLocation(target_loc + RandomVector(50))
+end
 
 
 function PickOneAnnouncer()
