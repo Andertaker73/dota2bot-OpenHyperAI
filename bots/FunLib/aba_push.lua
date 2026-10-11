@@ -252,11 +252,43 @@ function ____exports.GetPushDesireHelper(bot, lane)
         function(____, b) return b and IsValidUnit(b) and b:IsAlive() end
     )
     local finishGame = enemyBarracksRemaining <= 4
+    local enemyT3OrRaxDown = (function()
+        local enemyTeam = gameState.enemyTeam
+        local lanes = {
+            {
+                t3 = GetTower(enemyTeam, Tower.Top3),
+                rM = GetBarracks(enemyTeam, Barracks.TopMelee),
+                rR = GetBarracks(enemyTeam, Barracks.TopRanged)
+            },
+            {
+                t3 = GetTower(enemyTeam, Tower.Mid3),
+                rM = GetBarracks(enemyTeam, Barracks.MidMelee),
+                rR = GetBarracks(enemyTeam, Barracks.MidRanged)
+            },
+            {
+                t3 = GetTower(enemyTeam, Tower.Bot3),
+                rM = GetBarracks(enemyTeam, Barracks.BotMelee),
+                rR = GetBarracks(enemyTeam, Barracks.BotRanged)
+            }
+        }
+        for ____, l in ipairs(lanes) do
+            if not l.t3 or not IsValidUnit(l.t3) then
+                return true
+            end
+            if not l.rM or not IsValidUnit(l.rM) then
+                return true
+            end
+            if not l.rR or not IsValidUnit(l.rR) then
+                return true
+            end
+        end
+        return false
+    end)()
     local forceGroupPushLevel = math.max(
         1,
         math.min(3, Customize.Force_Group_Push_Level or 1)
     )
-    local nMaxDesire = finishGame and 0.99 or 0.92 + (forceGroupPushLevel - 1) * 0.06
+    local nMaxDesire = (finishGame or enemyT3OrRaxDown) and 0.99 or 0.92 + (forceGroupPushLevel - 1) * 0.06
     local nSearchRange = 2000
     local botActiveMode = bot:GetActiveMode()
     local nModeDesire = bot:GetActiveModeDesire()
@@ -283,30 +315,32 @@ function ____exports.GetPushDesireHelper(bot, lane)
     if enemiesAtAncient >= 1 and (gameState.aliveEnemyCount >= 3 or jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) then
         return BotModeDesire.ExtraLow
     end
-    for ____, slot in ipairs(NonTier1Towers) do
-        do
-            local __continue31
-            repeat
-                local tw = GetTower(team, slot)
-                if not tw or not IsValidUnit(tw) or not tw:IsAlive() then
-                    __continue31 = true
+    if not enemyT3OrRaxDown then
+        for ____, slot in ipairs(NonTier1Towers) do
+            do
+                local __continue38
+                repeat
+                    local tw = GetTower(team, slot)
+                    if not tw or not IsValidUnit(tw) or not tw:IsAlive() then
+                        __continue38 = true
+                        break
+                    end
+                    if tw:GetHealth() >= tw:GetMaxHealth() then
+                        __continue38 = true
+                        break
+                    end
+                    local enemiesAtTower = jmz.GetLastSeenEnemiesNearLoc(
+                        tw:GetLocation(),
+                        1400
+                    )
+                    if #enemiesAtTower >= 2 then
+                        return BotModeDesire.ExtraLow
+                    end
+                    __continue38 = true
+                until true
+                if not __continue38 then
                     break
                 end
-                if tw:GetHealth() >= tw:GetMaxHealth() then
-                    __continue31 = true
-                    break
-                end
-                local enemiesAtTower = jmz.GetLastSeenEnemiesNearLoc(
-                    tw:GetLocation(),
-                    1400
-                )
-                if #enemiesAtTower >= 2 then
-                    return BotModeDesire.ExtraLow
-                end
-                __continue31 = true
-            until true
-            if not __continue31 then
-                break
             end
         end
     end
@@ -323,8 +357,8 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local enemyAverageLevel = jmz.GetAverageLevel(true)
     local levelAdvantage = gameState.averageLevel - enemyAverageLevel
     local hasSignificantAdvantage = networthAdvantage > 15000 or levelAdvantage > 2
-    local isStrongPowerplay = finishGame or enemyDeadCount >= 1 or networthAdvantage > 8000 or levelAdvantage > 1
-    if isStrongPowerplay and not IsEnemyThreatNearOurBase() then
+    local isStrongPowerplay = finishGame or enemyT3OrRaxDown or enemyDeadCount >= 1 or networthAdvantage > 8000 or levelAdvantage > 1
+    if isStrongPowerplay and (not IsEnemyThreatNearOurBase() or enemyT3OrRaxDown) then
         nMaxDesire = math.max(nMaxDesire, 0.98)
     end
     if #alliesHere <= 1 and gameState.aliveEnemyCount >= 3 and enemyDeadCount < 2 and not hasSignificantAdvantage then
@@ -481,6 +515,41 @@ function ____exports.GetPushDesireHelper(bot, lane)
     end
     local pushLane = ____exports.WhichLaneToPush(bot, lane)
     local isCurrentLanePushLane = pushLane == lane
+    local laneToFinish = nil
+    if enemyT3OrRaxDown then
+        local enemyTeam = gameState.enemyTeam
+        local candidates = {
+            {
+                lane = Lane.Top,
+                t3 = GetTower(enemyTeam, Tower.Top3),
+                rM = GetBarracks(enemyTeam, Barracks.TopMelee),
+                rR = GetBarracks(enemyTeam, Barracks.TopRanged)
+            },
+            {
+                lane = Lane.Mid,
+                t3 = GetTower(enemyTeam, Tower.Mid3),
+                rM = GetBarracks(enemyTeam, Barracks.MidMelee),
+                rR = GetBarracks(enemyTeam, Barracks.MidRanged)
+            },
+            {
+                lane = Lane.Bot,
+                t3 = GetTower(enemyTeam, Tower.Bot3),
+                rM = GetBarracks(enemyTeam, Barracks.BotMelee),
+                rR = GetBarracks(enemyTeam, Barracks.BotRanged)
+            }
+        }
+        for ____, c in ipairs(candidates) do
+            local raxAlive = c.rM and IsValidUnit(c.rM) or c.rR and IsValidUnit(c.rR)
+            local t3Down = not c.t3 or not IsValidUnit(c.t3)
+            if t3Down and raxAlive then
+                laneToFinish = c.lane
+                break
+            end
+        end
+    end
+    if laneToFinish ~= nil and lane == laneToFinish then
+        nMaxDesire = 1
+    end
     if not jmz.IsCore(bot) and isCurrentLanePushLane or jmz.IsCore(bot) and (jmz.IsLateGame() and isCurrentLanePushLane or isMidOrEarlyGame) then
         local allowNumbers = eAliveCount == 0 or enemyDeadCount >= 1 or aAliveCoreCount >= eAliveCoreCount or aAliveCount >= eAliveCount or aAliveCoreCount >= 1 and aAliveCount >= eAliveCount - 1 or networthAdvantage > 6000 and aAliveCount >= eAliveCount - 1 or levelAdvantage > 1 and aAliveCount >= eAliveCount - 1 or hasSignificantAdvantage and aAliveCount >= eAliveCount - 1
         if allowNumbers then
@@ -1045,24 +1114,24 @@ function ____exports.PushThink(bot, lane)
     local towerDistanceToFountain = bTowerNearby and GetUnitToLocationDistance(nEnemyTowers[1], vTeamFountain) or 0
     for ____, creep in ipairs(nCreeps) do
         do
-            local __continue157
+            local __continue169
             repeat
                 if not jmz.IsValid(creep) or not jmz.CanBeAttacked(creep) then
-                    __continue157 = true
+                    __continue169 = true
                     break
                 end
                 if jmz.IsTormentor(creep) or jmz.IsRoshan(creep) then
-                    __continue157 = true
+                    __continue169 = true
                     break
                 end
                 if bTowerNearby and GetUnitToLocationDistance(creep, vTeamFountain) >= towerDistanceToFountain then
-                    __continue157 = true
+                    __continue169 = true
                     break
                 end
                 bot:Action_AttackUnit(creep, true)
                 return
             until true
-            if not __continue157 then
+            if not __continue169 then
                 break
             end
         end

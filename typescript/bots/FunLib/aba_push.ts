@@ -337,6 +337,25 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const enemyBarracksRemaining = enemyBarracks.filter(b => b && IsValidUnit(b) && b.IsAlive()).length;
     const finishGame = enemyBarracksRemaining <= 4;
 
+    // OHA MOD: "finishing strike" — já derrubamos T3 ou rax de alguma lane
+    // inimiga. Tratamos isso como estado de fim de jogo: prioridade máxima
+    // para terminar. Não podemos trocar rax/Ancient por salvar T2 externo
+    // (T2 tem backdoor protection; rax não volta).
+    const enemyT3OrRaxDown = (() => {
+        const enemyTeam = gameState.enemyTeam;
+        const lanes = [
+            { t3: GetTower(enemyTeam, Tower.Top3), rM: GetBarracks(enemyTeam, Barracks.TopMelee), rR: GetBarracks(enemyTeam, Barracks.TopRanged) },
+            { t3: GetTower(enemyTeam, Tower.Mid3), rM: GetBarracks(enemyTeam, Barracks.MidMelee), rR: GetBarracks(enemyTeam, Barracks.MidRanged) },
+            { t3: GetTower(enemyTeam, Tower.Bot3), rM: GetBarracks(enemyTeam, Barracks.BotMelee), rR: GetBarracks(enemyTeam, Barracks.BotRanged) },
+        ];
+        for (const l of lanes) {
+            if (!l.t3 || !IsValidUnit(l.t3)) return true;
+            if (!l.rM || !IsValidUnit(l.rM)) return true;
+            if (!l.rR || !IsValidUnit(l.rR)) return true;
+        }
+        return false;
+    })();
+
     // OHA MOD 2026/08/30: Customize.Force_Group_Push_Level was documented in general.lua
     // but never actually read anywhere — wire it in. 1: baseline (unchanged), 2-3: raise
     // the desire ceiling and tolerate more of a hero-count disadvantage while grouped.
@@ -345,7 +364,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // OHA MOD 2026/09/06: push deve priorizar o fim de jogo quando há vantagem clara.
     // Reduzir bloqueios artificiais e permitir avanço mesmo com números parecidos se o time
     // estiver em powerplay, com networth/level superiores ou com a base inimiga vulnerável.
-    let nMaxDesire = finishGame ? 0.99 : 0.92 + (forceGroupPushLevel - 1) * 0.06;
+    let nMaxDesire = (finishGame || enemyT3OrRaxDown) ? 0.99 : 0.92 + (forceGroupPushLevel - 1) * 0.06;
     const nSearchRange = 2000;
     const botActiveMode = bot.GetActiveMode();
     const nModeDesire = bot.GetActiveModeDesire();
@@ -372,13 +391,19 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // 自定义：己方塔被推（tier≥2 塔血量不满 + 附近有敌人）→ 同样放弃推塔，优先回防
     // 修复：对面 3 人推中二塔时 2 号位带线不 TP 回防（push 渴望度压过 defend）
     // 不跨模块调用 aba_defend 的函数（TS 模块作用域），用 NonTier1Towers 枚举逐塔查
-    for (const slot of NonTier1Towers) {
-        const tw = GetTower(team, slot);
-        if (!tw || !IsValidUnit(tw) || !tw.IsAlive()) continue;
-        if (tw.GetHealth() >= tw.GetMaxHealth()) continue; // 塔满血不算被推
-        const enemiesAtTower = jmz.GetLastSeenEnemiesNearLoc(tw.GetLocation(), 1400);
-        if (enemiesAtTower.length >= 2) {
-            return BotModeDesire.ExtraLow;
+    //
+    // OHA MOD: NÃO aplicar quando já derrubamos T3/rax inimigo (finishing strike).
+    // Nesse estado, trocar rax/Ancient por salvar T2 é trade ruim — T2 tem
+    // backdoor protection e sobrevive sozinho vários segundos.
+    if (!enemyT3OrRaxDown) {
+        for (const slot of NonTier1Towers) {
+            const tw = GetTower(team, slot);
+            if (!tw || !IsValidUnit(tw) || !tw.IsAlive()) continue;
+            if (tw.GetHealth() >= tw.GetMaxHealth()) continue; // 塔满血不算被推
+            const enemiesAtTower = jmz.GetLastSeenEnemiesNearLoc(tw.GetLocation(), 1400);
+            if (enemiesAtTower.length >= 2) {
+                return BotModeDesire.ExtraLow;
+            }
         }
     }
 
@@ -401,9 +426,11 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     const enemyAverageLevel = jmz.GetAverageLevel(true);
     const levelAdvantage = gameState.averageLevel - enemyAverageLevel;
     const hasSignificantAdvantage = networthAdvantage > 15000 || levelAdvantage > 2;
-    const isStrongPowerplay = finishGame || enemyDeadCount >= 1 || networthAdvantage > 8000 || levelAdvantage > 1;
+    const isStrongPowerplay = finishGame || enemyT3OrRaxDown || enemyDeadCount >= 1 || networthAdvantage > 8000 || levelAdvantage > 1;
 
-    if (isStrongPowerplay && !IsEnemyThreatNearOurBase()) {
+    // OHA MOD: durante finishing strike, mesmo que haja ameaça na base, não
+    // cancelamos o boost de push — o objetivo é rax/Ancient.
+    if (isStrongPowerplay && (!IsEnemyThreatNearOurBase() || enemyT3OrRaxDown)) {
         nMaxDesire = math.max(nMaxDesire, 0.98);
     }
 
@@ -591,6 +618,32 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // Decide which lane to push; consider mid early, ally proximity, etc.
     const pushLane = WhichLaneToPush(bot, lane);
     const isCurrentLanePushLane = pushLane === lane;
+
+    // OHA MOD: se já derrubamos T3/rax de alguma lane, essa lane vira
+    // prioridade máxima — mesmo que WhichLaneToPush aponte para outra lane
+    // (mais "fácil", com T1/T2 intactas). Queremos terminar onde já abrimos.
+    let laneToFinish: Lane | null = null;
+    if (enemyT3OrRaxDown) {
+        const enemyTeam = gameState.enemyTeam;
+        const candidates: Array<{ lane: Lane; t3: Unit | null; rM: Unit | null; rR: Unit | null }> = [
+            { lane: Lane.Top, t3: GetTower(enemyTeam, Tower.Top3), rM: GetBarracks(enemyTeam, Barracks.TopMelee), rR: GetBarracks(enemyTeam, Barracks.TopRanged) },
+            { lane: Lane.Mid, t3: GetTower(enemyTeam, Tower.Mid3), rM: GetBarracks(enemyTeam, Barracks.MidMelee), rR: GetBarracks(enemyTeam, Barracks.MidRanged) },
+            { lane: Lane.Bot, t3: GetTower(enemyTeam, Tower.Bot3), rM: GetBarracks(enemyTeam, Barracks.BotMelee), rR: GetBarracks(enemyTeam, Barracks.BotRanged) },
+        ];
+        // Preferir a lane com rax ainda de pé (para derrubar) sobre uma já em ruínas.
+        for (const c of candidates) {
+            const raxAlive = (c.rM && IsValidUnit(c.rM)) || (c.rR && IsValidUnit(c.rR));
+            const t3Down = !c.t3 || !IsValidUnit(c.t3);
+            if (t3Down && raxAlive) {
+                laneToFinish = c.lane;
+                break;
+            }
+        }
+    }
+
+    if (laneToFinish !== null && lane === laneToFinish) {
+        nMaxDesire = 1.0;
+    }
 
     // Enhanced group push logic - more aggressive when team has advantages
     if ((!jmz.IsCore(bot) && isCurrentLanePushLane) || (jmz.IsCore(bot) && ((jmz.IsLateGame() && isCurrentLanePushLane) || isMidOrEarlyGame))) {
