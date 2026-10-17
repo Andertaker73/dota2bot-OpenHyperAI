@@ -2253,9 +2253,6 @@ local meaningfulActivities = {
 -- @param thinkLess - The think less value, 0: fully think, 1 to 10: think less and less frequently.
 -- @param type - The type of action to check, "all": check all actions, "farm": check farm actions, etc.
 -- @returns True if the bot is doing something meaningful, false otherwise
-function ____exports.IsBotThinkingMeaningfulAction(bot, thinkLess, ____type)
-    -- OHA MOD: se o bot precisa reagir agora, NÃO bloquear o Think() por
-    -- estar processando algo "significativo" (stale move, delay, etc.).
 local _jmz_cache = nil
 function ____exports.IsBotThinkingMeaningfulAction(bot, thinkLess, ____type)
     -- OHA MOD: se o bot precisa reagir agora, NÃO bloquear o Think().
