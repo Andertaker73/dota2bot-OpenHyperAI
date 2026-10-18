@@ -395,7 +395,7 @@ end
 function ____exports.GetBaseThreatLevel()
     local team = nTeam
     local ancient = GetAncient(team)
-    if ancient then
+    if ancient ~= nil then
         if jmz.Utils.CountEnemyHeroesNear(
             ancient:GetLocation(),
             2600
@@ -579,7 +579,7 @@ function GetThreatenedLane()
         local score = enemyHeroCnt * 10
         local hgEdge = GetHighGroundEdgeWaitPoint(nTeam, ln)
         local enemiesAtHGBuilding = jmz.GetLastSeenEnemiesNearLoc(hgEdge, 2000)
-        local enemiesAtBase = ancient and jmz.GetLastSeenEnemiesNearLoc(
+        local enemiesAtBase = ancient ~= nil and jmz.GetLastSeenEnemiesNearLoc(
             ancient:GetLocation(),
             2600
         ) or ({})
@@ -1021,7 +1021,7 @@ function ____exports.ShouldDefend(bot, hBuilding, nRadius)
         local aliveAllies = jmz.GetNumOfAliveHeroes(false)
         local aliveEnemies = jmz.GetNumOfAliveHeroes(true)
         local killAdvantage = aliveAllies - aliveEnemies
-        local distToAncient = ancientForCheck and GetLocationToLocationDistance(
+        local distToAncient = ancientForCheck ~= nil and GetLocationToLocationDistance(
             hBuilding:GetLocation(),
             ancientForCheck:GetLocation()
         ) or 99999

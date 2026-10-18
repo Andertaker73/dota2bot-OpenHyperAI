@@ -253,7 +253,7 @@ export function GetBaseThreatLevel(): number {
     // aqui — a redução de "quantos voltam" é feita em ShouldDefend, não
     // na detecção. Sem isso, 1 inimigo no Ancient com 4 kills advantage
     // deixava a base cair livremente.
-    if (ancient) {
+    if (ancient !== null) {
         if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) return 3;
     }
     if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) return 3;
@@ -404,7 +404,7 @@ function GetThreatenedLane(): Lane {
 
         const hgEdge = GetHighGroundEdgeWaitPoint(nTeam, ln);
         const enemiesAtHGBuilding = jmz.GetLastSeenEnemiesNearLoc(hgEdge, 2000);
-        const enemiesAtBase = ancient ? jmz.GetLastSeenEnemiesNearLoc(ancient.GetLocation(), 2600) : [];
+        const enemiesAtBase = (ancient !== null) ? jmz.GetLastSeenEnemiesNearLoc(ancient.GetLocation(), 2600) : [];
 
         const barracksForLane =
             ln === Lane.Top ? [GetBarracks(nTeam, Barracks.TopMelee), GetBarracks(nTeam, Barracks.TopRanged)] :
@@ -644,7 +644,7 @@ export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number)
         // Só quando temos 3+ kills de vantagem E o alvo não é o Ancient/T4
         // (estrutura externa tipo T3/rax) é que restringimos a 1 respondedor.
         // Para Ancient/T4, sempre pelo menos 1 responde.
-        const distToAncient = ancientForCheck
+        const distToAncient = (ancientForCheck !== null)
             ? GetLocationToLocationDistance(hBuilding.GetLocation(), ancientForCheck.GetLocation())
             : 99999;
         const isAncientOrT4 = distToAncient <= 2000;
