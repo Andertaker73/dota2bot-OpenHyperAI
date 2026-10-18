@@ -248,11 +248,19 @@ export function GetBaseThreatLevel(): number {
     const team = nTeam;
     const ancient = GetAncient(team);
 
+    // OHA MOD: exigir mais inimigos quando estamos em vantagem de kills.
+    // Com 4+ mortos, 1 inimigo split-pushing nosso T4 NÃO é ameaça de base —
+    // é trade ruim abandonar push do T3 inimigo para defender.
+    const aliveAllies = jmz.GetNumOfAliveHeroes(false);
+    const aliveEnemies = jmz.GetNumOfAliveHeroes(true);
+    const killAdvantage = aliveAllies - aliveEnemies;
+    const requiredEnemies = killAdvantage >= 3 ? 2 : 1;
+
     // --- Nível 3: Ancient / high ground ---
     if (ancient) {
-        if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) return 3;
+        if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= requiredEnemies) return 3;
     }
-    if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) return 3;
+    if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= requiredEnemies) return 3;
 
     // --- Nível 2: T3 e rax ---
     const innerStructures: Array<Unit | null> = [
@@ -263,8 +271,8 @@ export function GetBaseThreatLevel(): number {
     ];
     for (const s of innerStructures) {
         if (!s || !IsValidBuildingTarget(s)) continue;
-        if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1800) >= 1) return 2;
-        if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1800).length >= 1) return 2;
+        if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1800) >= requiredEnemies) return 2;
+        if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1800).length >= requiredEnemies) return 2;
     }
 
     // --- Nível 1: T2 (pressão externa) ---
@@ -273,8 +281,8 @@ export function GetBaseThreatLevel(): number {
     ];
     for (const s of outerStructures) {
         if (!s || !IsValidBuildingTarget(s)) continue;
-        if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1600) >= 1) return 1;
-        if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1600).length >= 1) return 1;
+        if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1600) >= requiredEnemies) return 1;
+        if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1600).length >= requiredEnemies) return 1;
     }
 
     return 0;
@@ -375,10 +383,18 @@ function IsValidUnit(unit: Unit | null | undefined): unit is Unit {
 export function IsEnemyThreatNearOurBase(): boolean {
     const team = nTeam;
     const ancient = GetAncient(team);
+
+    // OHA MOD: mesma lógica de kill advantage. Com 3+ kills advantage,
+    // um inimigo split-pushing não deve cancelar push ofensivo.
+    const aliveAllies = jmz.GetNumOfAliveHeroes(false);
+    const aliveEnemies = jmz.GetNumOfAliveHeroes(true);
+    const killAdvantage = aliveAllies - aliveEnemies;
+    const requiredEnemies = killAdvantage >= 3 ? 2 : 1;
+
     if (ancient && IsValidUnit(ancient)) {
-        if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) return true;
+        if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= requiredEnemies) return true;
     }
-    if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) return true;
+    if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= requiredEnemies) return true;
     return false;
 }
 
@@ -622,14 +638,23 @@ export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number)
     const nNearby = enemyHeroNearby + math.floor(creepWeights);
     const pos = jmz.GetPosition(bot);
 
-    // === NOVO: base interna aceita QUALQUER defensor ===
-    // Se o alvo está em T3/rax/Ancient, todo mundo pode vir — a alternativa
-    // é perder o jogo. Esse check intencionalmente ignora o role gating abaixo.
+    // OHA MOD: base interna aceita qualquer defensor APENAS quando não temos
+    // vantagem folgada. Com 3+ kills advantage, apenas o herói mais próximo
+    // (posição 2-5) responde; o resto continua no push.
     const ancientForCheck = GetAncient(nTeam);
     const isInnerBaseBuilding = !!ancientForCheck &&
         GetLocationToLocationDistance(hBuilding.GetLocation(), ancientForCheck.GetLocation()) <= 3500;
 
     if (isInnerBaseBuilding && nNearby >= 1) {
+        const aliveAllies = jmz.GetNumOfAliveHeroes(false);
+        const aliveEnemies = jmz.GetNumOfAliveHeroes(true);
+        const killAdvantage = aliveAllies - aliveEnemies;
+
+        if (killAdvantage >= 3) {
+            // Só o herói mais próximo (2-5) defende.
+            const closestPos = GetClosestAllyPos([2, 3, 4, 5], hBuilding.GetLocation());
+            if (pos !== closestPos) return false;
+        }
         return true;
     }
 
@@ -829,7 +854,12 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     if (baseThreatActiveNow) {
         baseThreatUntil = DotaTime() + BASE_THREAT_HOLD;
-        const panicFloor = baseThreatSevere ? 0.97 : 0.9;
+        // OHA MOD: com 3+ kills advantage, o piso cai para 0.7. Ainda
+        // perde para push (0.99) na lane ameaçada, mas não cancela push
+        // em outras lanes. Só faz o time todo defender quando realmente
+        // não temos vantagem.
+        const _killAdv = jmz.GetNumOfAliveHeroes(false) - jmz.GetNumOfAliveHeroes(true);
+        const panicFloor = _killAdv >= 3 ? 0.70 : (baseThreatSevere ? 0.97 : 0.9);
         const forceLoc = ancient
             ? jmz.AdjustLocationWithOffsetTowardsFountain(ancient.GetLocation(), 300)
             : ds.defendLoc;

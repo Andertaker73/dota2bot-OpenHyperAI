@@ -82,9 +82,35 @@ end
 
 function J.HasQueuedAction( bot )
     if bot ~= nil and bot == GetBot() then
-        -- Grace period pós-TP: 500ms após modifier_teleporting sair, tratamos
-        -- a fila como vazia (a ordem de TP fica pendente por alguns frames e
-        -- bloqueava reação).
+        -- OHA MOD: detecção de travamento.
+        -- Se temos ação na fila mas o bot não se moveu em 1.5s, o path está
+        -- bloqueado (creep sumiu, loc atrás de árvore, etc). Limpamos a fila
+        -- para que o Think() do modo possa emitir uma nova ação.
+        if bot:NumQueuedActions() > 0 then
+            local now = DotaTime()
+            local pos = bot:GetLocation()
+            if bot._stuckLastPos == nil then
+                bot._stuckLastPos = pos
+                bot._stuckLastCheckTime = now
+            end
+            local moved = GetLocationToLocationDistance(pos, bot._stuckLastPos)
+            if moved > 60 then
+                -- Está se movendo normalmente
+                bot._stuckLastPos = pos
+                bot._stuckLastCheckTime = now
+            elseif now - bot._stuckLastCheckTime > 1.5 then
+                -- Travado: 1.5s sem se mover com ação na fila
+                bot:Action_ClearActions(true)
+                bot._stuckLastPos = pos
+                bot._stuckLastCheckTime = now
+                return false
+            end
+        else
+            bot._stuckLastPos = bot:GetLocation()
+            bot._stuckLastCheckTime = DotaTime()
+        end
+
+        -- Grace period pós-TP
         local hasTp = bot:HasModifier("modifier_teleporting")
         if hasTp then
             bot._wasTeleporting = true
@@ -160,6 +186,20 @@ function J.MustReactNow(bot)
                     return true
                 end
             end
+        end
+    end
+
+		-- (6) OHA MOD: travado + inimigo próximo → reagir.
+    -- Cobre o caso onde o bot está preso num move inválido e o inimigo chega
+    -- antes que o gate de "recent damage" dispare.
+    local vel = bot:GetVelocity()
+    if vel:Length2D() < 30
+        and not bot:IsCastingAbility()
+        and not bot:IsUsingAbility()
+        and not bot:IsChanneling() then
+        local enemiesNear = bot:GetNearbyHeroes(900, true, BOT_MODE_NONE)
+        if enemiesNear ~= nil and #enemiesNear > 0 then
+            return true
         end
     end
 

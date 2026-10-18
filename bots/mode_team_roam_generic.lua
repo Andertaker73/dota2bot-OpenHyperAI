@@ -146,14 +146,16 @@ function GetDesireHelper()
             vInvasionCenter = vInvasionCenter / nEnemiesInOurHalfTotal
         end
 
-        -- 守家特判 — só dispara em situações genuinamente críticas.
-        -- Antes: 2 inimigos a <4000 do Ancient já forçava 0.95, o que
-        -- bloqueava todo o roam ofensivo. Agora exige ataque real, invasão
-        -- massiva ou presença profunda na base.
-        if nEnemiesAttackingStructure >= 2
-            or (nEnemiesNearBase >= 4 and J.IsLateGame()) then
+        -- OHA MOD: com 3+ kills advantage, exigir 3+ inimigos no raio do
+        -- Ancient. Com 4 mortos, um único split-pusher não deve acionar
+        -- "retorno em massa".
+        local _aliveAllies = J.GetNumOfAliveHeroes(false)
+        local _aliveEnemies = J.GetNumOfAliveHeroes(true)
+        local _killAdv = _aliveAllies - _aliveEnemies
+        local _reqBase = _killAdv >= 3 and 3 or 2
+        if nEnemiesNearBase >= 4 and J.IsLateGame() then
             return 1.0
-        elseif nEnemiesDeep >= 3 then
+        elseif nEnemiesNearBase >= _reqBase then
             return 0.95
         end
 
