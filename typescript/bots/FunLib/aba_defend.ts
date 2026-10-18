@@ -248,19 +248,15 @@ export function GetBaseThreatLevel(): number {
     const team = nTeam;
     const ancient = GetAncient(team);
 
-    // OHA MOD: exigir mais inimigos quando estamos em vantagem de kills.
-    // Com 4+ mortos, 1 inimigo split-pushing nosso T4 NÃO é ameaça de base —
-    // é trade ruim abandonar push do T3 inimigo para defender.
-    const aliveAllies = jmz.GetNumOfAliveHeroes(false);
-    const aliveEnemies = jmz.GetNumOfAliveHeroes(true);
-    const killAdvantage = aliveAllies - aliveEnemies;
-    const requiredEnemies = killAdvantage >= 3 ? 2 : 1;
-
     // --- Nível 3: Ancient / high ground ---
+    // OHA MOD: SEMPRE detecta (1+ inimigo). Kill advantage NÃO se aplica
+    // aqui — a redução de "quantos voltam" é feita em ShouldDefend, não
+    // na detecção. Sem isso, 1 inimigo no Ancient com 4 kills advantage
+    // deixava a base cair livremente.
     if (ancient) {
-        if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= requiredEnemies) return 3;
+        if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) return 3;
     }
-    if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= requiredEnemies) return 3;
+    if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) return 3;
 
     // --- Nível 2: T3 e rax ---
     const innerStructures: Array<Unit | null> = [
@@ -271,8 +267,8 @@ export function GetBaseThreatLevel(): number {
     ];
     for (const s of innerStructures) {
         if (!s || !IsValidBuildingTarget(s)) continue;
-        if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1800) >= requiredEnemies) return 2;
-        if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1800).length >= requiredEnemies) return 2;
+        if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1800) >= 1) return 2;
+        if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1800).length >= 1) return 2;
     }
 
     // --- Nível 1: T2 (pressão externa) ---
@@ -281,8 +277,8 @@ export function GetBaseThreatLevel(): number {
     ];
     for (const s of outerStructures) {
         if (!s || !IsValidBuildingTarget(s)) continue;
-        if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1600) >= requiredEnemies) return 1;
-        if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1600).length >= requiredEnemies) return 1;
+        if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1600) >= 1) return 1;
+        if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1600).length >= 1) return 1;
     }
 
     return 0;
@@ -383,18 +379,12 @@ function IsValidUnit(unit: Unit | null | undefined): unit is Unit {
 export function IsEnemyThreatNearOurBase(): boolean {
     const team = nTeam;
     const ancient = GetAncient(team);
-
-    // OHA MOD: mesma lógica de kill advantage. Com 3+ kills advantage,
-    // um inimigo split-pushing não deve cancelar push ofensivo.
-    const aliveAllies = jmz.GetNumOfAliveHeroes(false);
-    const aliveEnemies = jmz.GetNumOfAliveHeroes(true);
-    const killAdvantage = aliveAllies - aliveEnemies;
-    const requiredEnemies = killAdvantage >= 3 ? 2 : 1;
-
+    // OHA MOD: sempre detecta Ancient/HG com 1+ inimigo. Gating por kill
+    // advantage acontece em ShouldDefend, não aqui.
     if (ancient && IsValidUnit(ancient)) {
-        if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= requiredEnemies) return true;
+        if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) return true;
     }
-    if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= requiredEnemies) return true;
+    if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) return true;
     return false;
 }
 
@@ -638,9 +628,10 @@ export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number)
     const nNearby = enemyHeroNearby + math.floor(creepWeights);
     const pos = jmz.GetPosition(bot);
 
-    // OHA MOD: base interna aceita qualquer defensor APENAS quando não temos
-    // vantagem folgada. Com 3+ kills advantage, apenas o herói mais próximo
-    // (posição 2-5) responde; o resto continua no push.
+        // OHA MOD: base interna sempre aceita defesa. Com kill advantage >= 3,
+    // apenas o herói mais próximo (pos 2-5) responde — o resto continua
+    // no push. Isso evita "5 bots abandonam push pra defender 1 split-pusher"
+    // sem cair no extremo oposto de "ninguém defende".
     const ancientForCheck = GetAncient(nTeam);
     const isInnerBaseBuilding = !!ancientForCheck &&
         GetLocationToLocationDistance(hBuilding.GetLocation(), ancientForCheck.GetLocation()) <= 3500;
@@ -650,8 +641,15 @@ export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number)
         const aliveEnemies = jmz.GetNumOfAliveHeroes(true);
         const killAdvantage = aliveAllies - aliveEnemies;
 
-        if (killAdvantage >= 3) {
-            // Só o herói mais próximo (2-5) defende.
+        // Só quando temos 3+ kills de vantagem E o alvo não é o Ancient/T4
+        // (estrutura externa tipo T3/rax) é que restringimos a 1 respondedor.
+        // Para Ancient/T4, sempre pelo menos 1 responde.
+        const distToAncient = ancientForCheck
+            ? GetLocationToLocationDistance(hBuilding.GetLocation(), ancientForCheck.GetLocation())
+            : 99999;
+        const isAncientOrT4 = distToAncient <= 2000;
+
+        if (killAdvantage >= 3 && !isAncientOrT4) {
             const closestPos = GetClosestAllyPos([2, 3, 4, 5], hBuilding.GetLocation());
             if (pos !== closestPos) return false;
         }
@@ -854,12 +852,10 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     if (baseThreatActiveNow) {
         baseThreatUntil = DotaTime() + BASE_THREAT_HOLD;
-        // OHA MOD: com 3+ kills advantage, o piso cai para 0.7. Ainda
-        // perde para push (0.99) na lane ameaçada, mas não cancela push
-        // em outras lanes. Só faz o time todo defender quando realmente
-        // não temos vantagem.
-        const _killAdv = jmz.GetNumOfAliveHeroes(false) - jmz.GetNumOfAliveHeroes(true);
-        const panicFloor = _killAdv >= 3 ? 0.70 : (baseThreatSevere ? 0.97 : 0.9);
+        // OHA MOD: floor sempre alto em Ancient/HG (0.97) e T3/rax (0.90).
+        // NÃO reduzir por kill advantage — a redução é feita em ShouldDefend
+        // (por-bot), não no piso global.
+        const panicFloor = baseThreatSevere ? 0.97 : 0.9;
         const forceLoc = ancient
             ? jmz.AdjustLocationWithOffsetTowardsFountain(ancient.GetLocation(), 300)
             : ds.defendLoc;
@@ -1027,7 +1023,12 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // Pisos após TODOS os dampeners
     if (panic.active) nDefendDesire = math.max(nDefendDesire, panic.floor);
     if (pingFloor > 0) nDefendDesire = math.max(nDefendDesire, pingFloor);
-    if (baseThreatActiveNow) nDefendDesire = math.max(nDefendDesire, baseThreatSevere ? 0.97 : 0.9);
+    // OHA MOD: só aplica o piso de base a bots que ShouldDefend confirmou.
+    // Sem esse gate, todos os 5 recebiam 0.97 e abandonavam push mesmo
+    // quando apenas 1 deveria voltar.
+    if (baseThreatActiveNow && shouldDef) {
+        nDefendDesire = math.max(nDefendDesire, baseThreatSevere ? 0.97 : 0.9);
+    }
 
     ConsiderPingedDefend(bot, lane, nDefendDesire, furthestBuilding, buildingTier, nEffAllies, lEnemies.length);
 

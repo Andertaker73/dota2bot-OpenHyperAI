@@ -395,19 +395,15 @@ end
 function ____exports.GetBaseThreatLevel()
     local team = nTeam
     local ancient = GetAncient(team)
-    local aliveAllies = jmz.GetNumOfAliveHeroes(false)
-    local aliveEnemies = jmz.GetNumOfAliveHeroes(true)
-    local killAdvantage = aliveAllies - aliveEnemies
-    local requiredEnemies = killAdvantage >= 3 and 2 or 1
     if ancient then
         if jmz.Utils.CountEnemyHeroesNear(
             ancient:GetLocation(),
             2600
-        ) >= requiredEnemies then
+        ) >= 1 then
             return 3
         end
     end
-    if jmz.Utils.CountEnemyHeroesOnHighGround(team) >= requiredEnemies then
+    if jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1 then
         return 3
     end
     local innerStructures = {
@@ -432,13 +428,13 @@ function ____exports.GetBaseThreatLevel()
                 if jmz.Utils.CountEnemyHeroesNear(
                     s:GetLocation(),
                     1800
-                ) >= requiredEnemies then
+                ) >= 1 then
                     return 2
                 end
                 if #jmz.GetLastSeenEnemiesNearLoc(
                     s:GetLocation(),
                     1800
-                ) >= requiredEnemies then
+                ) >= 1 then
                     return 2
                 end
                 __continue29 = true
@@ -464,13 +460,13 @@ function ____exports.GetBaseThreatLevel()
                 if jmz.Utils.CountEnemyHeroesNear(
                     s:GetLocation(),
                     1600
-                ) >= requiredEnemies then
+                ) >= 1 then
                     return 1
                 end
                 if #jmz.GetLastSeenEnemiesNearLoc(
                     s:GetLocation(),
                     1600
-                ) >= requiredEnemies then
+                ) >= 1 then
                     return 1
                 end
                 __continue34 = true
@@ -1025,7 +1021,12 @@ function ____exports.ShouldDefend(bot, hBuilding, nRadius)
         local aliveAllies = jmz.GetNumOfAliveHeroes(false)
         local aliveEnemies = jmz.GetNumOfAliveHeroes(true)
         local killAdvantage = aliveAllies - aliveEnemies
-        if killAdvantage >= 3 then
+        local distToAncient = ancientForCheck and GetLocationToLocationDistance(
+            hBuilding:GetLocation(),
+            ancientForCheck:GetLocation()
+        ) or 99999
+        local isAncientOrT4 = distToAncient <= 2000
+        if killAdvantage >= 3 and not isAncientOrT4 then
             local closestPos = GetClosestAllyPos(
                 {2, 3, 4, 5},
                 hBuilding:GetLocation()
@@ -1233,8 +1234,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     end
     if baseThreatActiveNow then
         baseThreatUntil = DotaTime() + BASE_THREAT_HOLD
-        local _killAdv = jmz.GetNumOfAliveHeroes(false) - jmz.GetNumOfAliveHeroes(true)
-        local panicFloor = _killAdv >= 3 and 0.7 or (baseThreatSevere and 0.97 or 0.9)
+        local panicFloor = baseThreatSevere and 0.97 or 0.9
         local forceLoc = ancient and jmz.AdjustLocationWithOffsetTowardsFountain(
             ancient:GetLocation(),
             300
@@ -1447,7 +1447,7 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     if pingFloor > 0 then
         nDefendDesire = math.max(nDefendDesire, pingFloor)
     end
-    if baseThreatActiveNow then
+    if baseThreatActiveNow and shouldDef then
         nDefendDesire = math.max(nDefendDesire, baseThreatSevere and 0.97 or 0.9)
     end
     ConsiderPingedDefend(
@@ -1526,19 +1526,15 @@ end
 function ____exports.IsEnemyThreatNearOurBase()
     local team = nTeam
     local ancient = GetAncient(team)
-    local aliveAllies = jmz.GetNumOfAliveHeroes(false)
-    local aliveEnemies = jmz.GetNumOfAliveHeroes(true)
-    local killAdvantage = aliveAllies - aliveEnemies
-    local requiredEnemies = killAdvantage >= 3 and 2 or 1
     if ancient and IsValidUnit(ancient) then
         if jmz.Utils.CountEnemyHeroesNear(
             ancient:GetLocation(),
             2600
-        ) >= requiredEnemies then
+        ) >= 1 then
             return true
         end
     end
-    if jmz.Utils.CountEnemyHeroesOnHighGround(team) >= requiredEnemies then
+    if jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1 then
         return true
     end
     return false

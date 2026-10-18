@@ -146,16 +146,13 @@ function GetDesireHelper()
             vInvasionCenter = vInvasionCenter / nEnemiesInOurHalfTotal
         end
 
-        -- OHA MOD: com 3+ kills advantage, exigir 3+ inimigos no raio do
-        -- Ancient. Com 4 mortos, um único split-pusher não deve acionar
-        -- "retorno em massa".
-        local _aliveAllies = J.GetNumOfAliveHeroes(false)
-        local _aliveEnemies = J.GetNumOfAliveHeroes(true)
-        local _killAdv = _aliveAllies - _aliveEnemies
-        local _reqBase = _killAdv >= 3 and 3 or 2
+        -- OHA MOD: reverter gate de kill advantage. Detecção volta a ser
+        -- sensível (2+ inimigos no raio do Ancient = retorno). A limitação
+        -- de "quantos voltam" é feita em ShouldDefend (aba_defend.ts),
+        -- não aqui.
         if nEnemiesNearBase >= 4 and J.IsLateGame() then
             return 1.0
-        elseif nEnemiesNearBase >= _reqBase then
+        elseif nEnemiesNearBase >= 2 then
             return 0.95
         end
 
