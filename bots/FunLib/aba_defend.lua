@@ -12,6 +12,43 @@ local function __TS__ArrayFilter(self, callbackfn, thisArg)
     return result
 end
 
+local function __TS__ArrayIndexOf(self, searchElement, fromIndex)
+    if fromIndex == nil then
+        fromIndex = 0
+    end
+    local len = #self
+    if len == 0 then
+        return -1
+    end
+    if fromIndex >= len then
+        return -1
+    end
+    if fromIndex < 0 then
+        fromIndex = len + fromIndex
+        if fromIndex < 0 then
+            fromIndex = 0
+        end
+    end
+    for i = fromIndex + 1, len do
+        if self[i] == searchElement then
+            return i - 1
+        end
+    end
+    return -1
+end
+
+local function __TS__ArraySort(self, compareFn)
+    if compareFn ~= nil then
+        table.sort(
+            self,
+            function(a, b) return compareFn(nil, a, b) < 0 end
+        )
+    else
+        table.sort(self)
+    end
+    return self
+end
+
 local function __TS__CountVarargs(...)
     return select("#", ...)
 end
@@ -478,6 +515,94 @@ function ____exports.GetBaseThreatLevel()
     end
     return 0
 end
+--- Retorna o conjunto de PlayerIDs que devem responder a esta ameaça.
+-- Fonte de verdade para ShouldDefend().
+-- 
+-- OHA MOD: A detecção (GetBaseThreatLevel) é global e sensível. A resposta,
+-- porém, deve ser limitada para evitar que o time inteiro abandone o push.
+function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
+    if threatLevel <= 1 then
+        return {}
+    end
+    if threatBuilding == nil then
+        return {}
+    end
+    local loc = threatBuilding:GetLocation()
+    if threatLevel >= 3 then
+        local anc = GetAncient(nTeam)
+        if anc ~= nil and anc:GetHealth() / anc:GetMaxHealth() < 0.3 then
+            local all = {}
+            do
+                local i = 1
+                while i <= 5 do
+                    local m = GetTeamMember(i)
+                    if m and m:IsAlive() then
+                        all[#all + 1] = m:GetPlayerID()
+                    end
+                    i = i + 1
+                end
+            end
+            return all
+        end
+    end
+    local cands = {}
+    do
+        local i = 1
+        while i <= 5 do
+            do
+                local __continue46
+                repeat
+                    local m = GetTeamMember(i)
+                    if not m or not m:IsAlive() then
+                        __continue46 = true
+                        break
+                    end
+                    local pos = jmz.GetPosition(m)
+                    if pos == 1 then
+                        __continue46 = true
+                        break
+                    end
+                    local tp = jmz.GetItem2(m, "item_tpscroll")
+                    cands[#cands + 1] = {
+                        pid = m:GetPlayerID(),
+                        pos = pos,
+                        dist = GetUnitToLocationDistance(m, loc),
+                        hasTp = jmz.CanCastAbility(tp)
+                    }
+                    __continue46 = true
+                until true
+                if not __continue46 then
+                    break
+                end
+            end
+            i = i + 1
+        end
+    end
+    if #cands == 0 then
+        local p1 = GetTeamMember(1)
+        return p1 and p1:IsAlive() and ({p1:GetPlayerID()}) or ({})
+    end
+    local posOrder = threatLevel >= 3 and ({4, 5, 3, 2}) or ({3, 2, 4, 5})
+    __TS__ArraySort(
+        cands,
+        function(____, a, b)
+            local pa = __TS__ArrayIndexOf(posOrder, a.pos)
+            local pb = __TS__ArrayIndexOf(posOrder, b.pos)
+            if pa ~= pb then
+                return pa - pb
+            end
+            if a.hasTp ~= b.hasTp then
+                return a.hasTp and -1 or 1
+            end
+            return a.dist - b.dist
+        end
+    )
+    local result = {cands[1].pid}
+    if cands[1].dist > 5000 and not cands[1].hasTp and #cands > 1 then
+        result[#result + 1] = cands[2].pid
+    end
+    return result
+end
 function WeightedEnemiesAroundLocation(vLoc, nRadius)
     local now = DotaTime()
     local key = _keyLoc(vLoc, nRadius)
@@ -523,20 +648,20 @@ function ____exports.GetHumanLanePressureLane()
         local i = 1
         while i <= teamSize do
             do
-                local __continue51
+                local __continue66
                 repeat
                     local member = GetTeamMember(i)
                     if not member or not jmz.IsValidHero(member) then
-                        __continue51 = true
+                        __continue66 = true
                         break
                     end
                     local pid = member:GetPlayerID()
                     if pid < 0 or IsPlayerBot(pid) then
-                        __continue51 = true
+                        __continue66 = true
                         break
                     end
                     if not IsHeroAlive(pid) then
-                        __continue51 = true
+                        __continue66 = true
                         break
                     end
                     local mode = member:GetActiveMode()
@@ -549,9 +674,9 @@ function ____exports.GetHumanLanePressureLane()
                     if mode == BotMode.DefendTowerBot then
                         return Lane.Bot
                     end
-                    __continue51 = true
+                    __continue66 = true
                 until true
-                if not __continue51 then
+                if not __continue66 then
                     break
                 end
             end
@@ -1012,30 +1137,18 @@ function ____exports.ShouldDefend(bot, hBuilding, nRadius)
     end
     local nNearby = enemyHeroNearby + math.floor(creepWeights)
     local pos = jmz.GetPosition(bot)
-    local ancientForCheck = GetAncient(nTeam)
-    local isInnerBaseBuilding = not not ancientForCheck and GetLocationToLocationDistance(
-        hBuilding:GetLocation(),
-        ancientForCheck:GetLocation()
-    ) <= 3500
-    if isInnerBaseBuilding and nNearby >= 1 then
-        local aliveAllies = jmz.GetNumOfAliveHeroes(false)
-        local aliveEnemies = jmz.GetNumOfAliveHeroes(true)
-        local killAdvantage = aliveAllies - aliveEnemies
-        local distToAncient = ancientForCheck ~= nil and GetLocationToLocationDistance(
-            hBuilding:GetLocation(),
-            ancientForCheck:GetLocation()
-        ) or 99999
-        local isAncientOrT4 = distToAncient <= 2000
-        if killAdvantage >= 3 and not isAncientOrT4 then
-            local closestPos = GetClosestAllyPos(
-                {2, 3, 4, 5},
-                hBuilding:GetLocation()
-            )
-            if pos ~= closestPos then
-                return false
-            end
+    local threatLevel = ____exports.GetBaseThreatLevel()
+    if threatLevel >= 2 then
+        local responders = ____exports.GetDesignatedResponders(threatLevel, hBuilding)
+        if __TS__ArrayIndexOf(
+            responders,
+            bot:GetPlayerID()
+        ) ~= -1 then
+            return true
         end
-        return true
+        if #responders > 0 then
+            return false
+        end
     end
     local result = false
     if nNearby == 1 then
@@ -1083,7 +1196,7 @@ function ____exports.ShouldDefend(bot, hBuilding, nRadius)
         end
     end
     local underFire = bot:WasRecentlyDamagedByAnyHero(5)
-    if underFire and result and not isInnerBaseBuilding then
+    if underFire and result then
         local closestPos = GetClosestAllyPos(
             {2, 3, 4, 5},
             hBuilding:GetLocation()
@@ -1633,10 +1746,10 @@ function ____exports.DefendThink(bot, lane)
         local liveEnemies = bot:GetNearbyHeroes(1600, true, BotMode.None)
         for ____, e in ipairs(liveEnemies) do
             do
-                local __continue241
+                local __continue256
                 repeat
                     if not jmz.IsValidHero(e) or jmz.IsSuspiciousIllusion(e) then
-                        __continue241 = true
+                        __continue256 = true
                         break
                     end
                     if jmz.IsInRange(
@@ -1650,7 +1763,7 @@ function ____exports.DefendThink(bot, lane)
                     bot:Action_MoveToLocation(e:GetLocation())
                     return
                 until true
-                if not __continue241 then
+                if not __continue256 then
                     break
                 end
             end

@@ -284,6 +284,78 @@ export function GetBaseThreatLevel(): number {
     return 0;
 }
 
+/**
+ * Retorna o conjunto de PlayerIDs que devem responder a esta ameaça.
+ * Fonte de verdade para ShouldDefend().
+ *
+ * OHA MOD: A detecção (GetBaseThreatLevel) é global e sensível. A resposta,
+ * porém, deve ser limitada para evitar que o time inteiro abandone o push.
+ */
+export function GetDesignatedResponders(
+    threatLevel: number,
+    threatBuilding: Unit | null,
+): number[] {
+    if (threatLevel <= 1) return [];       // T2: ninguém responde
+    if (threatBuilding === null) return []; // sem alvo, sem resposta
+
+    const loc = threatBuilding.GetLocation();
+
+    // Nível 3 com Ancient em perigo crítico: todos respondem.
+    if (threatLevel >= 3) {
+        const anc = GetAncient(nTeam);
+        if (anc !== null && anc.GetHealth() / anc.GetMaxHealth() < 0.30) {
+            const all: number[] = [];
+            for (let i = 1; i <= 5; i++) {
+                const m = GetTeamMember(i);
+                if (m && m.IsAlive()) all.push(m.GetPlayerID());
+            }
+            return all;
+        }
+    }
+
+    // Candidatos: pos 2–5.
+    type Candidate = { pid: number; pos: number; dist: number; hasTp: boolean };
+    const cands: Candidate[] = [];
+    for (let i = 1; i <= 5; i++) {
+        const m = GetTeamMember(i);
+        if (!m || !m.IsAlive()) continue;
+        const pos = jmz.GetPosition(m);
+        if (pos === 1) continue; // pos1 só entra em último caso
+        const tp = jmz.GetItem2(m, "item_tpscroll");
+        cands.push({
+            pid: m.GetPlayerID(),
+            pos,
+            dist: GetUnitToLocationDistance(m, loc),
+            hasTp: jmz.CanCastAbility(tp),
+        });
+    }
+
+    if (cands.length === 0) {
+        // Último caso: permite pos1.
+        const p1 = GetTeamMember(1);
+        return (p1 && p1.IsAlive()) ? [p1.GetPlayerID()] : [];
+    }
+
+    // Ordem de prioridade por nível.
+    const posOrder = threatLevel >= 3 ? [4, 5, 3, 2] : [3, 2, 4, 5];
+    cands.sort((a, b) => {
+        const pa = posOrder.indexOf(a.pos);
+        const pb = posOrder.indexOf(b.pos);
+        if (pa !== pb) return pa - pb;
+        if (a.hasTp !== b.hasTp) return a.hasTp ? -1 : 1;
+        return a.dist - b.dist;
+    });
+
+    // Kill advantage ≥ 3 em T3/rax: ainda só 1.
+    // Nível 3 sem HP crítico: 1.
+    // Se o mais próximo está a > 5000 e não tem TP, permitir um segundo.
+    const result = [cands[0].pid];
+    if (cands[0].dist > 5000 && !cands[0].hasTp && cands.length > 1) {
+        result.push(cands[1].pid);
+    }
+    return result;
+}
+
 // If any enemy units (weighted) are around location; cached
 function WeightedEnemiesAroundLocation(vLoc: Vector, nRadius: number): number {
     const now = DotaTime();
@@ -628,32 +700,19 @@ export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number)
     const nNearby = enemyHeroNearby + math.floor(creepWeights);
     const pos = jmz.GetPosition(bot);
 
-        // OHA MOD: base interna sempre aceita defesa. Com kill advantage >= 3,
-    // apenas o herói mais próximo (pos 2-5) responde — o resto continua
-    // no push. Isso evita "5 bots abandonam push pra defender 1 split-pusher"
-    // sem cair no extremo oposto de "ninguém defende".
-    const ancientForCheck = GetAncient(nTeam);
-    const isInnerBaseBuilding = !!ancientForCheck &&
-        GetLocationToLocationDistance(hBuilding.GetLocation(), ancientForCheck.GetLocation()) <= 3500;
-
-    if (isInnerBaseBuilding && nNearby >= 1) {
-        const aliveAllies = jmz.GetNumOfAliveHeroes(false);
-        const aliveEnemies = jmz.GetNumOfAliveHeroes(true);
-        const killAdvantage = aliveAllies - aliveEnemies;
-
-        // Só quando temos 3+ kills de vantagem E o alvo não é o Ancient/T4
-        // (estrutura externa tipo T3/rax) é que restringimos a 1 respondedor.
-        // Para Ancient/T4, sempre pelo menos 1 responde.
-        const distToAncient = (ancientForCheck !== null)
-            ? GetLocationToLocationDistance(hBuilding.GetLocation(), ancientForCheck.GetLocation())
-            : 99999;
-        const isAncientOrT4 = distToAncient <= 2000;
-
-        if (killAdvantage >= 3 && !isAncientOrT4) {
-            const closestPos = GetClosestAllyPos([2, 3, 4, 5], hBuilding.GetLocation());
-            if (pos !== closestPos) return false;
+    // OHA MOD: Base interna usa a política de respondedores designados.
+    // Detecção é global e sensível (§3.1 do doc), mas a resposta é limitada (§4).
+    // Isso impede que todos os 5 bots abandonem o push para defender 1 herói.
+    const threatLevel = GetBaseThreatLevel();
+    if (threatLevel >= 2) {
+        const responders = GetDesignatedResponders(threatLevel, hBuilding);
+        if (responders.indexOf(bot.GetPlayerID()) !== -1) {
+            return true; // Este bot é o designado para responder.
         }
-        return true;
+        // Se não é o designado, ele ignora a ameaça (continua push/farm).
+        if (responders.length > 0) {
+            return false;
+        }
     }
 
     let result = false;
@@ -697,7 +756,9 @@ export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number)
 
     // Under-fire: NÃO bloquear quando estamos defendendo base interna.
     const underFire = bot.WasRecentlyDamagedByAnyHero(5);
-    if (underFire && result && !isInnerBaseBuilding) {
+    // Como já tratamos os prédios internos no início da função com early-return,
+    // se chegou aqui é porque é um T1/T2 (estrutura externa).
+    if (underFire && result) {
         const closestPos = GetClosestAllyPos([2, 3, 4, 5], hBuilding.GetLocation());
         if (jmz.GetPosition(bot) !== closestPos) {
             return false;
