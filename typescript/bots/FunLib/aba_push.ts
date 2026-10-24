@@ -216,8 +216,6 @@ const SCORE_T3 = 0.5;
 const SCORE_T4 = 1.8;
 // const SCORE_FILLER = 1.9;
 
-const BASE_ANC_RADIUS = 2200;
-
 /**
  * Add per-bot, per-lane objective memory
  * Example: ObjectiveState[playerID][lane] = { target=hUnit, lockUntil=GameTime() }
@@ -380,7 +378,6 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
 
     // --- Strong base-defense gate for push ---
     const team = gameState.team;
-    const ourAncient = gameState.ourAncient;
     // OHA MOD: Detecção de ameaça é global, mas resposta é limitada.
     // Apenas os bots designados pelo GetDesignatedResponders abandonam o push.
     const baseThreatLevel = GetBaseThreatLevel();

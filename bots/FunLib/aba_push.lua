@@ -333,7 +333,6 @@ function ____exports.GetPushDesireHelper(bot, lane)
         1600
     )
     local team = gameState.team
-    local ourAncient = gameState.ourAncient
     local baseThreatLevel = GetBaseThreatLevel()
     if baseThreatLevel >= 2 then
         local threatBuilding = GetFurthestBuildingOnLane(lane)[1]
@@ -921,7 +920,6 @@ local SCORE_BARRACKS_MELEE = 0
 local SCORE_BARRACKS_RANGED = 0.1
 local SCORE_T3 = 0.5
 local SCORE_T4 = 1.8
-local BASE_ANC_RADIUS = 2200
 local ObjectiveState = {}
 function ____exports.GetPushDesire(bot, lane)
     if bot:IsInvulnerable() or not bot:IsHero() or not bot:IsAlive() or not __TS__StringIncludes(
