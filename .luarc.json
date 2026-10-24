@@ -1,0 +1,9 @@
+{
+  "diagnostics.globals": [
+    "RandomInt", "GetTeam", "LANE_BOT", "LANE_MID", "LANE_TOP",
+    "TEAM_RADIANT", "TEAM_DIRE", "GetUnitToUnitDistance", "GetBot",
+    "DotaTime", "GameTime", "GetOpposingTeam", "GetTeamPlayers"
+  ],
+  "runtime.version": "Lua 5.1",
+  "workspace.checkThirdParty": false
+}
