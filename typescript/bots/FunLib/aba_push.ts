@@ -4,6 +4,7 @@ import Customize = require("bots/Customize/general");
 import { Barracks, BotMode, BotModeDesire, DamageType, Lane, Team, Tower, Unit, UnitType, Vector } from "bots/ts_libs/dota";
 import { IsValidUnit, GetLocationToLocationDistance, RadiantFountainTpPoint, DireFountainTpPoint, NonTier1Towers } from "./utils";
 import { getGlobalGameState, getGlobalLocationState, getCachedAlliesNearLoc, getCachedEnemiesNearLoc, autoCleanupCache, getCachedData } from "./global_cache";
+import { GetDesignatedResponders, GetBaseThreatLevel, GetFurthestBuildingOnLane } from "./aba_defend";
 
 Customize.ThinkLess = Customize.Enable ? Customize.ThinkLess : 1;
 
@@ -380,12 +381,18 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     // --- Strong base-defense gate for push ---
     const team = gameState.team;
     const ourAncient = gameState.ourAncient;
-    const enemiesAtAncient = ourAncient ? jmz.Utils.CountEnemyHeroesNear(ourAncient.GetLocation(), BASE_ANC_RADIUS) : 0;
-    // Hard override: only if there is a real base threat, not just a hero near the Ancient.
-    if (IsEnemyThreatNearOurBase()) return BotModeDesire.ExtraLow;
-    // Ancient being pressured alone should not fully cancel pushes unless the team is also losing the fight around the base.
-    if (enemiesAtAncient >= 1 && (gameState.aliveEnemyCount >= 3 || jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1)) {
-        return BotModeDesire.ExtraLow;
+    // OHA MOD: Detecção de ameaça é global, mas resposta é limitada.
+    // Apenas os bots designados pelo GetDesignatedResponders abandonam o push.
+    const baseThreatLevel = GetBaseThreatLevel();
+    if (baseThreatLevel >= 2) {
+        const threatBuilding = GetFurthestBuildingOnLane(lane)[0];
+        const responders = GetDesignatedResponders(baseThreatLevel, threatBuilding);
+
+        // Se somos o respondedor designado, cancelamos o push.
+        if (responders.indexOf(bot.GetPlayerID()) !== -1) {
+            return BotModeDesire.ExtraLow;
+        }
+        // Se não somos o respondedor, continuamos o push.
     }
 
     // 自定义：己方塔被推（tier≥2 塔血量不满 + 附近有敌人）→ 同样放弃推塔，优先回防

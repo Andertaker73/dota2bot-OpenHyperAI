@@ -524,10 +524,11 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
     if threatLevel <= 1 then
         return {}
     end
-    if threatBuilding == nil then
+    local building = threatBuilding ~= nil and threatBuilding or GetAncient(nTeam)
+    if building == nil then
         return {}
     end
-    local loc = threatBuilding:GetLocation()
+    local loc = building:GetLocation()
     if threatLevel >= 3 then
         local anc = GetAncient(nTeam)
         if anc ~= nil and anc:GetHealth() / anc:GetMaxHealth() < 0.3 then

@@ -296,9 +296,11 @@ export function GetDesignatedResponders(
     threatBuilding: Unit | null,
 ): number[] {
     if (threatLevel <= 1) return [];       // T2: ninguém responde
-    if (threatBuilding === null) return []; // sem alvo, sem resposta
 
-    const loc = threatBuilding.GetLocation();
+    const building = threatBuilding !== null ? threatBuilding : GetAncient(nTeam);
+    if (building === null) return [];
+
+    const loc = building.GetLocation();
 
     // Nível 3 com Ancient em perigo crítico: todos respondem.
     if (threatLevel >= 3) {

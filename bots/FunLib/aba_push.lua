@@ -21,9 +21,34 @@ local function __TS__StringIncludes(self, searchString, position)
     local index = string.find(self, searchString, position, true)
     return index ~= nil
 end
+
+local function __TS__ArrayIndexOf(self, searchElement, fromIndex)
+    if fromIndex == nil then
+        fromIndex = 0
+    end
+    local len = #self
+    if len == 0 then
+        return -1
+    end
+    if fromIndex >= len then
+        return -1
+    end
+    if fromIndex < 0 then
+        fromIndex = len + fromIndex
+        if fromIndex < 0 then
+            fromIndex = 0
+        end
+    end
+    for i = fromIndex + 1, len do
+        if self[i] == searchElement then
+            return i - 1
+        end
+    end
+    return -1
+end
 -- End of Lua Library inline imports
 local ____exports = {}
-local updateGameStateCache, updateLocationStateCache, updateUnitStateCache, GetHumanLanePressureLane, IsEnemyThreatNearOurBase, presence_adjust, Customize, pingTimeDelta, StartToPushTime, BOT_MODE_DESIRE_EXTRA_LOW, hEnemyAncient, PUSH_CACHE_TTL, gameStateCache, locationStateCache, unitStateCache, BASE_ANC_RADIUS
+local updateGameStateCache, updateLocationStateCache, updateUnitStateCache, GetHumanLanePressureLane, IsEnemyThreatNearOurBase, presence_adjust, Customize, pingTimeDelta, StartToPushTime, BOT_MODE_DESIRE_EXTRA_LOW, hEnemyAncient, PUSH_CACHE_TTL, gameStateCache, locationStateCache, unitStateCache
 local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
 local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
 local Barracks = ____dota.Barracks
@@ -47,6 +72,10 @@ local getCachedAlliesNearLoc = ____global_cache.getCachedAlliesNearLoc
 local getCachedEnemiesNearLoc = ____global_cache.getCachedEnemiesNearLoc
 local autoCleanupCache = ____global_cache.autoCleanupCache
 local getCachedData = ____global_cache.getCachedData
+local ____aba_defend = require(GetScriptDirectory().."/FunLib/aba_defend")
+local GetDesignatedResponders = ____aba_defend.GetDesignatedResponders
+local GetBaseThreatLevel = ____aba_defend.GetBaseThreatLevel
+local GetFurthestBuildingOnLane = ____aba_defend.GetFurthestBuildingOnLane
 function updateGameStateCache()
     local now = DotaTime()
     if gameStateCache and now - gameStateCache.lastUpdate < PUSH_CACHE_TTL then
@@ -305,15 +334,16 @@ function ____exports.GetPushDesireHelper(bot, lane)
     )
     local team = gameState.team
     local ourAncient = gameState.ourAncient
-    local enemiesAtAncient = ourAncient and jmz.Utils.CountEnemyHeroesNear(
-        ourAncient:GetLocation(),
-        BASE_ANC_RADIUS
-    ) or 0
-    if IsEnemyThreatNearOurBase() then
-        return BotModeDesire.ExtraLow
-    end
-    if enemiesAtAncient >= 1 and (gameState.aliveEnemyCount >= 3 or jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) then
-        return BotModeDesire.ExtraLow
+    local baseThreatLevel = GetBaseThreatLevel()
+    if baseThreatLevel >= 2 then
+        local threatBuilding = GetFurthestBuildingOnLane(lane)[1]
+        local responders = GetDesignatedResponders(baseThreatLevel, threatBuilding)
+        if __TS__ArrayIndexOf(
+            responders,
+            bot:GetPlayerID()
+        ) ~= -1 then
+            return BotModeDesire.ExtraLow
+        end
     end
     if not enemyT3OrRaxDown then
         for ____, slot in ipairs(NonTier1Towers) do
@@ -891,7 +921,7 @@ local SCORE_BARRACKS_MELEE = 0
 local SCORE_BARRACKS_RANGED = 0.1
 local SCORE_T3 = 0.5
 local SCORE_T4 = 1.8
-BASE_ANC_RADIUS = 2200
+local BASE_ANC_RADIUS = 2200
 local ObjectiveState = {}
 function ____exports.GetPushDesire(bot, lane)
     if bot:IsInvulnerable() or not bot:IsHero() or not bot:IsAlive() or not __TS__StringIncludes(
