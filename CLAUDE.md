@@ -1,60 +1,46 @@
-# Dota 2 Bot Scripts - Claude Code Guide
+# CLAUDE.md — AI Assistant Guidelines for OpenHyperAI
 
-## Project Overview
+Welcome, AI Assistant! This file is your primary entry point for maintaining the OpenHyperAI codebase. Read this before making any changes.
 
-This is the **dota2bot-OpenHyperAI** project -- Lua bot scripts for Dota 2 that run in custom lobbies. Currently supports Patch 7.41/7.41a with 127 heroes.
+## 1. Critical: TypeScript vs. Pure Lua
 
-## Key Documentation
+This project is a hybrid. You must know which file to edit.
 
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** -- Complete codebase architecture, file map, naming conventions, all systems explained
-- **[docs/PATCH_UPDATE_GUIDE.md](docs/PATCH_UPDATE_GUIDE.md)** -- Step-by-step runbook for updating when a new Dota 2 patch drops
+* **TypeScript Files (`typescript/bots/...`)**:
+  * Files like `aba_defend.ts`, `aba_push.ts`, `utils.ts` are written in TS.
+  * DO NOT EDIT their generated `.lua` counterparts directly (e.g., `bots/FunLib/aba_defend.lua`).
+  * After editing a `.ts` file, you MUST run `npm run build` to generate the `.lua` files.
+  * Warnings like `TS6133` (unused variable) will fail the build. Clean them up immediately.
 
-**Read these docs FIRST before making any changes.** They contain everything needed to make targeted updates without scanning the entire repo.
+* **Pure Lua Files (`bots/...`)**:
+  * Files like `bots/mode_laning_generic.lua`, `bots/FunLib/jmz_func.lua`, `bots/BotLib/*.lua`.
+  * These do NOT have TS counterparts. Edit the `.lua` file directly.
+  * They do NOT require `npm run build`. They are picked up directly by the game engine.
 
-## Common Tasks
+## 2. Mandatory Validation Before Commit
 
-### Check for New Patches
+Never commit without validating syntax. The Dota 2 engine will silently fail or crash if a Lua file is malformed.
 
-To check if there are patches we haven't updated for:
-1. Fetch `https://www.dota2.com/datafeed/patchnoteslist?language=english`
-2. Compare latest version against "Last updated for" in `docs/PATCH_UPDATE_GUIDE.md`
-3. If newer patch exists, follow the update process below
+If you edited TypeScript:
+`npm run build`
+`grep -E "error TS" /tmp/build.log` (Output MUST be empty)
 
-### Patch Update (most common)
+Validate the generated or edited .lua files (using Lua 5.1):
+`luac5.1 -p bots/FunLib/aba_defend.lua && echo "OK"`
 
-When user says "update for patch X.XX" or provides patch notes:
+## 3. Triage Guide (Symptom -> File)
 
-1. Read `docs/PATCH_UPDATE_GUIDE.md` for the step-by-step process
-2. Fetch patch data: `https://www.dota2.com/datafeed/patchnotes?version=X.XX&language=english`
-3. Fetch d2vpkr data (shops.txt, neutral_items.txt) for authoritative item/ability names
-4. **Categorize changes**: STRUCTURAL (need code) vs NUMBER-ONLY (game API handles) vs TALENT SWAPS
-5. **Always verify ability names on Liquipedia** -- patch note summaries can be wrong
-6. Follow the checklist in order: items -> hero builds -> abilities -> neutrals -> actives -> map changes
-7. **Always update TS sources** for any TS-generated Lua files changed (see ARCHITECTURE.md Section 13)
+If you are asked to fix a specific behavior, look here first. Do not guess. Read the corresponding doc in `docs/behavior/`.
 
-### Add a New Hero
+| Symptom | Primary File(s) | Read this Doc |
+|---|---|---|
+| Bots freeze / give first blood in lane | `jmz_func.lua`, `mode_laning_generic.lua` | `docs/behavior/01-laning.md`, `docs/behavior/05-action-gates.md` |
+| All bots abandon push to defend base | `aba_defend.ts`, `aba_push.ts` | `docs/behavior/03-defense.md` |
+| Bots ignore base threat / Ancient falls | `aba_defend.ts` | `docs/behavior/03-defense.md` |
+| Bots miss last hits / denies | `mode_laning_generic.lua` | `docs/behavior/01-laning.md` |
+| Bots not roaming or missing ganks | `mode_roam_generic.lua`, `mode_team_roam_generic.lua` | `docs/behavior/04-roam.md` |
+| Bots don't follow hero pick order | `hero_selection.lua`, `general.lua` | `ARCHITECTURE.md` (Sec 10) |
 
-1. Copy a similar existing hero from `bots/BotLib/` as template
-2. Add to `FretBots/HeroNames.lua`, `FunLib/aba_hero_roles_map.lua`, `FunLib/spell_list.lua`
-3. See "New Heroes" section in `docs/PATCH_UPDATE_GUIDE.md`
+## 4. Behavior Documentation
 
-### Fix a Hero's Item Build
-
-1. Read `bots/BotLib/hero_[name].lua`
-2. Edit the `sRoleItemsBuyList['pos_N']` arrays
-3. Items use `item_[internal_name]` format -- check `FunLib/aba_item.lua` for valid names
-
-### Fix a Hero's Ability Logic
-
-1. Read `bots/BotLib/hero_[name].lua`
-2. The `SkillsComplement()` function controls ability casting priority
-3. Each ability has a `ConsiderX()` function returning desire + target
-4. See "Skill / Ability System" in `docs/ARCHITECTURE.md`
-
-## Important Rules
-
-- **Use `GetItemComponents()` for item recipes** -- don't hardcode component arrays
-- **Use `sAbilityList[N]` references** when possible -- resilient to ability renames
-- **Always update BOTH neutral item files** (Buff/ AND FretBots/)
-- **Verify on Liquipedia** before trusting patch note summaries about ability names
-- **Test in-game** after changes -- some things can only be verified at runtime
+All rules regarding bot decision-making (Desires, Trade-offs, Gates) are documented in the `docs/behavior/` folder. If you change a Desire threshold or an Action Gate, you must update the corresponding doc.

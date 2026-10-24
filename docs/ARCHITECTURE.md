@@ -517,6 +517,14 @@ Or check if a corresponding `.ts` file exists in `typescript/bots/` at the same 
 
 `typescript/bots/FunLib/jmz_func.d.ts` is a **type declaration file** for the hand-written `jmz_func.lua`. It provides TypeScript type information but does NOT generate any Lua. If you add new functions to `jmz_func.lua` that TS files need to call, add declarations here.
 
+### Build Rules & Common Pitfalls
+
+1. **NEVER edit the generated `.lua` if a `.ts` exists.** Your changes will be overwritten.
+2. The `tsconfig-tstl.json` has `noUnusedLocals: true` and `strict: true`. This means:
+   - If you declare a variable and don't use it (e.g., `const killAdv = ...`), the build will **FAIL** with `error TS6133`.
+   - If you leave an unused import, it will **FAIL**.
+3. **Syntax Validation**: The TSTL compiler is permissive. It will sometimes generate a `.lua` file even if there is a syntax error, leading to a `[VScript] Script Runtime Error` in Dota. Always run `luac5.1 -p <file.lua>` before committing.
+
 ---
 
 ## 14. Common Pitfalls
