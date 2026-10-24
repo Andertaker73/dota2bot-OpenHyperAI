@@ -174,42 +174,50 @@ function GetBestLastHitCreep(hCreepList)
 end
 
 function GetBestDenyCreep(hCreepList)
-	-- Deny must be prioritized even without enemy heroes nearby. A deny is a lane-saving action,
-	-- not a reaction only to enemy pressure.
-	local bestCreep = nil
-	local bestDist = math.huge
-	local bestMoveToCreep = nil
-	local bestMoveToDist = math.huge
-	for _, creep in pairs(hCreepList)
-	do
-		if not J.IsValid(creep) or not J.CanBeAttacked(creep) then
-			goto continue
-		end
-		if not string.find(creep:GetUnitName(), 'npc_dota_creep_') then
-			goto continue
-		end
+        local bestCreep = nil
+        local bestDist = math.huge
+        local moveToCreep = nil
+        local moveToDist = math.huge
 
-		local nDist = GetUnitToUnitDistance(bot, creep)
-		local nDelay = J.GetAttackProDelayTime(bot, creep)
-		local hpPct = J.GetHP(creep)
-		if hpPct < 0.49 then
-			if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
-				if nDist < bestDist then
-					bestDist = nDist
-					bestCreep = creep
-				end
-			elseif nDist < bestMoveToDist then
-				bestMoveToDist = nDist
-				bestMoveToCreep = creep
-			end
-		elseif hpPct < 0.7 and nDist < bestMoveToDist then
-			bestMoveToDist = nDist
-			bestMoveToCreep = creep
-		end
-		::continue::
-	end
+        for _, creep in pairs(hCreepList) do
+                if J.IsValid(creep) and J.CanBeAttacked(creep) then
+                        -- Filtra para garantir que é um creep normal (ignora summons, etc)
+                        if not string.find(creep:GetUnitName(), 'npc_dota_creep_') then
+                                goto continue
+                        end
 
-	return bestCreep, bestMoveToCreep
+                        local nDelay = J.GetAttackProDelayTime(bot, creep)
+                        local nDist = GetUnitToUnitDistance(bot, creep)
+                        local creepHP = creep:GetHealth()
+
+                        -- 1. Podemos negar AGORA com um ataque? (Dano exato)
+                        if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
+                                if nDist < bestDist then
+                                        bestDist = nDist
+                                        bestCreep = creep
+                                end
+                        -- 2. Devemos nos mover para negar?
+                        -- Se o HP estiver baixo o suficiente para morrer no próximo ataque
+                        -- E estiver numa distância segura para andarmos
+                        elseif creepHP <= (attackDamage * 1.3) and nDist <= botAttackRange + 250 then
+                                if nDist < moveToDist then
+                                        moveToDist = nDist
+                                        moveToCreep = creep
+                                end
+                        end
+
+                        ::continue::
+                end
+        end
+
+        if bestCreep then
+                return bestCreep, nil
+        end
+        if moveToCreep then
+                return nil, moveToCreep
+        end
+
+        return nil, nil
 end
 
 -- =====================================================================
