@@ -207,19 +207,18 @@ function J.MustReactNow(bot)
 end
 
 function J.CanNotUseAction( bot )
-	return not bot:IsAlive()
-			or J.HasQueuedAction( bot )
-			or (bot:IsInvulnerable() and not bot:HasModifier('modifier_fountain_invulnerability') and not bot:HasModifier('modifier_dazzle_nothl_projection_soul_debuff'))
-			or bot:IsCastingAbility()
-			or bot:IsUsingAbility()
-			or bot:IsChanneling()
-			or (bot:IsStunned() and not bot:HasModifier('modifier_dazzle_nothl_projection_soul_debuff'))
-			or bot:IsNightmared()
-			or bot:HasModifier( 'modifier_ringmaster_the_box_buff' )
-			or bot:HasModifier( 'modifier_item_forcestaff_active' )
-			or bot:HasModifier( 'modifier_phantom_lancer_phantom_edge_boost' )
-			or bot:HasModifier( 'modifier_tinker_rearm' )
+        -- OHA MOD: Bypass the action gate if the bot must react immediately.
+        -- This fixes the freeze (first blood) in laning and post-TP, because
+        -- MustReactNow allows the bot to issue a new command (like retreating
+        -- or attacking) even if it has a stale move command in its queue.
+        if J.MustReactNow(bot) then return false end
 
+        return not bot:IsAlive()
+                        or J.HasQueuedAction( bot )
+                        or (bot:IsInvulnerable() and not bot:HasModifier("modifier_dark_willow_shadow_realm_buff"))
+                        or bot:IsCastingAbility()
+                        or bot:IsUsingAbility()
+                        or bot:IsChanneling()
 end
 
 -- OHA MOD 2026/08/30: like CanNotUseAction but WITHOUT the queued-action check.
