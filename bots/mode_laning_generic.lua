@@ -136,25 +136,41 @@ function GetFurthestEnemyAttackRange(enemyList)
 end
 
 function GetBestLastHitCreep(hCreepList)
-	local dmgDelta = attackDamage * 0.7
+        local bestCreep = nil
+        local bestDist = math.huge
+        local moveToCreep = nil
+        local moveToDist = math.huge
 
-	local moveToCreep = nil
-	for _, creep in pairs(hCreepList) do
-		if J.IsValid(creep) and J.CanBeAttacked(creep) then
-			local nDelay = J.GetAttackProDelayTime(bot, creep)
-			if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
-				return creep, false
-			end
-			if J.WillKillTarget(creep, attackDamage + dmgDelta, DAMAGE_TYPE_PHYSICAL, nDelay) then
-				moveToCreep = creep
-			end
-		end
-	end
-	if moveToCreep then
-		return moveToCreep, true
-	end
+        for _, creep in pairs(hCreepList) do
+                if J.IsValid(creep) and J.CanBeAttacked(creep) then
+                        local nDelay = J.GetAttackProDelayTime(bot, creep)
+                        local nDist = GetUnitToUnitDistance(bot, creep)
+                        local creepHP = creep:GetHealth()
 
-	return nil
+                        -- 1. Podemos matar AGORA com um ataque? (Dano exato)
+                        if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
+                                if nDist < bestDist then
+                                        bestDist = nDist
+                                        bestCreep = creep
+                                end
+                        -- 2. Podemos matar em breve? (Dano + um pouco de margem, mas seguro)
+                        -- Só nos movemos se o creep estiver num raio seguro (ex: botAttackRange + 300)
+                        elseif creepHP <= (attackDamage * 1.3) and nDist <= botAttackRange + 300 then
+                                if nDist < moveToDist then
+                                        moveToDist = nDist
+                                        moveToCreep = creep
+                                end
+                        end
+                end
+        end
+
+        if bestCreep then
+                return bestCreep, false -- Atacar imediatamente
+        end
+        if moveToCreep then
+                return moveToCreep, true -- Mover para o creep
+        end
+        return nil, false
 end
 
 function GetBestDenyCreep(hCreepList)
@@ -304,15 +320,19 @@ function Think()
                                 break
                         end
                 end
+
                 if not bHumanLaneAllyNearby then
-                        if GetUnitToUnitDistance(bot, hitCreep) > botAttackRange
-                                or (moveToCreep and GetUnitToUnitDistance(bot, hitCreep) > botAttackRange * 0.8) then
-                                bot:Action_MoveToUnit(hitCreep)
-                                return
-                        else
-                                bot:SetTarget(hitCreep)
-                                bot:Action_AttackUnit(hitCreep, true)
-                                return
+                        local dist = GetUnitToUnitDistance(bot, hitCreep)
+                        -- OHA MOD: Não perseguir creep se estiver muito longe (anti-freeze e anti-feed)
+                        if dist <= botAttackRange + 300 then
+                                if dist > botAttackRange or (moveToCreep and dist > botAttackRange * 0.8) then
+                                        bot:Action_MoveToUnit(hitCreep)
+                                        return
+                                else
+                                        bot:SetTarget(hitCreep)
+                                        bot:Action_AttackUnit(hitCreep, true)
+                                        return
+                                end
                         end
                 end
         end
