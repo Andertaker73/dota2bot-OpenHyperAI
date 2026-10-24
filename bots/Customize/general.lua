@@ -48,10 +48,24 @@ Customize.Ban = {
 1. To pick heroes for the Radiant bots. You have to use hero's internal name.
 2. Hero internal name ref: https://github.com/forest0xia/dota2bot-OpenHyperAI/discussions/71
 3. Don't need to provide a value for all 5 bots, any empty/missing value will fallback to a Random value.
-4. The position is ranked by the order of the names you put in the below list, pos 1 - 5, from top to down.
+4. The hero pick respects the order of this list. However, POSITION assignment
+   is normally decided by the role system and may reorder heroes.
+   Set Customize.Respect_Hero_Order = true above to force index i -> position i.
 5. There are sample team picks in Appendix section below.
 6. Check Appendix to ensure you DO NOT pick more than 1 "weak" heroes in a team for your game experience.
 --]]
+
+--[[
+Respect_Hero_Order:
+  false (default) -> heroes picked in Customize.Dire_Heros / Radiant_Heros are
+                     shuffled across the team before assigning lanes/positions.
+                     The position of each hero is determined by the role system
+                     (aba_hero_pos_weights) and may not match the list order.
+
+  true  -> the hero at index i in Customize.Dire_Heros / Radiant_Heros plays
+           position i (1-5) and lane i by default. No shuffle is applied.
+--]]
+Customize.Respect_Hero_Order = false
 
 Customize.Radiant_Heros = {
     '',

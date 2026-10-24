@@ -284,6 +284,13 @@ if Customize then
 	end
 end
 
+-- OHA MOD: se Respect_Hero_Order estiver ativo, forçamos a atribuição de
+-- posição a ser identidade (índice i -> posição i).
+if Customize and Customize.Respect_Hero_Order then
+        Role.RoleAssignment['TEAM_RADIANT'] = { [1] = 1, [2] = 2, [3] = 3, [4] = 4, [5] = 5 }
+        Role.RoleAssignment['TEAM_DIRE']    = { [1] = 1, [2] = 2, [3] = 3, [4] = 4, [5] = 5 }
+end
+
 --==============================================================================
 -- Utility: customization checks & shuffles
 --==============================================================================
@@ -310,6 +317,12 @@ function X.ShuffleArray(array)
 end
 
 function X.ShufflePickOrder(teamPlayers)
+	-- OHA MOD: quando Respect_Hero_Order está ligado, não embaralhamos nada.
+	-- Isso preserva a associação direta "índice i da lista -> posição i".
+	if Customize and Customize.Respect_Hero_Order then
+					return
+	end
+
 	local shuffleSelection = X.ShuffleArray({1, 2, 3, 4, 5})
 	for i = 1, #shuffleSelection do
 		local targetIndex = shuffleSelection[i]
