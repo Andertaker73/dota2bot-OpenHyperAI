@@ -309,24 +309,28 @@ end
 
 ## 8. Bot Behavior Modes
 
-Located in `mode_*_generic.lua` files:
+Os bots do Dota 2 usam uma arquitetura baseada em **Desejo (Desire)**. A cada frame, a engine chama a função `GetDesire()` de todos os modos. O modo que retornar o maior valor (0.0 a 1.0) assume o controle e executa seu `Think()`.
 
-| File                         | Purpose                        |
-|------------------------------|--------------------------------|
-| `mode_laning_generic.lua`    | Early laning, last-hitting     |
-| `mode_farm_generic.lua`      | Jungle/creep farming           |
-| `mode_roam_generic.lua`      | Solo ganking                   |
-| `mode_team_roam_generic.lua` | Group ganking                  |
-| `mode_attack_generic.lua`    | General attacking              |
-| `mode_retreat_generic.lua`   | Defensive retreat              |
-| `mode_defend_tower_*.lua`    | Tower defense (top/mid/bot)    |
-| `mode_push_tower_*.lua`      | Tower pushing                  |
-| `mode_roshan_generic.lua`    | Roshan hunt                    |
-| `mode_rune_generic.lua`      | Rune pickup                    |
-| `mode_ward_generic.lua`      | Ward placement                 |
-| `mode_outpost_generic.lua`   | Outpost control                |
+### Arquivos de Modo
 
-These files generally don't need updating for item/ability patches, only for game mechanic changes (e.g., timing changes, map changes).
+| Arquivo | Propósito | Prioridade Típica |
+|---|---|---|
+| `mode_laning_generic.lua` | Farm e harass na rota (early game) | 0.44 a 0.90 |
+| `mode_farm_generic.lua` | Farm em jungle/creeps | 0.35 a 0.50 |
+| `mode_attack_generic.lua` | Combate geral e teamfights | Dinâmico |
+| `mode_push_generic.lua` | Empurrar torres | 0.92 a 0.99 |
+| `mode_defend_tower_*.lua` | Defender torres/base | 0.90 a 1.00 |
+| `mode_retreat_generic.lua` | Recuar com HP baixo | 1.00 (emergência) |
+
+### Documentação de Comportamento
+
+Para detalhes profundos sobre como os modos competem, quais são os limiares e como evitar regressões, consulte a pasta `docs/behavior/`:
+
+- `docs/behavior/00-decision-flow.md` — Como as desires competem e gates de ação.
+- `docs/behavior/01-laning.md` — Prioridades de last hit, deny e harass.
+- `docs/behavior/02-push.md` — Regras de avanço e recuo.
+- `docs/behavior/03-defense.md` — Modelo de ameaça e política de respondedores.
+- `docs/behavior/05-action-gates.md` — `CanNotUseAction`, `HasQueuedAction` e `MustReactNow`.
 
 ---
 
@@ -345,6 +349,15 @@ Key files:
 ## 10. Customization System
 
 ### General Settings (`Customize/general.lua`)
+
+### Controle de Posição Fixa (`Respect_Hero_Order`)
+
+Por padrão, a atribuição de rotas e posições (1 a 5) é feita pela engine de roles (`aba_role.lua`), que mistura os heróis escolhidos para otimizar a composição.
+
+Se você quiser forçar a ordem exata em que os heróis aparecem em `Customize.Dire_Heros` e `Radiant_Heros` (o índice 1 será Pos 1, o índice 2 será Pos 2, etc.), adicione esta flag ao `general.lua`:
+
+```lua
+Customize.Respect_Hero_Order = true
 ```lua
 Customize = {
     Enable = true,
@@ -540,3 +553,10 @@ Neutral items exist in TWO files. Always update both `Buff/NeutralItems.lua` AND
 
 ### 8. Adding items to sTopItems but not GetItemComponents
 Every item in `sTopItems` that is an upgrade item needs a corresponding `GetItemComponents` entry, or the purchase system won't know how to buy it.
+
+### 9. Não documentar / ignorar os Action Gates
+O `Think()` de qualquer modo pode ser bloqueado se `CanNotUseAction` ou `IsBotThinkingMeaningfulAction` retornarem `true`. Se um bot ficar parado (famoso "freeze"), verifique se a fila residual (ex: pós-TP) não está travando a execução. A solução é usar `J.MustReactNow(bot)` para bypassar o gate em situações de emergência (ver `docs/behavior/05-action-gates.md`).
+
+### 10. Fazer commit de código TSTL sem validar o `.lua`
+O build (`npm run build`) pode gerar arquivos `.lua` mesmo que haja erros de sintaxe no TypeScript (dependendo das flags do TSTL). Se você commitar e der push para o repositório sem testar o arquivo gerado, o Dota 2 vai falhar ao carregar o script com um erro genérico (`[VScript] Script Runtime Error: error in error handling`).
+**Sempre rode `luac5.1 -p bots/FunLib/arquivo.lua` antes de commitar.**

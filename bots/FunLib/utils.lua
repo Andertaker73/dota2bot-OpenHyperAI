@@ -531,7 +531,7 @@ local sub = ____native_2Doperators.sub
 local ____heroes = require(GetScriptDirectory().."/ts_libs/dota/heroes")
 local HeroName = ____heroes.HeroName
 --- Check if the target is a valid unit. can be hero, creep, or building.
---
+-- 
 -- @param target - The unit to check.
 -- @returns True if the target is a valid unit, false otherwise.
 function ____exports.IsValidUnit(target)
@@ -541,7 +541,7 @@ function ____exports.IsValidUnit(target)
     return not target:IsNull() and target:CanBeSeen() and target:IsAlive() and not target:IsInvulnerable()
 end
 --- Check if the target is a valid hero.
---
+-- 
 -- @param target - The unit to check.
 -- @returns True if the target is a valid hero, false otherwise.
 function ____exports.IsValidHero(target)
@@ -551,7 +551,7 @@ function ____exports.IsValidHero(target)
     return ____exports.IsValidUnit(target) and target:IsHero()
 end
 --- Check if the target is a valid building.
---
+-- 
 -- @param target - The unit to check.
 -- @returns True if the target is a valid building, false otherwise.
 function ____exports.IsValidBuilding(target)
@@ -561,7 +561,7 @@ function ____exports.IsValidBuilding(target)
     return ____exports.IsValidUnit(target) and target:IsBuilding()
 end
 --- Get the distance between two locations.
---
+-- 
 -- @param fLoc - The first location.
 -- @param sLoc - The second location.
 -- @returns The distance between the two locations.
@@ -623,7 +623,7 @@ function ____exports.IsHumanPlayerInTeam(team)
     return false
 end
 --- Get the last seen enemy ids near a location.
---
+-- 
 -- @param vLoc - The location to check.
 -- @param nDistance - The distance to check.
 -- @returns An array of enemy ids.
@@ -647,7 +647,7 @@ function ____exports.GetLastSeenEnemyIdsNearLocation(vLoc, nDistance)
     return enemies
 end
 --- Get the enemy ids in teleport to a location.
---
+-- 
 -- @param vLoc - The location to check.
 -- @param nDistance - The distance to check.
 -- @returns An array of enemy ids.
@@ -661,7 +661,7 @@ function ____exports.GetEnemyIdsInTpToLocation(vLoc, nDistance)
     return enemies
 end
 --- Spread the bot apart from the allies.
---
+-- 
 -- @param bot - The bot to check.
 -- @param minDistance - The distance to check.
 -- @param hNearbyUnits - The units to check.
@@ -683,7 +683,7 @@ function ____exports.SpreadBotApartDir(bot, minDistance, hNearbyUnits)
     return nil
 end
 --- Get an item from the bot's inventory with a specific total slots count.
---
+-- 
 -- @param bot - The bot to check.
 -- @param itemName - The name of the item to get.
 -- @param count - The number of slots in inventory to check.
@@ -967,7 +967,7 @@ function ____exports.GetTeamFountainTpPoint()
     return ____exports.RadiantFountainTpPoint
 end
 --- Get the direction of the team side.
---
+-- 
 -- @param team - The team to get the direction for.
 -- @returns The direction of the team side.
 function ____exports.GetTeamSideDirection(team)
@@ -978,7 +978,7 @@ function ____exports.GetTeamSideDirection(team)
     end
 end
 --- Shuffle an array.
---
+-- 
 -- @param tbl - The array to shuffle.
 -- @returns The shuffled array.
 function ____exports.Shuffle(a)
@@ -1129,7 +1129,7 @@ function ____exports.GetDistanceFromAncient(bot, enemy)
     return GetUnitToUnitDistance(bot, ancient)
 end
 --- Check if the target is a valid creep.
---
+-- 
 -- @param target - The unit to check.
 -- @returns True if the target is a valid creep, false otherwise.
 function ____exports.IsValidCreep(target)
@@ -1139,7 +1139,7 @@ function ____exports.IsValidCreep(target)
     return ____exports.IsValidUnit(target) and target:GetHealth() < 5000 and not target:IsHero() and (GetBot():GetLevel() > 9 or not target:IsAncientCreep())
 end
 --- Check if the bot has the item in its inventory.
---
+-- 
 -- @param bot - The bot to check.
 -- @param itemName - The name of the item to check.
 -- @returns True if the bot has the item, false otherwise.
@@ -1148,7 +1148,7 @@ function ____exports.HasItem(bot, itemName)
     return slot >= 0 and slot <= 8
 end
 --- Find an ally with the given name.
---
+-- 
 -- @param name - The name of the ally to find.
 -- @returns The ally if found, null otherwise.
 function ____exports.FindAllyWithName(name)
@@ -1163,7 +1163,7 @@ function ____exports.FindAllyWithName(name)
     return nil
 end
 --- Deep copy an object.
---
+-- 
 -- @param orig - The object to copy.
 -- @returns The copied object.
 function ____exports.Deepcopy(orig)
@@ -1418,10 +1418,10 @@ function ____exports.TrimString(str)
     return __TS__StringTrim(str)
 end
 --- TODO: AvoidanceZone work in progress.
---
+-- 
 -- Example: Adds a zone that expires after 10 seconds: addCustomAvoidanceZone(Vector(1000, 2000), 500, 10);
 -- Example: Adds a zone lasts indefinitely: addCustomAvoidanceZone(Vector(1000, 2000), 500);
---
+-- 
 -- @param center
 -- @param radius
 -- @param duration
@@ -1530,7 +1530,7 @@ function ____exports.IsHumanPlayerInAnyTeam()
     return ____exports.IsHumanPlayerInTeam(Team.Radiant) or ____exports.IsHumanPlayerInTeam(Team.Dire)
 end
 --- Get the enemy hero by player id.
---
+-- 
 -- @param id - The player id to check.
 -- @returns The enemy hero if found, null otherwise.
 function ____exports.GetEnemyHeroByPlayerId(id)
@@ -1542,14 +1542,14 @@ function ____exports.GetEnemyHeroByPlayerId(id)
     return nil
 end
 --- Check if the unit is truely invisible.
---
+-- 
 -- @param unit - The unit to check.
 -- @returns True if the unit is truely invisible, false otherwise.
 function ____exports.IsTruelyInvisible(unit)
     return unit:IsInvisible() and not unit:HasModifier("modifier_item_dustofappearance") and not ____exports.RecentlyTookDamage(unit, 1.5)
 end
 --- Check if the unit has a modifier containing a specific name.
---
+-- 
 -- @param unit - The unit to check.
 -- @param name - The name to check.
 -- @returns True if the unit has a modifier containing the name, false otherwise.
@@ -1571,7 +1571,7 @@ function ____exports.HasModifierContainsName(unit, name)
     return false
 end
 --- Check if the unit is near an enemy second tier tower.
---
+-- 
 -- @param unit - The unit to check.
 -- @param range - The range to check.
 -- @returns True if the unit is near an enemy second tier tower, false otherwise.
@@ -1588,7 +1588,7 @@ function ____exports.IsNearEnemySecondTierTower(unit, range)
     return false
 end
 --- Get the enemy ids near non-tier 1 towers.
---
+-- 
 -- @param range - The range to check.
 -- @returns An object with tower ids as keys and their corresponding enemy ids.
 function ____exports.GetEnemyIdsNearNonTier1Towers(range)
@@ -1609,7 +1609,7 @@ function ____exports.GetEnemyIdsNearNonTier1Towers(range)
     return result
 end
 --- Get the non-tier 1 tower with the least enemies around.
---
+-- 
 -- @param range - The range to check.
 -- @returns The non-tier 1 tower with the least enemies around.
 function ____exports.GetNonTier1TowerWithLeastEnemiesAround(range)
@@ -1629,7 +1629,7 @@ function ____exports.GetNonTier1TowerWithLeastEnemiesAround(range)
     return nil
 end
 --- Get the closest tower or barrack to attack.
---
+-- 
 -- @param unit - The unit to check.
 -- @returns The closest tower or barrack to attack.
 function ____exports.GetClosestTowerOrBarrackToAttack(unit)
@@ -1664,7 +1664,7 @@ function ____exports.GetClosestTowerOrBarrackToAttack(unit)
     return closestBuilding
 end
 --- Check if the unit is near an enemy high ground tower.
---
+-- 
 -- @param unit - The unit to check.
 -- @param range - The range to check.
 -- @returns True if the unit is near an enemy high ground tower, false otherwise.
@@ -1681,7 +1681,7 @@ function ____exports.IsNearEnemyHighGroundTower(unit, range)
     return false
 end
 --- Check if the team is pushing second tier or high ground.
---
+-- 
 -- @param bot - The bot to check.
 -- @returns True if the team is pushing second tier or high ground, false otherwise.
 function ____exports.IsTeamPushingSecondTierOrHighGround(bot)
@@ -1706,7 +1706,7 @@ function ____exports.IsTeamPushingSecondTierOrHighGround(bot)
     return false
 end
 --- Get the number of alive heroes.
---
+-- 
 -- @param bEnemy - Whether to count enemy heroes.
 -- @returns The number of alive heroes.
 function ____exports.GetNumOfAliveHeroes(bEnemy)
@@ -1723,7 +1723,7 @@ function ____exports.GetNumOfAliveHeroes(bEnemy)
     return count
 end
 --- Count the missing enemy heroes.
---
+-- 
 -- @returns The number of missing enemy heroes.
 function ____exports.CountMissingEnemyHeroes()
     local count = 0
@@ -1752,7 +1752,7 @@ function ____exports.CountMissingEnemyHeroes()
     return count
 end
 --- Find an ally with at least a certain distance away from a bot.
---
+-- 
 -- @param bot - The bot to check.
 -- @param nDistance - The minimum distance to check.
 -- @returns The ally if found, null otherwise.
@@ -1770,7 +1770,7 @@ function ____exports.FindAllyWithAtLeastDistanceAway(bot, nDistance)
     return nil
 end
 --- Check if the given enemy hero meets the "threat conditions" for special AOE.
---
+-- 
 -- @param enemy - The enemy hero unit.
 -- @param threatInfo - The conditions for that hero (level, items, modifiers).
 -- @returns true if the enemy meets the condition, otherwise false.
@@ -1792,7 +1792,7 @@ local function DoesHeroMeetThreatConditions(enemy, threatInfo)
 end
 --- Determine if there's at least one dangerous "Special AOE hero" nearby
 -- that meets the threat conditions for big combos.
---
+-- 
 -- @param bot - The bot unit to check around.
 -- @param nRadius - The search radius (e.g. 500 or 2000).
 -- @returns true if we found at least one special AOE threat in range.
@@ -1832,7 +1832,7 @@ function ____exports.IsAnySpecialAOEThreatNearby(bot, nRadius)
     return false
 end
 --- Check if the bots should spread out.
---
+-- 
 -- @param bot - The bot to check.
 -- @param minDistance - The minimum distance to check.
 -- @returns True if the bots should spread out, false otherwise.
@@ -1845,7 +1845,7 @@ function ____exports.ShouldBotsSpreadOut(bot, minDistance)
     return bResult
 end
 --- Get the nearby ally units.
---
+-- 
 -- @param bot - The bot to check.
 -- @param allyDistanceThreshold - The distance threshold to check for allies.
 -- @returns An array of ally units.
@@ -1858,7 +1858,7 @@ end
 --- Smart spread out the bots.
 -- Emphasizes moving away from allies/enemies quickly while still
 -- giving a mild pull toward fountain side if needed.
---
+-- 
 -- @param bot - The bot to move.
 -- @param allyDistanceThreshold - Distance threshold to check for allies.
 -- @param minDistance - The minimum distance to keep from allies.
@@ -1926,7 +1926,7 @@ function ____exports.SmartSpreadOut(bot, allyDistanceThreshold, minDistance, avo
     ))
 end
 --- Spread the bot apart from the allies.
---
+-- 
 -- @param bot - The bot to check.
 -- @param minDistance - The distance to check.
 -- @param hNearbyUnits - The units to check.
@@ -1957,7 +1957,7 @@ function ____exports.SpreadBotApartDir_2(bot, minDistance, hNearbyUnits)
     return finalDir
 end
 --- Get the ally ids in teleport to a location.
---
+-- 
 -- @param vLoc - The location to check.
 -- @param nDistance - The distance to check.
 -- @returns An array of ally ids.
@@ -1971,7 +1971,7 @@ function ____exports.GetAllyIdsInTpToLocation(vLoc, nDistance)
     return allies
 end
 --- Check if the bot is pushing a tower in danger.
---
+-- 
 -- @param bot - The bot to check.
 -- @returns True if the bot is pushing a tower in danger, false otherwise.
 function ____exports.IsBotPushingTowerInDanger(bot)
@@ -1991,7 +1991,7 @@ function ____exports.IsBotPushingTowerInDanger(bot)
     return false
 end
 --- Get the distance to the closest enemy tower.
---
+-- 
 -- @param bot - The bot to check.
 -- @returns The distance to the closest enemy tower.
 function ____exports.GetDistanceToCloestEnemyTower(bot)
@@ -2013,7 +2013,7 @@ function ____exports.GetDistanceToCloestEnemyTower(bot)
     return cDistance, cTower
 end
 --- Get circular points around a center point.
---
+-- 
 -- @param vCenter - The center point.
 -- @param nRadius - The radius of the circle.
 -- @param numPoints - The number of points to get.
@@ -2037,7 +2037,7 @@ function ____exports.GetCirclarPointsAroundCenterPoint(vCenter, nRadius, numPoin
     return points
 end
 --- Check if the ability is valid.
---
+-- 
 -- @param ability - The ability to check.
 -- @returns True if the ability is valid, false otherwise.
 function ____exports.IsValidAbility(ability)
@@ -2047,7 +2047,7 @@ function ____exports.IsValidAbility(ability)
     return true
 end
 --- Check if the bot has a critical spell with a cooldown greater than nDuration.
---
+-- 
 -- @param bot - The bot to check.
 -- @param nDuration - The duration to check against.
 -- @returns True if the bot has a critical spell with a cooldown greater than nDuration, false otherwise.
@@ -2062,7 +2062,7 @@ function ____exports.HasCriticalSpellWithCooldown(bot, nDuration)
     return false
 end
 --- Get an item from the bot's active inventory.
---
+-- 
 -- @param bot - The bot to check.
 -- @param itemName - The name of the item to get.
 -- @returns The item if found, null otherwise.
@@ -2070,7 +2070,7 @@ function ____exports.GetItem(bot, itemName)
     return ____exports.GetItemFromCountedInventory(bot, itemName, 6)
 end
 --- Get an item from the bot's full inventory.
---
+-- 
 -- @param bot - The bot to check.
 -- @param itemName - The name of the item to get.
 -- @returns The item if found, null otherwise.
@@ -2078,7 +2078,7 @@ function ____exports.GetItemFromFullInventory(bot, itemName)
     return ____exports.GetItemFromCountedInventory(bot, itemName, 16)
 end
 --- Check if the team has a member with a critical spell in cooldown when the bot walks & arrives to the location.
---
+-- 
 -- @param bot - The bot to check.
 -- @param targetLoc - The location to check.
 -- @returns True if the team has a member with a critical spell in cooldown, false otherwise.
@@ -2095,7 +2095,7 @@ function ____exports.HasTeamMemberWithCriticalSpellInCooldown(targetLoc)
     return false
 end
 --- Check if the team has a member with a critical item in cooldown when the bot walks & arrives to the location.
---
+-- 
 -- @param bot - The bot to check.
 -- @param targetLoc - The location to check.
 -- @returns True if the team has a member with a critical item in cooldown, false otherwise.
@@ -2121,9 +2121,9 @@ function ____exports.HasPossibleWallOfReplicaAround(bot)
     return false
 end
 --- Retrieves positions where the Wall of illusion can be.
---
+-- 
 -- These positions serve as the centers for the potential danger zones.
---
+-- 
 -- @returns An array of Vector positions marking danger zone centers.
 function ____exports.GetWallIllusionPositions(bot)
     local positions = {}
@@ -2138,10 +2138,10 @@ function ____exports.GetWallIllusionPositions(bot)
     return positions
 end
 --- Determines whether a given target location is inside any danger zone.
---
+-- 
 -- Danger zones are defined as circular areas centered on the location,
 -- using the ability's effective radius (e.g., 1000 units) as the zone radius.
---
+-- 
 -- @param targetPos - The position to test.
 -- @returns An object indicating whether
 -- the target is in danger and, if so, providing the center of the danger zone.
@@ -2157,7 +2157,7 @@ function ____exports.IsLocationInDangerZone(bot, targetPos)
     return {inDanger = false}
 end
 --- Rotates a 2D vector by a given angle (in radians).
---
+-- 
 -- @param v - The vector to rotate.
 -- @param angle - The angle in radians.
 -- @returns The rotated vector.
@@ -2167,7 +2167,7 @@ function ____exports.RotateVector(v, angle)
     return Vector(v.x * cosTheta - v.y * sinTheta, v.x * sinTheta + v.y * cosTheta, v.z)
 end
 --- Calculates a safe destination based on a target position.
---
+-- 
 -- If the target position falls within a danger zone, this function computes a new
 -- position that lies just outside the danger zone (by moving away from its center),
 -- adding a safety margin. If no target is provided, the bot's current location is used.
@@ -2175,7 +2175,7 @@ end
 -- If the candidate is blocked, the function rotates the offset vector in increments until
 -- a passable location is found (up to a maximum number of attempts). If no passable location is
 -- found, the bot remains at its current location.
---
+-- 
 -- @param bot - The bot unit.
 -- @param targetPos - (Optional) The original target position.
 -- @returns A safe position to move to. If no valid safe destination is found,
@@ -2217,7 +2217,7 @@ function ____exports.GetSafeDestination(bot, targetPos)
 end
 --- Checks if the bot's intended destination is within a danger zone and commands the bot to move
 -- to a safe destination if necessary.
---
+-- 
 -- @param targetPos - The original target destination.
 function ____exports.MoveBotSafely(bot, targetPos)
     local botPos = bot:GetLocation()
@@ -2248,18 +2248,12 @@ local meaningfulActivities = {
 }
 --- Checks if the bot is currently thinking meaningful actions that would make
 -- re-computing the Think() method unnecessary.
---
+-- 
 -- @param bot - The bot unit to check
 -- @param thinkLess - The think less value, 0: fully think, 1 to 10: think less and less frequently.
 -- @param type - The type of action to check, "all": check all actions, "farm": check farm actions, etc.
 -- @returns True if the bot is doing something meaningful, false otherwise
-local _jmz_cache = nil
 function ____exports.IsBotThinkingMeaningfulAction(bot, thinkLess, ____type)
-    -- OHA MOD: se o bot precisa reagir agora, NÃO bloquear o Think().
-    if _jmz_cache == nil then
-        _jmz_cache = require(GetScriptDirectory().."/FunLib/jmz_func")
-    end
-    if _jmz_cache.MustReactNow(bot) then return false end
     if thinkLess == nil then
         thinkLess = 1
     end
