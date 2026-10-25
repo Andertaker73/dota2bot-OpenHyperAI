@@ -400,11 +400,11 @@ function ____exports.GetPushDesireHelper(bot, lane)
     local laneFront = GetLaneFrontLocation(gameState.team, lane, 0)
     if GetLocationToLocationDistance(laneFront, enemyFountain) < 5000 then
         local isPowerplayWindow = finishGame or enemyDeadCount >= 1 or hasSignificantAdvantage
-        if #alliesHere < 3 or gameState.aliveAllyCount < gameState.aliveEnemyCount and not isPowerplayWindow then
-            nMaxDesire = math.min(nMaxDesire, finishGame and 0.85 or (isPowerplayWindow and 0.7 or 0.2))
+        if not isPowerplayWindow and (#alliesHere < 3 or gameState.aliveAllyCount < gameState.aliveEnemyCount) then
+            nMaxDesire = math.min(nMaxDesire, finishGame and 0.85 or 0.2)
         end
     end
-    if jmz.GetHP(bot) < 0.5 then
+    if jmz.GetHP(bot) < 0.35 then
         nMaxDesire = math.min(nMaxDesire, 0.25)
     end
     if not finishGame and gameState.aliveEnemyCount >= 5 and gameState.aliveAllyCount <= gameState.aliveEnemyCount and not hasSignificantAdvantage and enemyDeadCount < 2 then
@@ -875,7 +875,7 @@ else
 end
 ____Customize_1.ThinkLess = ____Customize_Enable_0
 pingTimeDelta = 5
-StartToPushTime = 10 * 60
+StartToPushTime = 7 * 60
 BOT_MODE_DESIRE_EXTRA_LOW = 0.02
 hEnemyAncient = nil
 PUSH_CACHE_TTL = 0.5

@@ -196,27 +196,30 @@ function GetBestLastHitCreep(hCreepList)
 end
 
 function GetBestDenyCreep(hCreepList)
+        -- OHA MOD: Sob pressão, reduzir a vontade de dar deny.
+        -- Se o bot tomou dano de herói nos últimos 1.5s e há inimigos por perto,
+        -- ele ignora o deny para não morrer desnecessariamente.
+        if bot:WasRecentlyDamagedByAnyHero(1.5) and nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
+                return nil, nil
+        end
+
         local bestCreep = nil
         local bestDist = math.huge
         local moveToCreep = nil
         local moveToDist = math.huge
 
         for _, creep in pairs(hCreepList) do
-                -- Invertemos a lógica: só executa o bloco se for válido E for um creep normal
                 if J.IsValid(creep) and J.CanBeAttacked(creep)
                 and string.find(creep:GetUnitName(), 'npc_dota_creep_') then
-
                         local nDelay = J.GetAttackProDelayTime(bot, creep)
                         local nDist = GetUnitToUnitDistance(bot, creep)
                         local creepHP = creep:GetHealth()
 
-                        -- 1. Podemos negar AGORA com um ataque? (Dano exato)
                         if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
                                 if nDist < bestDist then
                                         bestDist = nDist
                                         bestCreep = creep
                                 end
-                        -- 2. Devemos nos mover para negar?
                         elseif creepHP <= (attackDamage * 1.3) and nDist <= botAttackRange + 250 then
                                 if nDist < moveToDist then
                                         moveToDist = nDist

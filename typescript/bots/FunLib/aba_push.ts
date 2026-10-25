@@ -13,7 +13,7 @@ Customize.ThinkLess = Customize.Enable ? Customize.ThinkLess : 1;
  * (kept from Lua; comments preserved)
  */
 const pingTimeDelta = 5;
-const StartToPushTime = 10 * 60; // after X mins, start considering to push.
+const StartToPushTime = 7 * 60; // after X mins, start considering to push.
 const BOT_MODE_DESIRE_EXTRA_LOW = 0.02;
 
 /** Module-scoped state (cache-ish). Keep small and intentional. */
@@ -446,16 +446,17 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         return BotModeDesire.None;
     }
     // Não travar um push profundo em powerplay ou quando a equipe está claramente melhor.
+    // OHA MOD: Perto da fonte inimiga, em powerplay, não trava o desejo.
     const enemyFountain = gameState.team === Team.Radiant ? DireFountainTpPoint : RadiantFountainTpPoint;
     const laneFront = GetLaneFrontLocation(gameState.team, lane, 0);
     if (GetLocationToLocationDistance(laneFront, enemyFountain) < 5000) {
         const isPowerplayWindow = finishGame || enemyDeadCount >= 1 || hasSignificantAdvantage;
-        if (alliesHere.length < 3 || (gameState.aliveAllyCount < gameState.aliveEnemyCount && !isPowerplayWindow)) {
-            nMaxDesire = math.min(nMaxDesire, finishGame ? 0.85 : isPowerplayWindow ? 0.7 : 0.2);
+        if (!isPowerplayWindow && (alliesHere.length < 3 || gameState.aliveAllyCount < gameState.aliveEnemyCount)) {
+            nMaxDesire = math.min(nMaxDesire, finishGame ? 0.85 : 0.2);
         }
     }
     // Reduce desire when low HP
-    if (jmz.GetHP(bot) < 0.5) {
+    if (jmz.GetHP(bot) < 0.35) {
         nMaxDesire = math.min(nMaxDesire, 0.25);
     }
     // Só travar em 5v5 sem vantagem real; em powerplay ou em vantagem numérica, o bot deve pressionar.

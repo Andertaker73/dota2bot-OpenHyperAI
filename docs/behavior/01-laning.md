@@ -41,7 +41,8 @@ O dano base não é suficiente. O bot deve calcular:
 
 ### 1.3 Condição de Deny
 * **Regra**: O bot só ataca o próprio creep se o HP for menor que o dano do bot.
-* **Prioridade Absoluta**: O deny sempre vence o last hit inimigo se ambos estiverem disponíveis no mesmo frame.
+* **Prioridade Absoluta**: O deny sempre vence o last hit inimigo se ambos estiverem disponíve
+**OHA MOD (2026-10-25):** Sob pressão (dano de herói recente + inimigos por perto), o bot ignora o deny para priorizar sobrevivência. A função `GetBestDenyCreep` retorna `nil` nessa situação.
 
 ---
 

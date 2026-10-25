@@ -205,34 +205,40 @@ function GetBestLastHitCreep(hCreepList)
 end
 
 function GetBestDenyCreep(hCreepList)
-    local bestCreep = nil
-    local bestDist = math.huge
-    local moveToCreep = nil
-    local moveToDist = math.huge
-
-    for _, creep in pairs(hCreepList) do
-        if J.IsValid(creep) and J.CanBeAttacked(creep)
-        and string.find(creep:GetUnitName(), 'npc_dota_creep_') then
-            local nDist = GetUnitToUnitDistance(bot, creep)
-            local creepHP = creep:GetHealth()
-
-            if creepHP <= attackDamage then
-                if nDist < bestDist then
-                    bestDist = nDist
-                    bestCreep = creep
-                end
-            elseif creepHP <= (attackDamage * 1.3) and nDist <= botAttackRange + 250 then
-                if nDist < moveToDist then
-                    moveToDist = nDist
-                    moveToCreep = creep
-                end
-            end
+        -- OHA MOD: Sob pressão, reduzir a vontade de dar deny.
+        if bot:WasRecentlyDamagedByAnyHero(1.5) and tEnemyHeroes ~= nil and #tEnemyHeroes > 0 then
+                return nil
         end
-    end
 
-    if bestCreep then return bestCreep, nil end
-    if moveToCreep then return nil, moveToCreep end
-    return nil, nil
+        local bestCreep = nil
+        local bestDist = math.huge
+        local moveToCreep = nil
+        local moveToDist = math.huge
+
+        for _, creep in pairs(hCreepList) do
+                if J.IsValid(creep) and J.CanBeAttacked(creep)
+                and string.find(creep:GetUnitName(), 'npc_dota_creep_') then
+                        local nDist = GetUnitToUnitDistance(bot, creep)
+                        local creepHP = creep:GetHealth()
+
+                        if creepHP <= attackDamage then
+                                if nDist < bestDist then
+                                        bestDist = nDist
+                                        bestCreep = creep
+                                end
+                        elseif creepHP <= (attackDamage * 1.3) and nDist <= botAttackRange + 250 then
+                                if nDist < moveToDist then
+                                        moveToDist = nDist
+                                        moveToCreep = creep
+                                end
+                        end
+                end
+        end
+
+        if bestCreep then
+                return bestCreep
+        end
+        return moveToCreep
 end
 
 function GetHarassTarget(hEnemyList)

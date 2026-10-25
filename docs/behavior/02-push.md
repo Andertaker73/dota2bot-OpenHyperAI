@@ -29,6 +29,9 @@ O push só é abandonado sob duas condições:
 
 1. **Somos o Responente Designado**: A função `GetDesignatedResponders` (em `aba_defend.ts`) nos elegeu para voltar e defender a base. Todos os outros bots continuam o push (ver `03-defense.md`).
 2. **A Base está Caindo**: O Ancient aliado está sob ataque de 4+ heróis e com HP crítico.
+> **OHA MOD (2026-10-25):** O tempo mínimo para iniciar pushes agressivos caiu de 10 para 7 minutos. Em powerplay (1+ herói inimigo morto, vantagem de networth > 8k ou level > 1), as restrições de “aliados por perto” perto da fonte inimiga são ignoradas e o desejo de push sobe para 0.98.
+
+*(Na tabela de tuning, altere o `StartToPushTime` de `10 min` para `7 min`)*
 
 ## 3. Escolha da Rota (`WhichLaneToPush`)
 
