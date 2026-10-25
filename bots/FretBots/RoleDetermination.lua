@@ -139,171 +139,169 @@ end
 
 function RoleDetermination:DetermineRoles()
 	for team = 2, 3 do
-		if #AllBots[team] < 1 then
+		if #AllBots[team] >= 1 then
+			-- RESET per-team state
+			laneCounts = { safe = 0, mid = 0, off = 0 }
+			RoleDeterminationBots = {}
+
+			-- Reset assignment flags
+			for _, bot in ipairs(AllBots[team]) do
+				bot.stats.isRoleAssigned = false
+			end
+
+			-- Determine each bot's lane based on tower proximity
+			-- Radiant: top = offlane, bot = safe lane
+			-- Dire: top = safe lane, bot = offlane
+			-- Note: DIRE is local to DataTables.lua, use DOTA_TEAM_BADGUYS or raw value 3
+			local bIsDire = (team == 3 or team == DOTA_TEAM_BADGUYS)
+			for _, bot in ipairs(AllBots[team]) do
+				local top = bot.stats.laneWeights.top
+				local mid = bot.stats.laneWeights.mid
+				local bottom = bot.stats.laneWeights.bot
+
+				if top <= mid and top <= bottom then
+					bot.stats.lane = bIsDire and LANE_SAFE or LANE_OFF
+				elseif mid <= top and mid <= bottom then
+					bot.stats.lane = LANE_MID
+				else
+					bot.stats.lane = bIsDire and LANE_OFF or LANE_SAFE
+				end
+
+				if bot.stats.lane == LANE_SAFE then laneCounts.safe = laneCounts.safe + 1
+				elseif bot.stats.lane == LANE_MID then laneCounts.mid = laneCounts.mid + 1
+				elseif bot.stats.lane == LANE_OFF then laneCounts.off = laneCounts.off + 1
+				end
+
+				Debug:Print(bot.stats.name..': lane: '..bot.stats.lane
+					..': top '..bot.stats.laneWeights.top
+					..': mid '..bot.stats.laneWeights.mid
+					..': bot '..bot.stats.laneWeights.bot)
+			end
+
+			Debug:Print('Team '..team..' lane counts: safe='..laneCounts.safe..' mid='..laneCounts.mid..' off='..laneCounts.off)
+
+			-- Assign roles respecting LANE FIRST, then use weights to pick the
+			-- best role within that lane. Lane is the strongest signal:
+			--   Safe lane → pos 1 (carry) or pos 5 (hard support)
+			--   Mid lane → pos 2 (mid)
+			--   Off lane → pos 3 (offlane) or pos 4 (soft support)
+			--
+			-- When only ONE bot is in a 2-role lane (human has the other slot),
+			-- pick whichever role the hero has higher weight for. E.g., if Witch
+			-- Doctor is solo bot in safe lane, WD gets pos 5 (not pos 1) because
+			-- WD's pos 5 weight (50) > pos 1 weight (5).
+
+			local availableRoles = {}
+			for role = 1, 5 do availableRoles[role] = true end
+
+			-- Group bots by lane
+			local botsByLane = { [LANE_SAFE] = {}, [LANE_MID] = {}, [LANE_OFF] = {} }
+			for _, bot in ipairs(AllBots[team]) do
+				if bot.stats.lane and botsByLane[bot.stats.lane] then
+					table.insert(botsByLane[bot.stats.lane], bot)
+				end
+			end
+
+			-- Assign mid first (unambiguous: only pos 2)
+			for _, bot in ipairs(botsByLane[LANE_MID]) do
+				if availableRoles[2] then
+					bot.stats.isRoleAssigned = true
+					bot.stats.role = 2
+					availableRoles[2] = false
+					table.insert(RoleDeterminationBots, bot)
+					Debug:Print('Lane->Role: '..bot.stats.name..' mid -> pos 2')
+				end
+			end
+
+			-- Assign safe lane (pos 1 and pos 5)
+			local safeBots = botsByLane[LANE_SAFE]
+			if #safeBots == 1 then
+				-- Solo bot in safe lane: pick whichever role fits better
+				local bot = safeBots[1]
+				local heroName = bot.stats.heroName or bot.stats.name or ''
+				local w1 = GetHeroPosWeight(heroName, 1)
+				local w5 = GetHeroPosWeight(heroName, 5)
+				local bestRole = (w1 >= w5 and availableRoles[1]) and 1 or 5
+				if not availableRoles[bestRole] then bestRole = (bestRole == 1) and 5 or 1 end
+				if availableRoles[bestRole] then
+					bot.stats.isRoleAssigned = true
+					bot.stats.role = bestRole
+					availableRoles[bestRole] = false
+					table.insert(RoleDeterminationBots, bot)
+					Debug:Print('Lane->Role: '..bot.stats.name..' safe -> pos '..bestRole..' (w1='..w1..', w5='..w5..')')
+				end
+			elseif #safeBots >= 2 then
+				-- Two+ bots: highest pos 1 weight gets carry, rest get pos 5
+				table.sort(safeBots, function(a, b)
+					local na = a.stats.heroName or a.stats.name or ''
+					local nb = b.stats.heroName or b.stats.name or ''
+					return GetHeroPosWeight(na, 1) > GetHeroPosWeight(nb, 1)
+				end)
+				for i, bot in ipairs(safeBots) do
+					local role = (i == 1 and availableRoles[1]) and 1 or 5
+					if not availableRoles[role] then role = (role == 1) and 5 or 1 end
+					if availableRoles[role] then
+						bot.stats.isRoleAssigned = true
+						bot.stats.role = role
+						availableRoles[role] = false
+						table.insert(RoleDeterminationBots, bot)
+						Debug:Print('Lane->Role: '..bot.stats.name..' safe -> pos '..role)
+					end
+				end
+			end
+
+			-- Assign off lane (pos 3 and pos 4)
+			local offBots = botsByLane[LANE_OFF]
+			if #offBots == 1 then
+				local bot = offBots[1]
+				local heroName = bot.stats.heroName or bot.stats.name or ''
+				local w3 = GetHeroPosWeight(heroName, 3)
+				local w4 = GetHeroPosWeight(heroName, 4)
+				local bestRole = (w3 >= w4 and availableRoles[3]) and 3 or 4
+				if not availableRoles[bestRole] then bestRole = (bestRole == 3) and 4 or 3 end
+				if availableRoles[bestRole] then
+					bot.stats.isRoleAssigned = true
+					bot.stats.role = bestRole
+					availableRoles[bestRole] = false
+					table.insert(RoleDeterminationBots, bot)
+					Debug:Print('Lane->Role: '..bot.stats.name..' off -> pos '..bestRole..' (w3='..w3..', w4='..w4..')')
+				end
+			elseif #offBots >= 2 then
+				table.sort(offBots, function(a, b)
+					local na = a.stats.heroName or a.stats.name or ''
+					local nb = b.stats.heroName or b.stats.name or ''
+					return GetHeroPosWeight(na, 3) > GetHeroPosWeight(nb, 3)
+				end)
+				for i, bot in ipairs(offBots) do
+					local role = (i == 1 and availableRoles[3]) and 3 or 4
+					if not availableRoles[role] then role = (role == 3) and 4 or 3 end
+					if availableRoles[role] then
+						bot.stats.isRoleAssigned = true
+						bot.stats.role = role
+						availableRoles[role] = false
+						table.insert(RoleDeterminationBots, bot)
+						Debug:Print('Lane->Role: '..bot.stats.name..' off -> pos '..role)
+					end
+				end
+			end
+
+			-- Remaining unassigned bots: assign by weight to remaining roles
+			for role = 1, 5 do
+				if availableRoles[role] then
+					local best = RoleDetermination:GetBestBot(nil, role, team)
+					if best then
+						table.insert(RoleDeterminationBots, best)
+						availableRoles[role] = false
+					end
+				end
+			end
+
+			-- Sort by role number for consistency
+			table.sort(RoleDeterminationBots, function(a, b) return a.stats.role < b.stats.role end)
+			AllBots[team] = RoleDeterminationBots
+		else
 			Debug:Print('Team '..team..' has no bots. Skipping.')
-			goto continue_team
 		end
-
-		-- RESET per-team state
-		laneCounts = { safe = 0, mid = 0, off = 0 }
-		RoleDeterminationBots = {}
-
-		-- Reset assignment flags
-		for _, bot in ipairs(AllBots[team]) do
-			bot.stats.isRoleAssigned = false
-		end
-
-		-- Determine each bot's lane based on tower proximity
-		-- Radiant: top = offlane, bot = safe lane
-		-- Dire: top = safe lane, bot = offlane
-		-- Note: DIRE is local to DataTables.lua, use DOTA_TEAM_BADGUYS or raw value 3
-		local bIsDire = (team == 3 or team == DOTA_TEAM_BADGUYS)
-		for _, bot in ipairs(AllBots[team]) do
-			local top = bot.stats.laneWeights.top
-			local mid = bot.stats.laneWeights.mid
-			local bottom = bot.stats.laneWeights.bot
-
-			if top <= mid and top <= bottom then
-				bot.stats.lane = bIsDire and LANE_SAFE or LANE_OFF
-			elseif mid <= top and mid <= bottom then
-				bot.stats.lane = LANE_MID
-			else
-				bot.stats.lane = bIsDire and LANE_OFF or LANE_SAFE
-			end
-
-			if bot.stats.lane == LANE_SAFE then laneCounts.safe = laneCounts.safe + 1
-			elseif bot.stats.lane == LANE_MID then laneCounts.mid = laneCounts.mid + 1
-			elseif bot.stats.lane == LANE_OFF then laneCounts.off = laneCounts.off + 1
-			end
-
-			Debug:Print(bot.stats.name..': lane: '..bot.stats.lane
-				..': top '..bot.stats.laneWeights.top
-				..': mid '..bot.stats.laneWeights.mid
-				..': bot '..bot.stats.laneWeights.bot)
-		end
-
-		Debug:Print('Team '..team..' lane counts: safe='..laneCounts.safe..' mid='..laneCounts.mid..' off='..laneCounts.off)
-
-		-- Assign roles respecting LANE FIRST, then use weights to pick the
-		-- best role within that lane. Lane is the strongest signal:
-		--   Safe lane → pos 1 (carry) or pos 5 (hard support)
-		--   Mid lane → pos 2 (mid)
-		--   Off lane → pos 3 (offlane) or pos 4 (soft support)
-		--
-		-- When only ONE bot is in a 2-role lane (human has the other slot),
-		-- pick whichever role the hero has higher weight for. E.g., if Witch
-		-- Doctor is solo bot in safe lane, WD gets pos 5 (not pos 1) because
-		-- WD's pos 5 weight (50) > pos 1 weight (5).
-
-		local availableRoles = {}
-		for role = 1, 5 do availableRoles[role] = true end
-
-		-- Group bots by lane
-		local botsByLane = { [LANE_SAFE] = {}, [LANE_MID] = {}, [LANE_OFF] = {} }
-		for _, bot in ipairs(AllBots[team]) do
-			if bot.stats.lane and botsByLane[bot.stats.lane] then
-				table.insert(botsByLane[bot.stats.lane], bot)
-			end
-		end
-
-		-- Assign mid first (unambiguous: only pos 2)
-		for _, bot in ipairs(botsByLane[LANE_MID]) do
-			if availableRoles[2] then
-				bot.stats.isRoleAssigned = true
-				bot.stats.role = 2
-				availableRoles[2] = false
-				table.insert(RoleDeterminationBots, bot)
-				Debug:Print('Lane->Role: '..bot.stats.name..' mid -> pos 2')
-			end
-		end
-
-		-- Assign safe lane (pos 1 and pos 5)
-		local safeBots = botsByLane[LANE_SAFE]
-		if #safeBots == 1 then
-			-- Solo bot in safe lane: pick whichever role fits better
-			local bot = safeBots[1]
-			local heroName = bot.stats.heroName or bot.stats.name or ''
-			local w1 = GetHeroPosWeight(heroName, 1)
-			local w5 = GetHeroPosWeight(heroName, 5)
-			local bestRole = (w1 >= w5 and availableRoles[1]) and 1 or 5
-			if not availableRoles[bestRole] then bestRole = (bestRole == 1) and 5 or 1 end
-			if availableRoles[bestRole] then
-				bot.stats.isRoleAssigned = true
-				bot.stats.role = bestRole
-				availableRoles[bestRole] = false
-				table.insert(RoleDeterminationBots, bot)
-				Debug:Print('Lane->Role: '..bot.stats.name..' safe -> pos '..bestRole..' (w1='..w1..', w5='..w5..')')
-			end
-		elseif #safeBots >= 2 then
-			-- Two+ bots: highest pos 1 weight gets carry, rest get pos 5
-			table.sort(safeBots, function(a, b)
-				local na = a.stats.heroName or a.stats.name or ''
-				local nb = b.stats.heroName or b.stats.name or ''
-				return GetHeroPosWeight(na, 1) > GetHeroPosWeight(nb, 1)
-			end)
-			for i, bot in ipairs(safeBots) do
-				local role = (i == 1 and availableRoles[1]) and 1 or 5
-				if not availableRoles[role] then role = (role == 1) and 5 or 1 end
-				if availableRoles[role] then
-					bot.stats.isRoleAssigned = true
-					bot.stats.role = role
-					availableRoles[role] = false
-					table.insert(RoleDeterminationBots, bot)
-					Debug:Print('Lane->Role: '..bot.stats.name..' safe -> pos '..role)
-				end
-			end
-		end
-
-		-- Assign off lane (pos 3 and pos 4)
-		local offBots = botsByLane[LANE_OFF]
-		if #offBots == 1 then
-			local bot = offBots[1]
-			local heroName = bot.stats.heroName or bot.stats.name or ''
-			local w3 = GetHeroPosWeight(heroName, 3)
-			local w4 = GetHeroPosWeight(heroName, 4)
-			local bestRole = (w3 >= w4 and availableRoles[3]) and 3 or 4
-			if not availableRoles[bestRole] then bestRole = (bestRole == 3) and 4 or 3 end
-			if availableRoles[bestRole] then
-				bot.stats.isRoleAssigned = true
-				bot.stats.role = bestRole
-				availableRoles[bestRole] = false
-				table.insert(RoleDeterminationBots, bot)
-				Debug:Print('Lane->Role: '..bot.stats.name..' off -> pos '..bestRole..' (w3='..w3..', w4='..w4..')')
-			end
-		elseif #offBots >= 2 then
-			table.sort(offBots, function(a, b)
-				local na = a.stats.heroName or a.stats.name or ''
-				local nb = b.stats.heroName or b.stats.name or ''
-				return GetHeroPosWeight(na, 3) > GetHeroPosWeight(nb, 3)
-			end)
-			for i, bot in ipairs(offBots) do
-				local role = (i == 1 and availableRoles[3]) and 3 or 4
-				if not availableRoles[role] then role = (role == 3) and 4 or 3 end
-				if availableRoles[role] then
-					bot.stats.isRoleAssigned = true
-					bot.stats.role = role
-					availableRoles[role] = false
-					table.insert(RoleDeterminationBots, bot)
-					Debug:Print('Lane->Role: '..bot.stats.name..' off -> pos '..role)
-				end
-			end
-		end
-
-		-- Remaining unassigned bots: assign by weight to remaining roles
-		for role = 1, 5 do
-			if availableRoles[role] then
-				local best = RoleDetermination:GetBestBot(nil, role, team)
-				if best then
-					table.insert(RoleDeterminationBots, best)
-					availableRoles[role] = false
-				end
-			end
-		end
-
-		-- Sort by role number for consistency
-		table.sort(RoleDeterminationBots, function(a, b) return a.stats.role < b.stats.role end)
-		AllBots[team] = RoleDeterminationBots
-		::continue_team::
 	end
 end
 

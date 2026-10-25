@@ -180,11 +180,9 @@ function GetBestDenyCreep(hCreepList)
         local moveToDist = math.huge
 
         for _, creep in pairs(hCreepList) do
-                if J.IsValid(creep) and J.CanBeAttacked(creep) then
-                        -- Filtra para garantir que é um creep normal (ignora summons, etc)
-                        if not string.find(creep:GetUnitName(), 'npc_dota_creep_') then
-                                goto continue
-                        end
+                -- Invertemos a lógica: só executa o bloco se for válido E for um creep normal
+                if J.IsValid(creep) and J.CanBeAttacked(creep)
+                and string.find(creep:GetUnitName(), 'npc_dota_creep_') then
 
                         local nDelay = J.GetAttackProDelayTime(bot, creep)
                         local nDist = GetUnitToUnitDistance(bot, creep)
@@ -197,16 +195,12 @@ function GetBestDenyCreep(hCreepList)
                                         bestCreep = creep
                                 end
                         -- 2. Devemos nos mover para negar?
-                        -- Se o HP estiver baixo o suficiente para morrer no próximo ataque
-                        -- E estiver numa distância segura para andarmos
                         elseif creepHP <= (attackDamage * 1.3) and nDist <= botAttackRange + 250 then
                                 if nDist < moveToDist then
                                         moveToDist = nDist
                                         moveToCreep = creep
                                 end
                         end
-
-                        ::continue::
                 end
         end
 
