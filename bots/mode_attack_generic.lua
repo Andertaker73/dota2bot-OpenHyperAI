@@ -82,6 +82,28 @@ function Generic.GetDesire()
 		end
 	end
 
+	-- OHA MOD: Sede de Sangue (Bloodthirst) / Caça a alvos vulneráveis
+	-- Força o modo de ataque se houver um inimigo com HP baixo, desabilitado ou sob forte slow,
+	-- e tivermos vantagem numérica local (ex: 4 bots contra 1 player).
+	-- Ignora o cap de 0.42 da laning phase para garantir a finalização.
+	for _, enemy in ipairs(nEnemyHeroes) do
+		if J.IsValidHero(enemy) and not J.IsSuspiciousIllusion(enemy) then
+			local enemyHP = J.GetHP(enemy)
+			-- Alvo em estado crítico (< 40% HP) ou preso/desabilitado
+			if enemyHP < 0.40 or J.IsDisabled(enemy) then
+				local enemyLoc = enemy:GetLocation()
+				local nAllyNearEnemy = J.GetAlliesNearLoc(enemyLoc, 1200)
+				local nEnemyNearEnemy = J.GetEnemiesNearLoc(enemyLoc, 1200)
+
+				-- Se temos superioridade numérica clara perto do alvo e o bot tem vida para a caçada
+				if #nAllyNearEnemy >= #nEnemyNearEnemy + 1 and botHP > 0.35 then
+					-- 0.96 vence o laning (0.90) mas perde para o retreat (1.0)
+					return GetActualDesire(0.96)
+				end
+			end
+		end
+	end
+
 	-- 条件 1：被敌人英雄攻击 → 还手（核心：治"被白嫖不还手"）
 	-- 距离放宽到 1200（跳刀距离）：远程英雄（600-800 射程）在攻击范围外白嫖近战 bot 时
 	-- 也必须响应——够得着就还手，够不着 Think 里走位靠近（原 botAttackRange+300 挡掉了远程白嫖场景）
