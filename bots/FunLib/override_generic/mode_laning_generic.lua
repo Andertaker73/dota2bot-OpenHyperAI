@@ -15,11 +15,13 @@ local assignedLane
 local tangoDesire, tangoTarget, tangoSlot
 local fNextMovementTime = 0
 
-function X.GetDesire()
-	tangoDesire, tangoTarget = ConsiderTango()
-	if tangoDesire > 0 then
-		return BOT_MODE_DESIRE_ABSOLUTE
-	end
+function GetDesire()
+    -- OHA MOD: Força o recuo se o HP estiver baixo e houver inimigos por perto
+    local botHP = J.GetHP(bot)
+    local nInRangeEnemy = bot:GetNearbyHeroes(1200, true, BOT_MODE_NONE)
+    if botHP < 0.35 and nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
+        return BOT_MODE_DESIRE_NONE -- Permite que o modo Retreat assuma
+    end
 
 	if not assignedLane then assignedLane = GetBotTargetLane() end
 
@@ -170,43 +172,67 @@ end
 -- Helper functions
 --------------------------------------------------------------------
 function GetBestLastHitCreep(hCreepList)
-	local attackDamage = bot:GetAttackDamage()
-	if bot:GetItemSlotType(bot:FindItemSlot("item_quelling_blade")) == ITEM_SLOT_TYPE_MAIN then
-		if bot:GetAttackRange() > 310 or bot:GetUnitName() == "npc_dota_hero_templar_assassin" then
-			attackDamage = attackDamage + 4
-		else
-			attackDamage = attackDamage + 8
-		end
-	end
+    local bestCreep = nil
+    local bestDist = math.huge
+    local moveToCreep = nil
+    local moveToDist = math.huge
 
-	for _, creep in pairs(hCreepList) do
-		if J.IsValid(creep) and J.CanBeAttacked(creep) then
-			local nDelay = J.GetAttackProDelayTime(bot, creep)
-			if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
-				return creep
-			end
-		end
-	end
-	return nil
+    for _, creep in pairs(hCreepList) do
+        if J.IsValid(creep) and J.CanBeAttacked(creep) then
+            local nDelay = J.GetAttackProDelayTime(bot, creep)
+            local nDist = GetUnitToUnitDistance(bot, creep)
+            local creepHP = creep:GetHealth()
+
+            -- Verificação direta de HP (mais confiável que WillKillTarget)
+            if creepHP <= attackDamage then
+                if nDist < bestDist then
+                    bestDist = nDist
+                    bestCreep = creep
+                end
+            -- Margem de segurança para movimento
+            elseif creepHP <= (attackDamage * 1.4) and nDist <= botAttackRange + 300 then
+                if nDist < moveToDist then
+                    moveToDist = nDist
+                    moveToCreep = creep
+                end
+            end
+        end
+    end
+
+    if bestCreep then return bestCreep, false end
+    if moveToCreep then return moveToCreep, true end
+    return nil, false
 end
 
 function GetBestDenyCreep(hCreepList)
-	local best = nil
-	local bestDist = math.huge
-	for _, creep in pairs(hCreepList) do
-		if J.IsValid(creep) and J.CanBeAttacked(creep) and string.find(creep:GetUnitName(), 'npc_dota_creep_') then
-			local hpPct = J.GetHP(creep)
-			local dist = GetUnitToUnitDistance(bot, creep)
-			if hpPct < 0.49 and dist < bestDist then
-				best = creep
-				bestDist = dist
-			elseif hpPct < 0.7 and dist < bestDist then
-				best = creep
-				bestDist = dist
-			end
-		end
-	end
-	return best
+    local bestCreep = nil
+    local bestDist = math.huge
+    local moveToCreep = nil
+    local moveToDist = math.huge
+
+    for _, creep in pairs(hCreepList) do
+        if J.IsValid(creep) and J.CanBeAttacked(creep)
+        and string.find(creep:GetUnitName(), 'npc_dota_creep_') then
+            local nDist = GetUnitToUnitDistance(bot, creep)
+            local creepHP = creep:GetHealth()
+
+            if creepHP <= attackDamage then
+                if nDist < bestDist then
+                    bestDist = nDist
+                    bestCreep = creep
+                end
+            elseif creepHP <= (attackDamage * 1.3) and nDist <= botAttackRange + 250 then
+                if nDist < moveToDist then
+                    moveToDist = nDist
+                    moveToCreep = creep
+                end
+            end
+        end
+    end
+
+    if bestCreep then return bestCreep, nil end
+    if moveToCreep then return nil, moveToCreep end
+    return nil, nil
 end
 
 function GetHarassTarget(hEnemyList)

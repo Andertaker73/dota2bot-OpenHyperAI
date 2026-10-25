@@ -30,7 +30,8 @@ local isChangePosMessageDone     = false
 if Utils.BuggyHeroesDueToValveTooLazy[botName] then local_mode_laning_generic = dofile( GetScriptDirectory().."/FunLib/override_generic/mode_laning_generic" ) end
 
 function GetDesire()
-        if J.GetHP(bot) < 0.35 and nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
+        -- OHA MOD: Aumentado de 0.35 para 0.45 para evitar mortes por burst damage na laning
+if J.GetHP(bot) < 0.45 and nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
                 return BOT_MODE_DESIRE_NONE
         end
 	PickOneAnnouncer()
