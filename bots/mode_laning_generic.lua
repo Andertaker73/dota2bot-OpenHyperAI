@@ -30,6 +30,9 @@ local isChangePosMessageDone     = false
 if Utils.BuggyHeroesDueToValveTooLazy[botName] then local_mode_laning_generic = dofile( GetScriptDirectory().."/FunLib/override_generic/mode_laning_generic" ) end
 
 function GetDesire()
+        if J.GetHP(bot) < 0.35 and nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
+                return BOT_MODE_DESIRE_NONE
+        end
 	PickOneAnnouncer()
 	AnnounceMessages()
 
@@ -38,8 +41,8 @@ function GetDesire()
 	local currentTime = DotaTime()
 
 	botAttackRange = bot:GetAttackRange()
-	nAllyCreeps = bot:GetNearbyLaneCreeps(1200, false)
-	nEnemyCreeps = bot:GetNearbyLaneCreeps(800, true)
+        nAllyCreeps = bot:GetNearbyLaneCreeps(math.max(1200, botAttackRange + 400), false)
+        nEnemyCreeps = bot:GetNearbyLaneCreeps(math.max(1000, botAttackRange + 400), true)
 	nInRangeEnemy = bot:GetNearbyHeroes(1600, true, BOT_MODE_NONE)
 	nFurthestEnemyAttackRange = GetFurthestEnemyAttackRange(nInRangeEnemy)
 	if local_mode_laning_generic then
@@ -118,6 +121,24 @@ function GetDesire()
 	if botLV <= 14 and J.GetCoresAverageNetworth() < 7000 then return 0.2 end
 
 	J.Utils.GameStates.passiveLaningTime = true
+
+                -- OHA MOD: Força o modo de ataque se houver um alvo vulnerável e isolado perto
+        local nEnemies = bot:GetNearbyHeroes(1400, true, BOT_MODE_NONE)
+        if nEnemies ~= nil then
+                for _, enemy in pairs(nEnemies) do
+                        if J.IsValidHero(enemy) and not J.IsSuspiciousIllusion(enemy) then
+                                local enemyHP = J.GetHP(enemy)
+                                -- Se o inimigo tem menos de 40% de HP ou está com slow/stun
+                                if enemyHP < 0.4 or J.IsDisabled(enemy) then
+                                        local nAlliesNearEnemy = J.GetAlliesNearLoc(enemy:GetLocation(), 1000)
+                                        -- Se o inimigo está isolado e temos números
+                                        if #nAlliesNearEnemy <= 1 then
+                                                return RemapValClamped(J.GetHP(bot), 0.2, 0.6, BOT_MODE_DESIRE_NONE, BOT_MODE_DESIRE_HIGH)
+                                        end
+                                end
+                        end
+                end
+        end
 	return 0.01
 end
 
