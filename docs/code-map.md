@@ -412,6 +412,25 @@
 | `GetDesire` | — | — | não | bots/--mode_item_generic.lua<br>bots/BotLib/hero_muerta.lua<br>bots/FunLib/aba_special_units.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua | 10 |
 | `Think` | — | — | não | bots/BotLib/hero_muerta.lua<br>bots/Buff/Timers.lua<br>bots/FretBots/Timers.lua<br>bots/FunLib/aba_minion.lua<br>bots/FunLib/aba_special_units.lua | 11 |
 
+## `bots/mode_farm_generic.lua`
+
+| Função | Parâmetros | Retorno | Exportada | Chamada por | Linha |
+|---|---|---|---|---|---|
+| `GetDesire` | — | — | não | bots/--mode_item_generic.lua<br>bots/BotLib/hero_muerta.lua<br>bots/FunLib/aba_special_units.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua | 57 |
+| `GetDesireHelper` | — | — | não | bots/mode_outpost_generic.lua<br>bots/mode_retreat_generic.lua<br>bots/mode_roam_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_secret_shop_generic.lua | 66 |
+| `OnStart` | — | — | não | bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_attack_generic.lua<br>bots/mode_outpost_generic.lua<br>bots/mode_roam_generic.lua | 529 |
+| `OnEnd` | — | — | não | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 533 |
+| `Think` | — | — | não | bots/BotLib/hero_muerta.lua<br>bots/Buff/Timers.lua<br>bots/FretBots/Timers.lua<br>bots/FunLib/aba_minion.lua<br>bots/FunLib/aba_special_units.lua | 542 |
+| `X.IsNearLaneFront` | bot | — | não | bots/BotLib/hero_skeleton_king.lua | 864 |
+| `X.IsUnitAroundLocation` | vLoc, nRadius | — | não | bots/mode_rune_generic.lua | 878 |
+| `X.CouldBlade` | bot, nLocation | — | não | — | 893 |
+| `X.CouldBlink` | bot, nLocation | — | não | bots/mode_rune_generic.lua | 926 |
+| `X.IsLocCanBeSeen` | vLoc | — | não | — | 997 |
+| `PickOneAnnouncer` | — | — | não | bots/mode_laning_generic.lua | 1014 |
+| `AnnounceMessages` | — | — | não | bots/mode_laning_generic.lua | 1026 |
+| `X.ShouldRun` | bot | — | não | bots/mode_retreat_generic.lua | 1070 |
+| `X.IsThereT3Detroyed` | — | — | não | — | 1331 |
+
 ## `bots/mode_laning_generic.lua`
 
 | Função | Parâmetros | Retorno | Exportada | Chamada por | Linha |
@@ -458,6 +477,20 @@
 |---|---|---|---|---|---|
 | `GetDesire` | — | — | não | bots/--mode_item_generic.lua<br>bots/BotLib/hero_muerta.lua<br>bots/FunLib/aba_special_units.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua | 7 |
 | `Think` | — | — | não | bots/BotLib/hero_muerta.lua<br>bots/Buff/Timers.lua<br>bots/FretBots/Timers.lua<br>bots/FunLib/aba_minion.lua<br>bots/FunLib/aba_special_units.lua | 11 |
+
+## `bots/mode_retreat_generic.lua`
+
+| Função | Parâmetros | Retorno | Exportada | Chamada por | Linha |
+|---|---|---|---|---|---|
+| `scanDroppedForAegis` | radius | — | não | — | 33 |
+| `buildContext` | — | — | não | — | 44 |
+| `GetDesire` | — | — | não | bots/--mode_item_generic.lua<br>bots/BotLib/hero_muerta.lua<br>bots/FunLib/aba_special_units.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua | 120 |
+| `GetDesireHelper` | — | — | não | bots/mode_farm_generic.lua<br>bots/mode_outpost_generic.lua<br>bots/mode_roam_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_secret_shop_generic.lua | 129 |
+| `X.LowChanceToRun` | — | — | não | — | 401 |
+| `X.GetUnitDesire` | nRadius | — | não | — | 421 |
+| `X.RetreatWhenTowerTargetedDesire` | — | — | não | — | 460 |
+| `X.ShouldRun` | — | — | não | bots/mode_farm_generic.lua | 491 |
+| `X.ConsiderCompleteItem` | — | — | não | — | 737 |
 
 ## `bots/mode_retreat_generic_wip.lua`
 

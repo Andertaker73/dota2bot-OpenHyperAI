@@ -12557,6 +12557,266 @@
     ]
   },
   {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "GetDesire",
+    "params": "",
+    "returns": "",
+    "line": 57,
+    "exported": false,
+    "callers": [
+      "bots/--mode_item_generic.lua",
+      "bots/BotLib/hero_muerta.lua",
+      "bots/FunLib/aba_special_units.lua",
+      "bots/FunLib/override_generic/mode_attack_generic.lua",
+      "bots/FunLib/override_generic/mode_laning_generic.lua",
+      "bots/mode_assemble_generic.lua",
+      "bots/mode_assemble_with_humans_generic.lua",
+      "bots/mode_attack_generic.lua",
+      "bots/mode_defend_tower_bot_generic.lua",
+      "bots/mode_defend_tower_mid_generic.lua",
+      "bots/mode_defend_tower_top_generic.lua",
+      "bots/mode_farm_generic.lua",
+      "bots/mode_laning_generic.lua",
+      "bots/mode_outpost_generic.lua",
+      "bots/mode_push_tower_bot_generic.lua",
+      "bots/mode_push_tower_mid_generic.lua",
+      "bots/mode_push_tower_top_generic.lua",
+      "bots/mode_retreat_generic.lua",
+      "bots/mode_retreat_generic_wip.lua",
+      "bots/mode_roam_generic.lua",
+      "bots/mode_roshan_generic.lua",
+      "bots/mode_rune_generic.lua",
+      "bots/mode_secret_shop_generic.lua",
+      "bots/mode_side_shop_generic.lua",
+      "bots/mode_team_roam_generic.lua",
+      "bots/mode_ward_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "GetDesireHelper",
+    "params": "",
+    "returns": "",
+    "line": 66,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua",
+      "bots/mode_outpost_generic.lua",
+      "bots/mode_retreat_generic.lua",
+      "bots/mode_roam_generic.lua",
+      "bots/mode_roshan_generic.lua",
+      "bots/mode_secret_shop_generic.lua",
+      "bots/mode_side_shop_generic.lua",
+      "bots/mode_team_roam_generic.lua",
+      "bots/mode_ward_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "OnStart",
+    "params": "",
+    "returns": "",
+    "line": 529,
+    "exported": false,
+    "callers": [
+      "bots/FunLib/override_generic/mode_attack_generic.lua",
+      "bots/FunLib/override_generic/mode_laning_generic.lua",
+      "bots/mode_attack_generic.lua",
+      "bots/mode_farm_generic.lua",
+      "bots/mode_outpost_generic.lua",
+      "bots/mode_roam_generic.lua",
+      "bots/mode_rune_generic.lua",
+      "bots/mode_secret_shop_generic.lua",
+      "bots/mode_team_roam_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "OnEnd",
+    "params": "",
+    "returns": "",
+    "line": 533,
+    "exported": false,
+    "callers": [
+      "bots/FunLib/aba_defend.lua",
+      "bots/FunLib/override_generic/mode_attack_generic.lua",
+      "bots/FunLib/override_generic/mode_laning_generic.lua",
+      "bots/mode_assemble_generic.lua",
+      "bots/mode_attack_generic.lua",
+      "bots/mode_farm_generic.lua",
+      "bots/mode_outpost_generic.lua",
+      "bots/mode_roam_generic.lua",
+      "bots/mode_rune_generic.lua",
+      "bots/mode_secret_shop_generic.lua",
+      "bots/mode_team_roam_generic.lua",
+      "typescript/bots/FunLib/aba_defend.ts"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "Think",
+    "params": "",
+    "returns": "",
+    "line": 542,
+    "exported": false,
+    "callers": [
+      "bots/BotLib/hero_muerta.lua",
+      "bots/Buff/Timers.lua",
+      "bots/FretBots/Timers.lua",
+      "bots/FunLib/aba_minion.lua",
+      "bots/FunLib/aba_special_units.lua",
+      "bots/FunLib/jmz_func.lua",
+      "bots/FunLib/minion_lib/attacking_wards.lua",
+      "bots/FunLib/minion_lib/familiars.lua",
+      "bots/FunLib/minion_lib/illusions.lua",
+      "bots/FunLib/minion_lib/minion_with_skill.lua",
+      "bots/FunLib/minion_lib/vengeful_spirit.lua",
+      "bots/FunLib/override_generic/mode_attack_generic.lua",
+      "bots/FunLib/override_generic/mode_laning_generic.lua",
+      "bots/FunLib/utils.lua",
+      "bots/hero_selection.lua",
+      "bots/mode_assemble_generic.lua",
+      "bots/mode_attack_generic.lua",
+      "bots/mode_defend_tower_bot_generic.lua",
+      "bots/mode_defend_tower_mid_generic.lua",
+      "bots/mode_defend_tower_top_generic.lua",
+      "bots/mode_farm_generic.lua",
+      "bots/mode_laning_generic.lua",
+      "bots/mode_outpost_generic.lua",
+      "bots/mode_push_tower_bot_generic.lua",
+      "bots/mode_push_tower_mid_generic.lua",
+      "bots/mode_push_tower_top_generic.lua",
+      "bots/mode_roam_generic.lua",
+      "bots/mode_rune_generic.lua",
+      "bots/mode_secret_shop_generic.lua",
+      "bots/mode_side_shop_generic.lua",
+      "bots/mode_team_roam_generic.lua",
+      "bots/mode_ward_generic.lua",
+      "typescript/bots/FunLib/aba_defend.ts",
+      "typescript/bots/FunLib/aba_push.ts",
+      "typescript/bots/FunLib/utils.ts"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "X.IsNearLaneFront",
+    "params": "bot",
+    "returns": "",
+    "line": 864,
+    "exported": false,
+    "callers": [
+      "bots/BotLib/hero_skeleton_king.lua",
+      "bots/mode_farm_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "X.IsUnitAroundLocation",
+    "params": "vLoc, nRadius",
+    "returns": "",
+    "line": 878,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua",
+      "bots/mode_rune_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "X.CouldBlade",
+    "params": "bot, nLocation",
+    "returns": "",
+    "line": 893,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "X.CouldBlink",
+    "params": "bot, nLocation",
+    "returns": "",
+    "line": 926,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua",
+      "bots/mode_rune_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "X.IsLocCanBeSeen",
+    "params": "vLoc",
+    "returns": "",
+    "line": 997,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "PickOneAnnouncer",
+    "params": "",
+    "returns": "",
+    "line": 1014,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua",
+      "bots/mode_laning_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "AnnounceMessages",
+    "params": "",
+    "returns": "",
+    "line": 1026,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua",
+      "bots/mode_laning_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "X.ShouldRun",
+    "params": "bot",
+    "returns": "",
+    "line": 1070,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua",
+      "bots/mode_retreat_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_farm_generic.lua",
+    "lang": "lua",
+    "name": "X.IsThereT3Detroyed",
+    "params": "",
+    "returns": "",
+    "line": 1331,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua"
+    ]
+  },
+  {
     "file": "bots/mode_laning_generic.lua",
     "lang": "lua",
     "name": "GetDesire",
@@ -13145,6 +13405,148 @@
       "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
+    ]
+  },
+  {
+    "file": "bots/mode_retreat_generic.lua",
+    "lang": "lua",
+    "name": "scanDroppedForAegis",
+    "params": "radius",
+    "returns": "",
+    "line": 33,
+    "exported": false,
+    "callers": [
+      "bots/mode_retreat_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_retreat_generic.lua",
+    "lang": "lua",
+    "name": "buildContext",
+    "params": "",
+    "returns": "",
+    "line": 44,
+    "exported": false,
+    "callers": [
+      "bots/mode_retreat_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_retreat_generic.lua",
+    "lang": "lua",
+    "name": "GetDesire",
+    "params": "",
+    "returns": "",
+    "line": 120,
+    "exported": false,
+    "callers": [
+      "bots/--mode_item_generic.lua",
+      "bots/BotLib/hero_muerta.lua",
+      "bots/FunLib/aba_special_units.lua",
+      "bots/FunLib/override_generic/mode_attack_generic.lua",
+      "bots/FunLib/override_generic/mode_laning_generic.lua",
+      "bots/mode_assemble_generic.lua",
+      "bots/mode_assemble_with_humans_generic.lua",
+      "bots/mode_attack_generic.lua",
+      "bots/mode_defend_tower_bot_generic.lua",
+      "bots/mode_defend_tower_mid_generic.lua",
+      "bots/mode_defend_tower_top_generic.lua",
+      "bots/mode_farm_generic.lua",
+      "bots/mode_laning_generic.lua",
+      "bots/mode_outpost_generic.lua",
+      "bots/mode_push_tower_bot_generic.lua",
+      "bots/mode_push_tower_mid_generic.lua",
+      "bots/mode_push_tower_top_generic.lua",
+      "bots/mode_retreat_generic.lua",
+      "bots/mode_retreat_generic_wip.lua",
+      "bots/mode_roam_generic.lua",
+      "bots/mode_roshan_generic.lua",
+      "bots/mode_rune_generic.lua",
+      "bots/mode_secret_shop_generic.lua",
+      "bots/mode_side_shop_generic.lua",
+      "bots/mode_team_roam_generic.lua",
+      "bots/mode_ward_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_retreat_generic.lua",
+    "lang": "lua",
+    "name": "GetDesireHelper",
+    "params": "",
+    "returns": "",
+    "line": 129,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua",
+      "bots/mode_outpost_generic.lua",
+      "bots/mode_retreat_generic.lua",
+      "bots/mode_roam_generic.lua",
+      "bots/mode_roshan_generic.lua",
+      "bots/mode_secret_shop_generic.lua",
+      "bots/mode_side_shop_generic.lua",
+      "bots/mode_team_roam_generic.lua",
+      "bots/mode_ward_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_retreat_generic.lua",
+    "lang": "lua",
+    "name": "X.LowChanceToRun",
+    "params": "",
+    "returns": "",
+    "line": 401,
+    "exported": false,
+    "callers": [
+      "bots/mode_retreat_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_retreat_generic.lua",
+    "lang": "lua",
+    "name": "X.GetUnitDesire",
+    "params": "nRadius",
+    "returns": "",
+    "line": 421,
+    "exported": false,
+    "callers": [
+      "bots/mode_retreat_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_retreat_generic.lua",
+    "lang": "lua",
+    "name": "X.RetreatWhenTowerTargetedDesire",
+    "params": "",
+    "returns": "",
+    "line": 460,
+    "exported": false,
+    "callers": [
+      "bots/mode_retreat_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_retreat_generic.lua",
+    "lang": "lua",
+    "name": "X.ShouldRun",
+    "params": "",
+    "returns": "",
+    "line": 491,
+    "exported": false,
+    "callers": [
+      "bots/mode_farm_generic.lua",
+      "bots/mode_retreat_generic.lua"
+    ]
+  },
+  {
+    "file": "bots/mode_retreat_generic.lua",
+    "lang": "lua",
+    "name": "X.ConsiderCompleteItem",
+    "params": "",
+    "returns": "",
+    "line": 737,
+    "exported": false,
+    "callers": [
+      "bots/mode_retreat_generic.lua"
     ]
   },
   {
