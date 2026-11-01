@@ -3,43 +3,6 @@ local ActionGates = {}
 
 function ActionGates.HasQueuedAction( bot )
     if bot ~= nil and bot == GetBot() then
-        -- OHA MOD: detecção de travamento.
-        if bot:NumQueuedActions() > 0 then
-            local now = DotaTime()
-            local pos = bot:GetLocation()
-            if bot._stuckLastPos == nil then
-                bot._stuckLastPos = pos
-                bot._stuckLastCheckTime = now
-            end
-
-            -- Substituído GetLocationToLocationDistance por nativo
-            local moved = (pos - bot._stuckLastPos):Length()
-            if moved > 60 then
-                bot._stuckLastPos = pos
-                bot._stuckLastCheckTime = now
-            elseif now - bot._stuckLastCheckTime > 1.5 then
-                bot:Action_ClearActions(true)
-                bot._stuckLastPos = pos
-                bot._stuckLastCheckTime = now
-                return false
-            end
-        else
-            bot._stuckLastPos = bot:GetLocation()
-            bot._stuckLastCheckTime = DotaTime()
-        end
-
-        -- Grace period pós-TP
-        local hasTp = bot:HasModifier("modifier_teleporting")
-        if hasTp then
-            bot._wasTeleporting = true
-        elseif bot._wasTeleporting then
-            bot._wasTeleporting = false
-            bot._tpGraceUntil = DotaTime() + 0.5
-        end
-        if bot._tpGraceUntil ~= nil and DotaTime() < bot._tpGraceUntil then
-            return false
-        end
-
         return bot:NumQueuedActions() > 0
     end
     return false

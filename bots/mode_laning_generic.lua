@@ -158,152 +158,84 @@ function GetFurthestEnemyAttackRange(enemyList)
 end
 
 function GetBestLastHitCreep(hCreepList)
-        local bestCreep = nil
-        local bestDist = math.huge
-        local moveToCreep = nil
-        local moveToDist = math.huge
-
-        for _, creep in pairs(hCreepList) do
-                if J.IsValid(creep) and J.CanBeAttacked(creep) then
-                        local nDelay = J.GetAttackProDelayTime(bot, creep)
-                        local nDist = GetUnitToUnitDistance(bot, creep)
-                        local creepHP = creep:GetHealth()
-
-                        -- 1. Podemos matar AGORA com um ataque? (Dano exato)
-                        if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
-                                if nDist < bestDist then
-                                        bestDist = nDist
-                                        bestCreep = creep
-                                end
-                        -- 2. Podemos matar em breve? (Dano + um pouco de margem, mas seguro)
-                        -- Só nos movemos se o creep estiver num raio seguro (ex: botAttackRange + 300)
-                        elseif creepHP <= (attackDamage * 1.3) and nDist <= botAttackRange + 300 then
-                                if nDist < moveToDist then
-                                        moveToDist = nDist
-                                        moveToCreep = creep
-                                end
-                        end
-                end
+    local dmgDelta = attackDamage * 0.7
+    local moveToCreep = nil
+    for _, creep in pairs(hCreepList) do
+        if J.IsValid(creep) and J.CanBeAttacked(creep) then
+            local nDelay = J.GetAttackProDelayTime(bot, creep)
+            if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
+                return creep, false
+            end
+            if J.WillKillTarget(creep, attackDamage + dmgDelta, DAMAGE_TYPE_PHYSICAL, nDelay) then
+                moveToCreep = creep
+            end
         end
-
-        if bestCreep then
-                return bestCreep, false -- Atacar imediatamente
-        end
-        if moveToCreep then
-                return moveToCreep, true -- Mover para o creep
-        end
-        return nil, false
+    end
+    if moveToCreep then
+        return moveToCreep, true
+    end
+    return nil
 end
 
 function GetBestDenyCreep(hCreepList)
-        -- OHA MOD: Sob pressão, reduzir a vontade de dar deny.
-        -- Se o bot tomou dano de herói nos últimos 1.5s e há inimigos por perto,
-        -- ele ignora o deny para não morrer desnecessariamente.
-        if bot:WasRecentlyDamagedByAnyHero(1.5) and nInRangeEnemy ~= nil and #nInRangeEnemy > 0 then
-                return nil, nil
+    for _, creep in pairs(hCreepList) do
+        if J.IsValid(creep)
+        and J.GetHP(creep) < 0.49
+        and J.CanBeAttacked(creep)
+        and creep:GetHealth() <= attackDamage
+        then
+            return creep
         end
-
-        local bestCreep = nil
-        local bestDist = math.huge
-        local moveToCreep = nil
-        local moveToDist = math.huge
-
-        for _, creep in pairs(hCreepList) do
-                if J.IsValid(creep) and J.CanBeAttacked(creep)
-                and string.find(creep:GetUnitName(), 'npc_dota_creep_') then
-                        local nDelay = J.GetAttackProDelayTime(bot, creep)
-                        local nDist = GetUnitToUnitDistance(bot, creep)
-                        local creepHP = creep:GetHealth()
-
-                        if J.WillKillTarget(creep, attackDamage, DAMAGE_TYPE_PHYSICAL, nDelay) then
-                                if nDist < bestDist then
-                                        bestDist = nDist
-                                        bestCreep = creep
-                                end
-                        elseif creepHP <= (attackDamage * 1.3) and nDist <= botAttackRange + 250 then
-                                if nDist < moveToDist then
-                                        moveToDist = nDist
-                                        moveToCreep = creep
-                                end
-                        end
-                end
-        end
-
-        if bestCreep then
-                return bestCreep, nil
-        end
-        if moveToCreep then
-                return nil, moveToCreep
-        end
-
-        return nil, nil
+    end
+    return nil
 end
 
--- =====================================================================
--- Seleciona o melhor alvo de harass (herói inimigo) na lane.
--- Retorna nil se nenhuma troca vale a pena.
---
--- Regras de pontuação (quanto maior, melhor):
---   +3   alvo com HP < 40%
---   +3   alvo com HP < 25% (cumulativo — finisher vale muito)
---   +1   bot tem mais HP que o alvo (troca favorável)
---   +2   vantagem numérica local (mais aliados que inimigos em 700)
---   +1   números iguais e bot com HP > 50% (troca "neutra" aceitável)
---   +1.5 alvo é jogador humano (o usuário reportou que humanos têm muito espaço)
---
--- Rejeições:
---   - Suspeita de ilusão, invulnerável, magic immune
---   - Modifiers que anulam kill: Borrowed Time, Shallow Grave, Reaper's Scythe,
---     False Promise
---   - Distância > botAttackRange + 200
---   - Bot com HP < 35% e em desvantagem numérica local (evita trade suicida)
--- =====================================================================
 function GetBestHarassTarget(nEnemyList, nRange)
-        if nEnemyList == nil then return nil end
+    if nEnemyList == nil then return nil end
+    local bestTarget = nil
+    local bestScore = 0
+    local botHP = bot:GetHealth() / bot:GetMaxHealth()
+    local nAllyNearby = J.GetAlliesNearLoc(bot:GetLocation(), 700)
+    local nEnemyNearby = J.GetEnemiesNearLoc(bot:GetLocation(), 700)
 
-        local bestTarget = nil
-        local bestScore = 0
+    for _, enemy in pairs(nEnemyList) do
+        local enemyHP = enemy:GetHealth() / enemy:GetMaxHealth()
 
-        local botHP = bot:GetHealth() / bot:GetMaxHealth()
-        local nAllyNearby = J.GetAlliesNearLoc(bot:GetLocation(), 700)
-        local nEnemyNearby = J.GetEnemiesNearLoc(bot:GetLocation(), 700)
-
-        for _, enemy in pairs(nEnemyList) do
-                local bValid = J.IsValidHero(enemy)
-                        and not J.IsSuspiciousIllusion(enemy)
-                        and not enemy:IsInvulnerable()
-                        and not enemy:IsMagicImmune()
-                        and not enemy:HasModifier('modifier_abaddon_borrowed_time')
-                        and not enemy:HasModifier('modifier_dazzle_shallow_grave')
-                        and not enemy:HasModifier('modifier_necrolyte_reapers_scythe')
-                        and not enemy:HasModifier('modifier_oracle_false_promise_timer')
-                        and GetUnitToUnitDistance(bot, enemy) <= nRange + 200
-
-                if bValid then
-                        local enemyHP = enemy:GetHealth() / enemy:GetMaxHealth()
-                        local score = 0
-
-                        if enemyHP < 0.4 then score = score + 3 end
-                        if enemyHP < 0.25 then score = score + 3 end
-                        if botHP > enemyHP + 0.15 then score = score + 1 end
-                        if #nAllyNearby > #nEnemyNearby then score = score + 2 end
-                        if #nAllyNearby == #nEnemyNearby and botHP > 0.5 then score = score + 1 end
-                        if not enemy:IsBot() then score = score + 1.5 end
-
-                        local bTooWeak = botHP < 0.35 and #nAllyNearby <= #nEnemyNearby
-
-                        if not bTooWeak and score > bestScore then
-                                bestScore = score
-                                bestTarget = enemy
-                        end
-                end
+        -- OHA FIX: Permite Tower Dive se o inimigo estiver com HP muito baixo
+        local maxDist = nRange + 200
+        if enemyHP < 0.15 and botHP > 0.4 then
+            maxDist = 1200
         end
 
-        -- Sem nenhum motivo (nem HP baixo, nem vantagem), não vale trocar CS
-        -- por um hit de harass ruim. Score mínimo 1.
-        if bestScore < 1 then return nil end
+        local bValid = J.IsValidHero(enemy)
+                and not J.IsSuspiciousIllusion(enemy)
+                and not enemy:IsInvulnerable()
+                and not enemy:IsMagicImmune()
+                and not enemy:HasModifier('modifier_abaddon_borrowed_time')
+                and not enemy:HasModifier('modifier_dazzle_shallow_grave')
+                and not enemy:HasModifier('modifier_necrolyte_reapers_scythe')
+                and not enemy:HasModifier('modifier_oracle_false_promise_timer')
+                and GetUnitToUnitDistance(bot, enemy) <= maxDist
 
-        return bestTarget
+        if bValid then
+            local score = 0
+            if enemyHP < 0.4 then score = score + 3 end
+            if enemyHP < 0.25 then score = score + 3 end
+            if botHP > enemyHP + 0.15 then score = score + 1 end
+            if #nAllyNearby > #nEnemyNearby then score = score + 2 end
+            if #nAllyNearby == #nEnemyNearby and botHP > 0.5 then score = score + 1 end
+            if not enemy:IsBot() then score = score + 1.5 end
+
+            local bTooWeak = botHP < 0.35 and #nAllyNearby <= #nEnemyNearby
+
+            if not bTooWeak and score > bestScore then
+                bestScore = score
+                bestTarget = enemy
+            end
+        end
+    end
+    if bestScore < 1 then return nil end
+    return bestTarget
 end
 
 function Think()
@@ -366,16 +298,18 @@ function Think()
 
         -- =====================================================================
         -- NOVO: atacar herói inimigo na lane
-        -- Só chega aqui se não há deny nem last hit pendente — priorizamos CS
-        -- primeiro. Depois, se houver herói em alcance, ataca.
         -- =====================================================================
         local harassTarget = GetBestHarassTarget(nInRangeEnemy, botAttackRange)
         if J.IsValidHero(harassTarget) then
                 local dist = GetUnitToUnitDistance(bot, harassTarget)
                 if dist > botAttackRange then
-                        -- Fora de alcance: só avança se estiver perto. Não perseguir
-                        -- muito — perderia last hits e levaria aggro de creeps.
-                        if dist <= botAttackRange + 200 then
+                        -- OHA FIX: Permite perseguir alvos com HP crítico mesmo que fujam
+                        local chaseRange = botAttackRange + 200
+                        if J.GetHP(harassTarget) < 0.15 then
+                                chaseRange = 1200
+                        end
+
+                        if dist <= chaseRange then
                                 bot:Action_MoveToUnit(harassTarget)
                                 return
                         end

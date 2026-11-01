@@ -430,11 +430,11 @@
 | `GetDesire` | — | — | não | bots/--mode_item_generic.lua<br>bots/BotLib/hero_muerta.lua<br>bots/FunLib/aba_special_units.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua | 32 |
 | `GetFurthestEnemyAttackRange` | enemyList | — | não | bots/FunLib/override_generic/mode_laning_generic.lua | 146 |
 | `GetBestLastHitCreep` | hCreepList | — | não | bots/FunLib/override_generic/mode_laning_generic.lua | 160 |
-| `GetBestDenyCreep` | hCreepList | — | não | bots/FunLib/override_generic/mode_laning_generic.lua | 198 |
-| `GetBestHarassTarget` | nEnemyList, nRange | — | não | — | 261 |
-| `Think` | — | — | não | bots/BotLib/hero_muerta.lua<br>bots/Buff/Timers.lua<br>bots/FretBots/Timers.lua<br>bots/FunLib/aba_minion.lua<br>bots/FunLib/aba_special_units.lua | 309 |
-| `PickOneAnnouncer` | — | — | não | bots/mode_farm_generic.lua | 424 |
-| `AnnounceMessages` | — | — | não | bots/mode_farm_generic.lua | 435 |
+| `GetBestDenyCreep` | hCreepList | — | não | bots/FunLib/override_generic/mode_laning_generic.lua | 180 |
+| `GetBestHarassTarget` | nEnemyList, nRange | — | não | — | 193 |
+| `Think` | — | — | não | bots/BotLib/hero_muerta.lua<br>bots/Buff/Timers.lua<br>bots/FretBots/Timers.lua<br>bots/FunLib/aba_minion.lua<br>bots/FunLib/aba_special_units.lua | 241 |
+| `PickOneAnnouncer` | — | — | não | bots/mode_farm_generic.lua | 358 |
+| `AnnounceMessages` | — | — | não | bots/mode_farm_generic.lua | 369 |
 
 ## `bots/mode_outpost_generic.lua`
 
