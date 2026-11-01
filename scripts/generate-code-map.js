@@ -55,9 +55,17 @@ function analyzeTS(relPath) {
 function analyzeLua(relPath) {
   const abs = path.join(ROOT, relPath);
   if (!fs.existsSync(abs)) { console.warn(`skip Lua (não existe): ${relPath}`); return; }
-  const src = fs.readFileSync(abs, 'utf8');
-  let ast; try { ast = luaparse.parse(src, { locations: true, luaVersion: '5.1' }); }
-  catch (e) { console.warn(`parse Lua falhou (${relPath}): ${e.message}`); return; }
+  let src = fs.readFileSync(abs, 'utf8');
+
+  src = src.replace(/;(?=\s*(end|else|elseif|until|\}))/g, '');
+
+  let ast;
+  try {
+    ast = luaparse.parse(src, { locations: true, luaVersion: '5.1' });
+  } catch (e) {
+    console.warn(`parse Lua falhou (${relPath}): ${e.message}`);
+    return;
+  }
   walkLua(ast, relPath);
 }
 

@@ -1,5 +1,15 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 -- Lua Library inline imports
+local function __TS__StringIncludes(self, searchString, position)
+    if not position then
+        position = 1
+    else
+        position = position + 1
+    end
+    local index = string.find(self, searchString, position, true)
+    return index ~= nil
+end
+
 local function __TS__ArrayFilter(self, callbackfn, thisArg)
     local result = {}
     local len = 0
@@ -10,16 +20,6 @@ local function __TS__ArrayFilter(self, callbackfn, thisArg)
         end
     end
     return result
-end
-
-local function __TS__StringIncludes(self, searchString, position)
-    if not position then
-        position = 1
-    else
-        position = position + 1
-    end
-    local index = string.find(self, searchString, position, true)
-    return index ~= nil
 end
 
 local function __TS__ArrayIndexOf(self, searchElement, fromIndex)
@@ -48,7 +48,7 @@ local function __TS__ArrayIndexOf(self, searchElement, fromIndex)
 end
 -- End of Lua Library inline imports
 local ____exports = {}
-local updateGameStateCache, updateLocationStateCache, updateUnitStateCache, GetHumanLanePressureLane, IsEnemyThreatNearOurBase, presence_adjust, Customize, pingTimeDelta, StartToPushTime, BOT_MODE_DESIRE_EXTRA_LOW, hEnemyAncient, PUSH_CACHE_TTL, gameStateCache, locationStateCache, unitStateCache
+local GetHumanLanePressureLane, IsEnemyThreatNearOurBase, presence_adjust, Customize, pingTimeDelta, StartToPushTime, BOT_MODE_DESIRE_EXTRA_LOW, hEnemyAncient
 local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
 local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
 local Barracks = ____dota.Barracks
@@ -68,6 +68,7 @@ local NonTier1Towers = ____utils.NonTier1Towers
 local ____global_cache = require(GetScriptDirectory().."/FunLib/global_cache")
 local getGlobalGameState = ____global_cache.getGlobalGameState
 local getGlobalLocationState = ____global_cache.getGlobalLocationState
+local getGlobalUnitState = ____global_cache.getGlobalUnitState
 local getCachedAlliesNearLoc = ____global_cache.getCachedAlliesNearLoc
 local getCachedEnemiesNearLoc = ____global_cache.getCachedEnemiesNearLoc
 local autoCleanupCache = ____global_cache.autoCleanupCache
@@ -77,84 +78,6 @@ local GetDesignatedResponders = ____responder_policy.GetDesignatedResponders
 local GetBaseThreatLevel = ____responder_policy.GetBaseThreatLevel
 local ____aba_defend = require(GetScriptDirectory().."/FunLib/aba_defend")
 local GetFurthestBuildingOnLane = ____aba_defend.GetFurthestBuildingOnLane
-function updateGameStateCache()
-    local now = DotaTime()
-    if gameStateCache and now - gameStateCache.lastUpdate < PUSH_CACHE_TTL then
-        return gameStateCache
-    end
-    local team = GetTeam()
-    local enemyTeam = GetOpposingTeam()
-    local currentTime = DotaTime()
-    local gameMode = GetGameMode()
-    local adjustedTime = gameMode == 23 and currentTime * 2 or currentTime
-    gameStateCache = {
-        lastUpdate = now,
-        currentTime = adjustedTime,
-        gameMode = gameMode,
-        team = team,
-        enemyTeam = enemyTeam,
-        ourAncient = GetAncient(team),
-        enemyAncient = GetAncient(enemyTeam),
-        aliveAllyCount = jmz.GetNumOfAliveHeroes(false),
-        aliveEnemyCount = jmz.GetNumOfAliveHeroes(true),
-        aliveAllyCoreCount = jmz.GetAliveCoreCount(false),
-        aliveEnemyCoreCount = jmz.GetAliveCoreCount(true),
-        teamNetworth = (jmz.GetInventoryNetworth()),
-        enemyNetworth = select(
-            2,
-            jmz.GetInventoryNetworth()
-        ),
-        averageLevel = jmz.GetAverageLevel(false),
-        hasAegis = jmz.DoesTeamHaveAegis(),
-        isEarlyGame = jmz.IsEarlyGame(),
-        isMidGame = jmz.IsMidGame(),
-        isLateGame = jmz.IsLateGame(),
-        isLaningPhase = jmz.IsInLaningPhase()
-    }
-    return gameStateCache
-end
-function updateLocationStateCache()
-    local now = DotaTime()
-    if locationStateCache and now - locationStateCache.lastUpdate < PUSH_CACHE_TTL then
-        return locationStateCache
-    end
-    local team = GetTeam()
-    locationStateCache = {
-        lastUpdate = now,
-        laneFronts = {
-            [Lane.Top] = GetLaneFrontLocation(team, Lane.Top, 0),
-            [Lane.Mid] = GetLaneFrontLocation(team, Lane.Mid, 0),
-            [Lane.Bot] = GetLaneFrontLocation(team, Lane.Bot, 0)
-        },
-        teamFountain = jmz.GetTeamFountain(),
-        enemyFountain = jmz.GetTeamFountain(),
-        roshanLocation = jmz.GetCurrentRoshanLocation(),
-        tormentorLocation = jmz.GetTormentorLocation(team),
-        tormentorWaitingLocation = jmz.GetTormentorWaitingLocation(team)
-    }
-    return locationStateCache
-end
-function updateUnitStateCache()
-    local now = DotaTime()
-    if unitStateCache and now - unitStateCache.lastUpdate < PUSH_CACHE_TTL then
-        return unitStateCache
-    end
-    unitStateCache = {
-        lastUpdate = now,
-        enemyBuildings = GetUnitList(UnitType.EnemyBuildings),
-        alliedHeroes = GetUnitList(UnitType.AlliedHeroes),
-        enemyHeroes = __TS__ArrayFilter(
-            GetUnitList(UnitType.Enemies),
-            function(____, u) return jmz.IsValidHero(u) end
-        ),
-        alliedCreeps = GetUnitList(UnitType.AlliedCreeps),
-        enemyCreeps = __TS__ArrayFilter(
-            GetUnitList(UnitType.Enemies),
-            function(____, u) return u:IsCreep() or u:IsAncientCreep() end
-        )
-    }
-    return unitStateCache
-end
 function GetHumanLanePressureLane()
     local team = GetTeam()
     local enemyTeam = GetOpposingTeam()
@@ -163,11 +86,11 @@ function GetHumanLanePressureLane()
         local i = 1
         while i <= #GetTeamPlayers(team) do
             do
-                local __continue16
+                local __continue8
                 repeat
                     local member = GetTeamMember(i)
                     if not member or member:IsBot() or not member:IsAlive() or not member:IsHero() or member:IsIllusion() then
-                        __continue16 = true
+                        __continue8 = true
                         break
                     end
                     for ____, laneId in ipairs(lanes) do
@@ -205,9 +128,9 @@ function GetHumanLanePressureLane()
                             return laneId
                         end
                     end
-                    __continue16 = true
+                    __continue8 = true
                 until true
-                if not __continue16 then
+                if not __continue8 then
                     break
                 end
             end
@@ -241,10 +164,10 @@ function IsEnemyThreatNearOurBase()
     local barracksThreat = 0
     for ____, b in ipairs(barracks) do
         do
-            local __continue22
+            local __continue14
             repeat
                 if not b or not IsValidUnit(b) or not b:IsAlive() then
-                    __continue22 = true
+                    __continue14 = true
                     break
                 end
                 if jmz.Utils.CountEnemyHeroesNear(
@@ -253,9 +176,9 @@ function IsEnemyThreatNearOurBase()
                 ) >= 1 then
                     barracksThreat = barracksThreat + 1
                 end
-                __continue22 = true
+                __continue14 = true
             until true
-            if not __continue22 then
+            if not __continue14 then
                 break
             end
         end
@@ -348,15 +271,15 @@ function ____exports.GetPushDesireHelper(bot, lane)
     if not enemyT3OrRaxDown then
         for ____, slot in ipairs(NonTier1Towers) do
             do
-                local __continue38
+                local __continue30
                 repeat
                     local tw = GetTower(team, slot)
                     if not tw or not IsValidUnit(tw) or not tw:IsAlive() then
-                        __continue38 = true
+                        __continue30 = true
                         break
                     end
                     if tw:GetHealth() >= tw:GetMaxHealth() then
-                        __continue38 = true
+                        __continue30 = true
                         break
                     end
                     local enemiesAtTower = jmz.GetLastSeenEnemiesNearLoc(
@@ -366,9 +289,9 @@ function ____exports.GetPushDesireHelper(bot, lane)
                     if #enemiesAtTower >= 2 then
                         return BotModeDesire.ExtraLow
                     end
-                    __continue38 = true
+                    __continue30 = true
                 until true
-                if not __continue38 then
+                if not __continue30 then
                     break
                 end
             end
@@ -632,8 +555,8 @@ function presence_adjust(score, loc)
     return score / (1 + 0.25 * allies)
 end
 function ____exports.WhichLaneToPush(_bot, _lane)
-    local locationState = updateLocationStateCache()
-    local gameState = updateGameStateCache()
+    local locationState = getGlobalLocationState()
+    local gameState = getGlobalGameState()
     local topLaneScore = 0
     local midLaneScore = 0
     local botLaneScore = 0
@@ -753,7 +676,7 @@ function ____exports.WhichLaneToPush(_bot, _lane)
     return Lane.Bot
 end
 function ____exports.IsEnemyTP(nID)
-    local gameState = updateGameStateCache()
+    local gameState = getGlobalGameState()
     for ____, id in ipairs(GetTeamPlayers(gameState.enemyTeam)) do
         if id == nID then
             return true
@@ -763,7 +686,7 @@ function ____exports.IsEnemyTP(nID)
 end
 --- Include micro-summons & dominated units into "nearby creeps" for push thinning
 function ____exports.GetSpecialUnitsNearby(bot, hUnitList, nRadius)
-    local unitState = updateUnitStateCache()
+    local unitState = getGlobalUnitState()
     local hCreepList = {unpack(hUnitList)}
     for ____, unit in ipairs(unitState.enemyHeroes) do
         if IsValidUnit(unit) and jmz.IsInRange(bot, unit, nRadius) then
@@ -776,7 +699,7 @@ function ____exports.GetSpecialUnitsNearby(bot, hUnitList, nRadius)
     return hCreepList
 end
 function ____exports.GetAllyHeroesAttackingUnit(hUnit)
-    local unitState = updateUnitStateCache()
+    local unitState = getGlobalUnitState()
     local out = {}
     for ____, ally in ipairs(unitState.alliedHeroes) do
         if jmz.IsValidHero(ally) and not jmz.IsSuspiciousIllusion(ally) and not jmz.IsMeepoClone(ally) and ally:GetAttackTarget() == hUnit then
@@ -786,7 +709,7 @@ function ____exports.GetAllyHeroesAttackingUnit(hUnit)
     return out
 end
 function ____exports.GetAllyCreepsAttackingUnit(hUnit)
-    local unitState = updateUnitStateCache()
+    local unitState = getGlobalUnitState()
     local out = {}
     for ____, creep in ipairs(unitState.alliedCreeps) do
         if jmz.IsValid(creep) and creep:GetAttackTarget() == hUnit then
@@ -797,7 +720,7 @@ function ____exports.GetAllyCreepsAttackingUnit(hUnit)
 end
 --- Returns 1..4 for the highest structure on that lane that is still alive on the enemy team
 function ____exports.GetLaneBuildingTier(nLane)
-    local gameState = updateGameStateCache()
+    local gameState = getGlobalGameState()
     local enemyTeam = gameState.enemyTeam
     if nLane == Lane.Top then
         if GetTower(enemyTeam, Tower.Top1) ~= nil then
@@ -833,7 +756,7 @@ function ____exports.GetLaneBuildingTier(nLane)
     return 1
 end
 function ____exports.ShouldWaitForImportantItemsSpells(vLocation)
-    local gameState = updateGameStateCache()
+    local gameState = getGlobalGameState()
     if gameState.isMidGame or gameState.isLateGame then
         if jmz.Utils.HasTeamMemberWithCriticalItemInCooldown(vLocation) then
             return true
@@ -850,8 +773,8 @@ end
 --- Returns true if the *nearest* intended target around the enemy lane-front
 -- is currently backdoored/glyphed.
 function ____exports.IsAnyTargetBackdooredAt(_bot, lane)
-    local locationState = updateLocationStateCache()
-    local unitState = updateUnitStateCache()
+    local locationState = getGlobalLocationState()
+    local unitState = getGlobalUnitState()
     local lf = locationState.laneFronts[lane]
     local nearest = nil
     local best = math.huge
@@ -879,11 +802,7 @@ pingTimeDelta = 5
 StartToPushTime = 7 * 60
 BOT_MODE_DESIRE_EXTRA_LOW = 0.02
 hEnemyAncient = nil
-PUSH_CACHE_TTL = 0.5
 local BOT_CACHE_TTL = 0.2
-gameStateCache = nil
-locationStateCache = nil
-unitStateCache = nil
 local botStateCache = {}
 --- Update bot state cache if needed
 local function updateBotStateCache(bot, targetLoc)
@@ -895,7 +814,7 @@ local function updateBotStateCache(bot, targetLoc)
     end
     local location = bot:GetLocation()
     local attackRange = bot:GetAttackRange()
-    local gameState = updateGameStateCache()
+    local gameState = getGlobalGameState()
     botStateCache[botId] = {
         lastUpdate = now,
         botId = botId,
@@ -1006,7 +925,7 @@ local function SelectOrStickHGTarget(bot, lane, targetLoc)
         return current
     end
     local currentScore = current and ObjectiveScore(bot, current, targetLoc) or math.huge
-    local unitState = updateUnitStateCache()
+    local unitState = getGlobalUnitState()
     local best = nil
     local bestScore = math.huge
     for ____, b in ipairs(unitState.enemyBuildings) do
@@ -1143,24 +1062,24 @@ function ____exports.PushThink(bot, lane)
     local towerDistanceToFountain = bTowerNearby and GetUnitToLocationDistance(nEnemyTowers[1], vTeamFountain) or 0
     for ____, creep in ipairs(nCreeps) do
         do
-            local __continue169
+            local __continue161
             repeat
                 if not jmz.IsValid(creep) or not jmz.CanBeAttacked(creep) then
-                    __continue169 = true
+                    __continue161 = true
                     break
                 end
                 if jmz.IsTormentor(creep) or jmz.IsRoshan(creep) then
-                    __continue169 = true
+                    __continue161 = true
                     break
                 end
                 if bTowerNearby and GetUnitToLocationDistance(creep, vTeamFountain) >= towerDistanceToFountain then
-                    __continue169 = true
+                    __continue161 = true
                     break
                 end
                 bot:Action_AttackUnit(creep, true)
                 return
             until true
-            if not __continue169 then
+            if not __continue161 then
                 break
             end
         end
@@ -1187,8 +1106,8 @@ function ____exports.PushThink(bot, lane)
     end
 end
 function ____exports.TryClearingOtherLaneHighGround(_bot, vLocation)
-    local gameState = updateGameStateCache()
-    local unitState = updateUnitStateCache()
+    local gameState = getGlobalGameState()
+    local unitState = getGlobalUnitState()
     local unitList = unitState.enemyBuildings
     local function IsValid(building)
         return jmz.IsValidBuilding(building) and jmz.CanBeAttacked(building) and not ____exports.HasBackdoorProtect(building)
@@ -1228,7 +1147,7 @@ function ____exports.CanBeAttacked(building)
 end
 --- Estimate if staying in a tower's zone is too dangerous over fDuration seconds
 function ____exports.IsInDangerWithinTower(hUnit, fThreshold, fDuration)
-    local unitState = updateUnitStateCache()
+    local unitState = getGlobalUnitState()
     local totalDamage = 0
     for ____, enemy in ipairs(unitState.enemyHeroes) do
         if jmz.IsValid(enemy) and jmz.IsInRange(hUnit, enemy, 1600) and (enemy:GetAttackTarget() == hUnit or jmz.IsChasingTarget(enemy, hUnit)) then
@@ -1249,8 +1168,8 @@ end
 --   3) Fillers/others (closest)
 -- Radius is the max distance from the bot; tie-breaker favors closer to targetLoc.
 function ____exports.FindBestHGTarget(bot, radius, targetLoc)
-    local gameState = updateGameStateCache()
-    local unitState = updateUnitStateCache()
+    local gameState = getGlobalGameState()
+    local unitState = getGlobalUnitState()
     local function isBarracks(u)
         return __TS__StringIncludes(
             u:GetUnitName(),

@@ -3,7 +3,7 @@ import * as jmz from "bots/FunLib/jmz_func";
 import Customize = require("bots/Customize/general");
 import { Barracks, BotMode, BotModeDesire, DamageType, Lane, Team, Tower, Unit, UnitType, Vector } from "bots/ts_libs/dota";
 import { IsValidUnit, GetLocationToLocationDistance, RadiantFountainTpPoint, DireFountainTpPoint, NonTier1Towers } from "./utils";
-import { getGlobalGameState, getGlobalLocationState, getCachedAlliesNearLoc, getCachedEnemiesNearLoc, autoCleanupCache, getCachedData } from "./global_cache";
+import { getGlobalGameState, getGlobalLocationState, getGlobalUnitState, getCachedAlliesNearLoc, getCachedEnemiesNearLoc, autoCleanupCache, getCachedData } from "./global_cache";
 import { GetDesignatedResponders, GetBaseThreatLevel } from "./responder_policy";
 import { GetFurthestBuildingOnLane } from "./aba_defend";
 
@@ -21,47 +21,6 @@ const BOT_MODE_DESIRE_EXTRA_LOW = 0.02;
 let hEnemyAncient: Unit | null = null;
 
 /** Performance cache - avoid redundant calculations between GetPushDesire (300ms) and Think (every frame) */
-type CachedGameState = {
-    lastUpdate: number;
-    currentTime: number;
-    gameMode: number;
-    team: Team;
-    enemyTeam: Team;
-    ourAncient: Unit | null;
-    enemyAncient: Unit | null;
-    aliveAllyCount: number;
-    aliveEnemyCount: number;
-    aliveAllyCoreCount: number;
-    aliveEnemyCoreCount: number;
-    teamNetworth: number;
-    enemyNetworth: number;
-    averageLevel: number;
-    hasAegis: boolean;
-    isEarlyGame: boolean;
-    isMidGame: boolean;
-    isLateGame: boolean;
-    isLaningPhase: boolean;
-};
-
-type CachedLocationState = {
-    lastUpdate: number;
-    laneFronts: Record<Lane, Vector>;
-    teamFountain: Vector;
-    enemyFountain: Vector;
-    roshanLocation: Vector;
-    tormentorLocation: Vector;
-    tormentorWaitingLocation: Vector;
-};
-
-type CachedUnitState = {
-    lastUpdate: number;
-    enemyBuildings: Unit[];
-    alliedHeroes: Unit[];
-    enemyHeroes: Unit[];
-    alliedCreeps: Unit[];
-    enemyCreeps: Unit[];
-};
-
 type CachedBotState = {
     lastUpdate: number;
     botId: number;
@@ -77,97 +36,9 @@ type CachedBotState = {
     distanceToTargetLoc: number;
 };
 
-const PUSH_CACHE_TTL = 0.5; // 500ms cache TTL - increased for better performance
 const BOT_CACHE_TTL = 0.2; // 200ms cache TTL for bot-specific data - increased for better performance
 // Frame rate limiter removed — caused stale action replay and shared state bugs
-let gameStateCache: CachedGameState | null = null;
-let locationStateCache: CachedLocationState | null = null;
-let unitStateCache: CachedUnitState | null = null;
 let botStateCache: Record<number, CachedBotState> = {};
-
-/** Update game state cache if needed */
-function updateGameStateCache(): CachedGameState {
-    const now = DotaTime();
-    if (gameStateCache && now - gameStateCache.lastUpdate < PUSH_CACHE_TTL) {
-        return gameStateCache;
-    }
-
-    const team = GetTeam();
-    const enemyTeam = GetOpposingTeam();
-    const currentTime = DotaTime();
-    const gameMode = GetGameMode();
-
-    // Adjust time for turbo mode
-    const adjustedTime = gameMode === 23 ? currentTime * 2 : currentTime;
-
-    gameStateCache = {
-        lastUpdate: now,
-        currentTime: adjustedTime,
-        gameMode,
-        team,
-        enemyTeam,
-        ourAncient: GetAncient(team),
-        enemyAncient: GetAncient(enemyTeam),
-        aliveAllyCount: jmz.GetNumOfAliveHeroes(false),
-        aliveEnemyCount: jmz.GetNumOfAliveHeroes(true),
-        aliveAllyCoreCount: jmz.GetAliveCoreCount(false),
-        aliveEnemyCoreCount: jmz.GetAliveCoreCount(true),
-        teamNetworth: jmz.GetInventoryNetworth()[0],
-        enemyNetworth: jmz.GetInventoryNetworth()[1],
-        averageLevel: jmz.GetAverageLevel(false),
-        hasAegis: jmz.DoesTeamHaveAegis(),
-        isEarlyGame: jmz.IsEarlyGame(),
-        isMidGame: jmz.IsMidGame(),
-        isLateGame: jmz.IsLateGame(),
-        isLaningPhase: jmz.IsInLaningPhase(),
-    };
-
-    return gameStateCache;
-}
-
-/** Update location state cache if needed */
-function updateLocationStateCache(): CachedLocationState {
-    const now = DotaTime();
-    if (locationStateCache && now - locationStateCache.lastUpdate < PUSH_CACHE_TTL) {
-        return locationStateCache;
-    }
-
-    const team = GetTeam();
-    locationStateCache = {
-        lastUpdate: now,
-        laneFronts: {
-            [Lane.Top]: GetLaneFrontLocation(team, Lane.Top, 0),
-            [Lane.Mid]: GetLaneFrontLocation(team, Lane.Mid, 0),
-            [Lane.Bot]: GetLaneFrontLocation(team, Lane.Bot, 0),
-        },
-        teamFountain: jmz.GetTeamFountain(),
-        enemyFountain: jmz.GetTeamFountain(), // Note: GetEnemyFountain doesn't exist, using GetTeamFountain as fallback
-        roshanLocation: jmz.GetCurrentRoshanLocation(),
-        tormentorLocation: jmz.GetTormentorLocation(team),
-        tormentorWaitingLocation: jmz.GetTormentorWaitingLocation(team),
-    };
-
-    return locationStateCache;
-}
-
-/** Update unit state cache if needed */
-function updateUnitStateCache(): CachedUnitState {
-    const now = DotaTime();
-    if (unitStateCache && now - unitStateCache.lastUpdate < PUSH_CACHE_TTL) {
-        return unitStateCache;
-    }
-
-    unitStateCache = {
-        lastUpdate: now,
-        enemyBuildings: GetUnitList(UnitType.EnemyBuildings),
-        alliedHeroes: GetUnitList(UnitType.AlliedHeroes),
-        enemyHeroes: GetUnitList(UnitType.Enemies).filter(u => jmz.IsValidHero(u)),
-        alliedCreeps: GetUnitList(UnitType.AlliedCreeps),
-        enemyCreeps: GetUnitList(UnitType.Enemies).filter(u => u.IsCreep() || u.IsAncientCreep()),
-    };
-
-    return unitStateCache;
-}
 
 /** Update bot state cache if needed */
 function updateBotStateCache(bot: Unit, targetLoc?: Vector): CachedBotState {
@@ -181,7 +52,7 @@ function updateBotStateCache(bot: Unit, targetLoc?: Vector): CachedBotState {
 
     const location = bot.GetLocation();
     const attackRange = bot.GetAttackRange();
-    const gameState = updateGameStateCache();
+    const gameState = getGlobalGameState();
 
     botStateCache[botId] = {
         lastUpdate: now,
@@ -324,7 +195,7 @@ export function GetPushDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     autoCleanupCache();
     const gameState = getGlobalGameState();
     const locationState = getGlobalLocationState();
-    // const unitState = updateUnitStateCache(); // Not used in this function
+    // const unitState = getGlobalUnitState(); // Not used in this function
 
     const enemyBarracks = [
         GetBarracks(gameState.enemyTeam, Barracks.TopMelee),
@@ -783,7 +654,7 @@ function SelectOrStickHGTarget(bot: Unit, lane: Lane, targetLoc?: Vector | null)
     const currentScore = current ? ObjectiveScore(bot, current, targetLoc) : Number.POSITIVE_INFINITY;
 
     // Scan candidates
-    const unitState = updateUnitStateCache();
+    const unitState = getGlobalUnitState();
     let best: Unit | null = null;
     let bestScore = Number.POSITIVE_INFINITY;
     for (const b of unitState.enemyBuildings) {
@@ -822,8 +693,8 @@ export function WhichLaneToPush(_bot: Unit, _lane: Lane): Lane {
     //   print("WhichLaneToPush for: ", bot.GetUnitName(), lane);
 
     // Update location cache
-    const locationState = updateLocationStateCache();
-    const gameState = updateGameStateCache();
+    const locationState = getGlobalLocationState();
+    const gameState = getGlobalGameState();
 
     // Score smaller = better
     let topLaneScore = 0;
@@ -1119,8 +990,8 @@ export function PushThink(bot: Unit, lane: Lane): void {
 export function TryClearingOtherLaneHighGround(_bot: Unit, vLocation: Vector): Unit | null {
     //   print("TryClearingOtherLaneHighGround for: ", bot.GetUnitName(), vLocation);
 
-    const gameState = updateGameStateCache();
-    const unitState = updateUnitStateCache();
+    const gameState = getGlobalGameState();
+    const unitState = getGlobalUnitState();
     const unitList = unitState.enemyBuildings;
 
     function IsValid(building: Unit | null): building is Unit {
@@ -1180,7 +1051,7 @@ export function CanBeAttacked(building: Unit | null): boolean {
 }
 
 export function IsEnemyTP(nID: number): boolean {
-    const gameState = updateGameStateCache();
+    const gameState = getGlobalGameState();
     for (const id of GetTeamPlayers(gameState.enemyTeam)) {
         if (id === nID) return true;
     }
@@ -1189,7 +1060,7 @@ export function IsEnemyTP(nID: number): boolean {
 
 /** Estimate if staying in a tower's zone is too dangerous over fDuration seconds */
 export function IsInDangerWithinTower(hUnit: Unit, fThreshold: number, fDuration: number): boolean {
-    const unitState = updateUnitStateCache();
+    const unitState = getGlobalUnitState();
     let totalDamage = 0;
     for (const enemy of unitState.enemyHeroes) {
         if (jmz.IsValid(enemy) && jmz.IsInRange(hUnit, enemy, 1600) && (enemy.GetAttackTarget() === hUnit || jmz.IsChasingTarget(enemy, hUnit))) {
@@ -1201,7 +1072,7 @@ export function IsInDangerWithinTower(hUnit: Unit, fThreshold: number, fDuration
 
 /** Include micro-summons & dominated units into "nearby creeps" for push thinning */
 export function GetSpecialUnitsNearby(bot: Unit, hUnitList: Unit[], nRadius: number): Unit[] {
-    const unitState = updateUnitStateCache();
+    const unitState = getGlobalUnitState();
     const hCreepList: Unit[] = [...hUnitList];
 
     for (const unit of unitState.enemyHeroes) {
@@ -1233,7 +1104,7 @@ export function IsHealthyInsideFountain(hUnit: Unit): boolean {
 }
 
 export function GetAllyHeroesAttackingUnit(hUnit: Unit): Unit[] {
-    const unitState = updateUnitStateCache();
+    const unitState = getGlobalUnitState();
     const out: Unit[] = [];
     for (const ally of unitState.alliedHeroes) {
         if (jmz.IsValidHero(ally) && !jmz.IsSuspiciousIllusion(ally) && !jmz.IsMeepoClone(ally) && ally.GetAttackTarget() === hUnit) {
@@ -1244,7 +1115,7 @@ export function GetAllyHeroesAttackingUnit(hUnit: Unit): Unit[] {
 }
 
 export function GetAllyCreepsAttackingUnit(hUnit: Unit): Unit[] {
-    const unitState = updateUnitStateCache();
+    const unitState = getGlobalUnitState();
     const out: Unit[] = [];
     for (const creep of unitState.alliedCreeps) {
         if (jmz.IsValid(creep) && creep.GetAttackTarget() === hUnit) {
@@ -1256,7 +1127,7 @@ export function GetAllyCreepsAttackingUnit(hUnit: Unit): Unit[] {
 
 /** Returns 1..4 for the highest structure on that lane that is still alive on the enemy team */
 export function GetLaneBuildingTier(nLane: Lane): number {
-    const gameState = updateGameStateCache();
+    const gameState = getGlobalGameState();
     const enemyTeam = gameState.enemyTeam;
 
     if (nLane === Lane.Top) {
@@ -1282,7 +1153,7 @@ export function GetLaneBuildingTier(nLane: Lane): number {
 }
 
 export function ShouldWaitForImportantItemsSpells(vLocation: Vector): boolean {
-    const gameState = updateGameStateCache();
+    const gameState = getGlobalGameState();
     if (gameState.isMidGame || gameState.isLateGame) {
         if (jmz.Utils.HasTeamMemberWithCriticalItemInCooldown(vLocation)) return true;
         if (jmz.Utils.HasTeamMemberWithCriticalSpellInCooldown(vLocation)) return true;
@@ -1308,8 +1179,8 @@ export function HasBackdoorProtect(target: Unit): boolean {
  * is currently backdoored/glyphed.
  */
 export function IsAnyTargetBackdooredAt(_bot: Unit, lane: Lane): boolean {
-    const locationState = updateLocationStateCache();
-    const unitState = updateUnitStateCache();
+    const locationState = getGlobalLocationState();
+    const unitState = getGlobalUnitState();
 
     const lf = locationState.laneFronts[lane];
     let nearest: Unit | null = null;
@@ -1334,8 +1205,8 @@ export function IsAnyTargetBackdooredAt(_bot: Unit, lane: Lane): boolean {
  * Radius is the max distance from the bot; tie-breaker favors closer to targetLoc.
  */
 export function FindBestHGTarget(bot: Unit, radius: number, targetLoc?: Vector | null): Unit | null {
-    const gameState = updateGameStateCache();
-    const unitState = updateUnitStateCache();
+    const gameState = getGlobalGameState();
+    const unitState = getGlobalUnitState();
 
     const isBarracks = (u: Unit) => u.GetUnitName().includes("rax");
     const isMeleeBarracks = (u: Unit) => u.GetUnitName().includes("melee");

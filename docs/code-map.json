@@ -234,46 +234,7 @@
     "name": "getDefendState",
     "params": "bot: Unit",
     "returns": "DefendBotState",
-    "line": 47,
-    "exported": false,
-    "callers": [
-      "bots/FunLib/aba_defend.lua",
-      "typescript/bots/FunLib/aba_defend.ts"
-    ]
-  },
-  {
-    "file": "typescript/bots/FunLib/aba_defend.ts",
-    "lang": "ts",
-    "name": "updateDefendGameStateCache",
-    "params": "",
-    "returns": "CachedDefendGameState",
-    "line": 115,
-    "exported": false,
-    "callers": [
-      "bots/FunLib/aba_defend.lua",
-      "typescript/bots/FunLib/aba_defend.ts"
-    ]
-  },
-  {
-    "file": "typescript/bots/FunLib/aba_defend.ts",
-    "lang": "ts",
-    "name": "updateDefendLocationStateCache",
-    "params": "",
-    "returns": "CachedDefendLocationState",
-    "line": 151,
-    "exported": false,
-    "callers": [
-      "bots/FunLib/aba_defend.lua",
-      "typescript/bots/FunLib/aba_defend.ts"
-    ]
-  },
-  {
-    "file": "typescript/bots/FunLib/aba_defend.ts",
-    "lang": "ts",
-    "name": "updateDefendUnitStateCache",
-    "params": "",
-    "returns": "CachedDefendUnitState",
-    "line": 183,
+    "line": 48,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -286,7 +247,7 @@
     "name": "_q",
     "params": "v: Vector | null | undefined",
     "returns": "string",
-    "line": 212,
+    "line": 73,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -299,7 +260,7 @@
     "name": "_keyLoc",
     "params": "v: Vector, r: number",
     "returns": "string",
-    "line": 215,
+    "line": 76,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -312,7 +273,7 @@
     "name": "_recentHeroCountNear",
     "params": "loc: Vector, r: number, window",
     "returns": "number",
-    "line": 219,
+    "line": 80,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -325,7 +286,7 @@
     "name": "IsValidBuildingTarget",
     "params": "unit: Unit | null",
     "returns": "unit is Unit",
-    "line": 234,
+    "line": 95,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -340,7 +301,7 @@
     "name": "IsBaseThreatActive",
     "params": "",
     "returns": "boolean",
-    "line": 237,
+    "line": 98,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -353,7 +314,7 @@
     "name": "WeightedEnemiesAroundLocation",
     "params": "vLoc: Vector, nRadius: number",
     "returns": "number",
-    "line": 242,
+    "line": 103,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -366,7 +327,7 @@
     "name": "GetHumanLanePressureLane",
     "params": "",
     "returns": "Lane | null",
-    "line": 290,
+    "line": 151,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -381,7 +342,7 @@
     "name": "GetThreatenedLane",
     "params": "",
     "returns": "Lane",
-    "line": 316,
+    "line": 177,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -394,7 +355,7 @@
     "name": "GetClosestAllyPos",
     "params": "tPosList: number[], vLocation: Vector",
     "returns": "number",
-    "line": 371,
+    "line": 232,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -407,7 +368,7 @@
     "name": "GetFurthestBuildingOnLane",
     "params": "lane: Lane",
     "returns": "[Unit | any, number, number]",
-    "line": 394,
+    "line": 255,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -422,7 +383,7 @@
     "name": "GetFurthestBuildingOnLaneHelper",
     "params": "lane: Lane",
     "returns": "[Unit | any, number, number]",
-    "line": 407,
+    "line": 268,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -435,20 +396,7 @@
     "name": "IsThereNoTeammateTravelBootsDefender",
     "params": "bot: Unit",
     "returns": "boolean",
-    "line": 473,
-    "exported": false,
-    "callers": [
-      "bots/FunLib/aba_defend.lua",
-      "typescript/bots/FunLib/aba_defend.ts"
-    ]
-  },
-  {
-    "file": "typescript/bots/FunLib/aba_defend.ts",
-    "lang": "ts",
-    "name": "GetHighGroundEdgeWaitPoint",
-    "params": "team: Team, lane: Lane",
-    "returns": "Vector",
-    "line": 484,
+    "line": 334,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -461,7 +409,7 @@
     "name": "ShouldDefend",
     "params": "bot: Unit, hBuilding: Unit | null, nRadius: number",
     "returns": "boolean",
-    "line": 511,
+    "line": 345,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -475,7 +423,7 @@
     "name": "ConsiderPingedDefend",
     "params": "bot: Unit, lane: Lane, desire: number, building: Unit | null, tier: number, nEffAllies: number, nEnemies: number",
     "returns": "void",
-    "line": 625,
+    "line": 459,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -488,7 +436,7 @@
     "name": "GetDefendDesire",
     "params": "bot: Unit, lane: Lane",
     "returns": "BotModeDesire",
-    "line": 661,
+    "line": 495,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -504,7 +452,7 @@
     "name": "GetDefendDesireHelper",
     "params": "bot: Unit, lane: Lane",
     "returns": "BotModeDesire",
-    "line": 688,
+    "line": 522,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -517,7 +465,7 @@
     "name": "DefendThink",
     "params": "bot: Unit, lane: Lane",
     "returns": "void",
-    "line": 965,
+    "line": 799,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -533,7 +481,7 @@
     "name": "OnEnd",
     "params": "",
     "returns": "void",
-    "line": 1189,
+    "line": 1023,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -553,49 +501,10 @@
   {
     "file": "typescript/bots/FunLib/aba_push.ts",
     "lang": "ts",
-    "name": "updateGameStateCache",
-    "params": "",
-    "returns": "CachedGameState",
-    "line": 89,
-    "exported": false,
-    "callers": [
-      "bots/FunLib/aba_push.lua",
-      "typescript/bots/FunLib/aba_push.ts"
-    ]
-  },
-  {
-    "file": "typescript/bots/FunLib/aba_push.ts",
-    "lang": "ts",
-    "name": "updateLocationStateCache",
-    "params": "",
-    "returns": "CachedLocationState",
-    "line": 129,
-    "exported": false,
-    "callers": [
-      "bots/FunLib/aba_push.lua",
-      "typescript/bots/FunLib/aba_push.ts"
-    ]
-  },
-  {
-    "file": "typescript/bots/FunLib/aba_push.ts",
-    "lang": "ts",
-    "name": "updateUnitStateCache",
-    "params": "",
-    "returns": "CachedUnitState",
-    "line": 154,
-    "exported": false,
-    "callers": [
-      "bots/FunLib/aba_push.lua",
-      "typescript/bots/FunLib/aba_push.ts"
-    ]
-  },
-  {
-    "file": "typescript/bots/FunLib/aba_push.ts",
-    "lang": "ts",
     "name": "updateBotStateCache",
     "params": "bot: Unit, targetLoc: Vector",
     "returns": "CachedBotState",
-    "line": 173,
+    "line": 44,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -608,7 +517,7 @@
     "name": "GetPushDesire",
     "params": "bot: Unit, lane: Lane",
     "returns": "BotModeDesire",
-    "line": 230,
+    "line": 101,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -624,7 +533,7 @@
     "name": "GetHumanLanePressureLane",
     "params": "",
     "returns": "Lane | null",
-    "line": 258,
+    "line": 129,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -639,7 +548,7 @@
     "name": "IsEnemyThreatNearOurBase",
     "params": "",
     "returns": "boolean",
-    "line": 292,
+    "line": 163,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -654,7 +563,7 @@
     "name": "GetPushDesireHelper",
     "params": "bot: Unit, lane: Lane",
     "returns": "BotModeDesire",
-    "line": 319,
+    "line": 190,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -667,7 +576,7 @@
     "name": "presence_adjust",
     "params": "score: number, loc: Vector",
     "returns": "number",
-    "line": 707,
+    "line": 578,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -680,7 +589,7 @@
     "name": "UnitIsValidObjective",
     "params": "u: Unit | null",
     "returns": "u is Unit",
-    "line": 713,
+    "line": 584,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -693,7 +602,7 @@
     "name": "UnitIsBarracks",
     "params": "u: Unit",
     "returns": "boolean",
-    "line": 717,
+    "line": 588,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -706,7 +615,7 @@
     "name": "UnitIsMeleeBarracks",
     "params": "u: Unit",
     "returns": "boolean",
-    "line": 721,
+    "line": 592,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -719,7 +628,7 @@
     "name": "UnitIsRangedBarracks",
     "params": "u: Unit",
     "returns": "boolean",
-    "line": 724,
+    "line": 595,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -732,7 +641,7 @@
     "name": "UnitIsT3",
     "params": "u: Unit",
     "returns": "boolean",
-    "line": 727,
+    "line": 598,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -745,7 +654,7 @@
     "name": "UnitIsT4",
     "params": "u: Unit",
     "returns": "boolean",
-    "line": 730,
+    "line": 601,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -758,7 +667,7 @@
     "name": "ObjectiveScore",
     "params": "bot: Unit, u: Unit | null, targetLoc: Vector | null",
     "returns": "number",
-    "line": 744,
+    "line": 615,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -771,7 +680,7 @@
     "name": "SelectOrStickHGTarget",
     "params": "bot: Unit, lane: Lane, targetLoc: Vector | null",
     "returns": "Unit | null",
-    "line": 766,
+    "line": 637,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -784,7 +693,7 @@
     "name": "WhichLaneToPush",
     "params": "_bot: Unit, _lane: Lane",
     "returns": "Lane",
-    "line": 821,
+    "line": 692,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -797,7 +706,7 @@
     "name": "PushThink",
     "params": "bot: Unit, lane: Lane",
     "returns": "void",
-    "line": 945,
+    "line": 816,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -813,7 +722,7 @@
     "name": "TryClearingOtherLaneHighGround",
     "params": "_bot: Unit, vLocation: Vector",
     "returns": "Unit | null",
-    "line": 1119,
+    "line": 990,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -826,7 +735,7 @@
     "name": "CanBeAttacked",
     "params": "building: Unit | null",
     "returns": "boolean",
-    "line": 1178,
+    "line": 1049,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_antimage.lua",
@@ -925,7 +834,7 @@
     "name": "IsEnemyTP",
     "params": "nID: number",
     "returns": "boolean",
-    "line": 1182,
+    "line": 1053,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -938,7 +847,7 @@
     "name": "IsInDangerWithinTower",
     "params": "hUnit: Unit, fThreshold: number, fDuration: number",
     "returns": "boolean",
-    "line": 1191,
+    "line": 1062,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -951,7 +860,7 @@
     "name": "GetSpecialUnitsNearby",
     "params": "bot: Unit, hUnitList: Unit[], nRadius: number",
     "returns": "Unit[]",
-    "line": 1203,
+    "line": 1074,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -964,7 +873,7 @@
     "name": "IsHealthyInsideFountain",
     "params": "hUnit: Unit",
     "returns": "boolean",
-    "line": 1231,
+    "line": 1102,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -977,7 +886,7 @@
     "name": "GetAllyHeroesAttackingUnit",
     "params": "hUnit: Unit",
     "returns": "Unit[]",
-    "line": 1235,
+    "line": 1106,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -991,7 +900,7 @@
     "name": "GetAllyCreepsAttackingUnit",
     "params": "hUnit: Unit",
     "returns": "Unit[]",
-    "line": 1246,
+    "line": 1117,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -1005,7 +914,7 @@
     "name": "GetLaneBuildingTier",
     "params": "nLane: Lane",
     "returns": "number",
-    "line": 1258,
+    "line": 1129,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -1019,7 +928,7 @@
     "name": "ShouldWaitForImportantItemsSpells",
     "params": "vLocation: Vector",
     "returns": "boolean",
-    "line": 1284,
+    "line": 1155,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -1033,7 +942,7 @@
     "name": "HasBackdoorProtect",
     "params": "target: Unit",
     "returns": "boolean",
-    "line": 1293,
+    "line": 1164,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -1047,7 +956,7 @@
     "name": "IsAnyTargetBackdooredAt",
     "params": "_bot: Unit, lane: Lane",
     "returns": "boolean",
-    "line": 1310,
+    "line": 1181,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -1061,7 +970,7 @@
     "name": "FindBestHGTarget",
     "params": "bot: Unit, radius: number, targetLoc: Vector | null",
     "returns": "Unit | null",
-    "line": 1336,
+    "line": 1207,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -1074,11 +983,13 @@
     "name": "getGlobalGameState",
     "params": "",
     "returns": "GlobalGameState",
-    "line": 69,
+    "line": 73,
     "exported": true,
     "callers": [
+      "bots/FunLib/aba_defend.lua",
       "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
+      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts"
     ]
@@ -1089,10 +1000,29 @@
     "name": "getGlobalUnitState",
     "params": "",
     "returns": "GlobalUnitState",
-    "line": 112,
+    "line": 118,
     "exported": true,
     "callers": [
+      "bots/FunLib/aba_defend.lua",
+      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
+      "typescript/bots/FunLib/aba_defend.ts",
+      "typescript/bots/FunLib/aba_push.ts",
+      "typescript/bots/FunLib/global_cache.ts"
+    ]
+  },
+  {
+    "file": "typescript/bots/FunLib/global_cache.ts",
+    "lang": "ts",
+    "name": "GetHighGroundEdgeWaitPoint",
+    "params": "team: Team, lane: Lane",
+    "returns": "Vector",
+    "line": 147,
+    "exported": true,
+    "callers": [
+      "bots/FunLib/aba_defend.lua",
+      "bots/FunLib/global_cache.lua",
+      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/global_cache.ts"
     ]
   },
@@ -1102,11 +1032,13 @@
     "name": "getGlobalLocationState",
     "params": "",
     "returns": "GlobalLocationState",
-    "line": 136,
+    "line": 169,
     "exported": true,
     "callers": [
+      "bots/FunLib/aba_defend.lua",
       "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
+      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts"
     ]
@@ -1117,7 +1049,7 @@
     "name": "getCachedData",
     "params": "key: string, ttl: number, fetchFn: () => T",
     "returns": "T",
-    "line": 167,
+    "line": 208,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -1132,7 +1064,7 @@
     "name": "cleanupGlobalCache",
     "params": "",
     "returns": "void",
-    "line": 187,
+    "line": 228,
     "exported": true,
     "callers": [
       "bots/FunLib/global_cache.lua",
@@ -1145,7 +1077,7 @@
     "name": "clearAllCaches",
     "params": "",
     "returns": "void",
-    "line": 201,
+    "line": 242,
     "exported": true,
     "callers": [
       "bots/FunLib/global_cache.lua",
@@ -1158,7 +1090,7 @@
     "name": "getCachedAlliesNearLoc",
     "params": "location: Vector, radius: number",
     "returns": "Unit[]",
-    "line": 213,
+    "line": 254,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -1173,7 +1105,7 @@
     "name": "getCachedEnemiesNearLoc",
     "params": "location: Vector, radius: number",
     "returns": "Unit[]",
-    "line": 224,
+    "line": 264,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -1188,7 +1120,7 @@
     "name": "autoCleanupCache",
     "params": "",
     "returns": "void",
-    "line": 234,
+    "line": 273,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -5137,8 +5069,6 @@
       "bots/BotLib/hero_tinker.lua",
       "bots/BotLib/hero_viper.lua",
       "bots/BotLib/hero_warlock.lua",
-      "bots/FunLib/aba_defend.lua",
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/FunLib/minion_lib/familiars.lua",
@@ -5148,8 +5078,6 @@
       "bots/ability_item_usage_generic.lua",
       "bots/mode_roam_generic.lua",
       "bots/mode_team_roam_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -7261,9 +7189,9 @@
       "bots/BotLib/hero_treant.lua",
       "bots/BotLib/hero_vengefulspirit.lua",
       "bots/BotLib/hero_venomancer.lua",
-      "bots/FunLib/aba_defend.lua",
       "bots/FunLib/aba_hero_sub_units.lua",
       "bots/FunLib/aba_push.lua",
+      "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/FunLib/minion_lib/familiars.lua",
       "bots/FunLib/minion_lib/illusions.lua",
@@ -7278,8 +7206,8 @@
       "bots/mode_retreat_generic.lua",
       "bots/mode_roam_generic.lua",
       "bots/mode_team_roam_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
+      "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -8824,11 +8752,9 @@
     "line": 4000,
     "exported": true,
     "callers": [
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/mode_farm_generic.lua",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -9068,8 +8994,6 @@
       "bots/BotLib/hero_phantom_assassin.lua",
       "bots/BotLib/hero_queenofpain.lua",
       "bots/BotLib/hero_riki.lua",
-      "bots/FunLib/aba_defend.lua",
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/FunLib/utils.lua",
@@ -9080,8 +9004,6 @@
       "bots/mode_retreat_generic_wip.lua",
       "bots/mode_roshan_generic.lua",
       "bots/mode_side_shop_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts",
       "typescript/bots/FunLib/utils.ts"
@@ -9161,16 +9083,12 @@
     "callers": [
       "bots/BotLib/hero_chaos_knight.lua",
       "bots/BotLib/hero_morphling.lua",
-      "bots/FunLib/aba_defend.lua",
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/aba_ward_utility.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/FunLib/override_generic/mode_attack_generic.lua",
       "bots/mode_retreat_generic.lua",
       "bots/mode_rune_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -9185,14 +9103,10 @@
     "exported": true,
     "callers": [
       "bots/BotLib/hero_chaos_knight.lua",
-      "bots/FunLib/aba_defend.lua",
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/FunLib/override_generic/mode_attack_generic.lua",
       "bots/mode_farm_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -9209,14 +9123,12 @@
       "bots/BotLib/hero_dragon_knight.lua",
       "bots/BotLib/hero_kez.lua",
       "bots/BotLib/hero_mars.lua",
-      "bots/FunLib/aba_defend.lua",
       "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/mode_farm_generic.lua",
       "bots/mode_rune_generic.lua",
       "bots/mode_team_roam_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
@@ -10300,8 +10212,10 @@
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
+      "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "typescript/bots/FunLib/aba_defend.ts",
+      "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
   },
@@ -10350,8 +10264,6 @@
       "bots/BotLib/hero_weaver.lua",
       "bots/BotLib/hero_windrunner.lua",
       "bots/BotLib/hero_winter_wyvern.lua",
-      "bots/FunLib/aba_defend.lua",
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/aba_special_units.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
@@ -10371,8 +10283,6 @@
       "bots/mode_rune_generic.lua",
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -10923,11 +10833,9 @@
     "line": 5974,
     "exported": true,
     "callers": [
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/mode_farm_generic.lua",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -11041,7 +10949,6 @@
       "bots/BotLib/hero_visage.lua",
       "bots/BotLib/hero_weaver.lua",
       "bots/FunLib/aba_defend.lua",
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/FunLib/rubick_hero/antimage.lua",
@@ -11052,7 +10959,6 @@
       "bots/mode_retreat_generic.lua",
       "bots/mode_roshan_generic.lua",
       "typescript/bots/FunLib/aba_defend.ts",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -11076,7 +10982,6 @@
       "bots/BotLib/hero_visage.lua",
       "bots/BotLib/hero_weaver.lua",
       "bots/FunLib/aba_defend.lua",
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/FunLib/rubick_hero/antimage.lua",
@@ -11085,7 +10990,6 @@
       "bots/mode_farm_generic.lua",
       "bots/mode_side_shop_generic.lua",
       "typescript/bots/FunLib/aba_defend.ts",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -11100,12 +11004,10 @@
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/mode_side_shop_generic.lua",
       "typescript/bots/FunLib/aba_defend.ts",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -11206,11 +11108,9 @@
     "line": 6277,
     "exported": true,
     "callers": [
-      "bots/FunLib/aba_push.lua",
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/mode_farm_generic.lua",
-      "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts"
     ]
@@ -11778,7 +11678,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -12050,7 +11949,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -12133,7 +12031,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -12259,7 +12156,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -12385,7 +12281,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -12468,7 +12363,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -12551,7 +12445,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -12697,7 +12590,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -12945,7 +12837,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -13117,7 +13008,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -13236,7 +13126,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -13319,7 +13208,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -13402,7 +13290,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -13696,7 +13583,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -14528,7 +14414,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -14928,7 +14813,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -15079,7 +14963,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -15357,7 +15240,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
@@ -16192,7 +16074,6 @@
       "bots/mode_side_shop_generic.lua",
       "bots/mode_team_roam_generic.lua",
       "bots/mode_ward_generic.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/utils.ts"
     ]

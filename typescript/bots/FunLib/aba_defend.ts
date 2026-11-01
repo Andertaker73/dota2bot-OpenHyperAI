@@ -9,10 +9,11 @@ if (!okLoc) Localization = { Get: (_: string) => "Defend here!" };
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import Customize = require("bots/Customize/general");
 
-import { Barracks, BotActionDesire, BotMode, BotModeDesire, Lane, Team, Tower, Unit, UnitType, Vector } from "bots/ts_libs/dota";
+import { Barracks, BotActionDesire, BotMode, BotModeDesire, Lane, Tower, Unit, Vector } from "bots/ts_libs/dota";
 import { add } from "bots/ts_libs/utils/native-operators";
 import { GetLocationToLocationDistance } from "./utils";
 import { BaseThreatLevel, GetBaseThreatLevel, GetDesignatedResponders, IsEnemyThreatNearOurBase } from "./responder_policy";
+import { getGlobalGameState, getGlobalLocationState, getGlobalUnitState, GetHighGroundEdgeWaitPoint } from "./global_cache";
 
 // Re-exporta para manter compatibilidade com os modos em Lua e outros arquivos TS
 export { BaseThreatLevel, GetBaseThreatLevel, GetDesignatedResponders, IsEnemyThreatNearOurBase };
@@ -68,146 +69,6 @@ let fTraveBootsDefendTime = 0;
 type EnemyAroundLocCache = { t: number; count: number };
 const _cacheEnemyAroundLoc: Record<string, EnemyAroundLocCache> = {};
 
-/** Performance cache - avoid redundant calculations between GetDefendDesire (300ms) and Think (every frame) */
-type CachedDefendGameState = {
-    lastUpdate: number;
-    currentTime: number;
-    gameMode: number;
-    team: Team;
-    enemyTeam: Team;
-    ourAncient: Unit | null;
-    enemyAncient: Unit | null;
-    aliveAllyCount: number;
-    aliveEnemyCount: number;
-    isLaningPhase: boolean;
-    isEarlyGame: boolean;
-    isMidGame: boolean;
-    isLateGame: boolean;
-    teamFountain: Vector;
-    teamFountainTpPoint: Vector;
-};
-
-type CachedDefendLocationState = {
-    lastUpdate: number;
-    laneFronts: Record<Lane, Vector>;
-    enemyLaneFronts: Record<Lane, Vector>;
-    highGroundEdgeWaitPoints: Record<Lane, Vector>;
-};
-
-type CachedDefendUnitState = {
-    lastUpdate: number;
-    enemyBuildings: Unit[];
-    alliedHeroes: Unit[];
-    enemyHeroes: Unit[];
-    alliedCreeps: Unit[];
-    enemyCreeps: Unit[];
-    teamMembers: Unit[];
-    enemies: Unit[];
-};
-
-const DEFEND_CACHE_TTL = 0.5; // 500ms cache TTL - increased for better performance
-// Frame rate limiter removed — caused stale action replay and shared state bugs
-let defendGameStateCache: CachedDefendGameState | null = null;
-let defendLocationStateCache: CachedDefendLocationState | null = null;
-let defendUnitStateCache: CachedDefendUnitState | null = null;
-
-/** Update defend game state cache if needed */
-function updateDefendGameStateCache(): CachedDefendGameState {
-    const now = DotaTime();
-    if (defendGameStateCache && now - defendGameStateCache.lastUpdate < DEFEND_CACHE_TTL) {
-        return defendGameStateCache;
-    }
-
-    const team = GetTeam();
-    const enemyTeam = GetOpposingTeam();
-    const currentTime = DotaTime();
-    const gameMode = GetGameMode();
-
-    // Adjust time for turbo mode
-    const adjustedTime = gameMode === 23 ? currentTime * 1.65 : currentTime;
-
-    defendGameStateCache = {
-        lastUpdate: now,
-        currentTime: adjustedTime,
-        gameMode,
-        team,
-        enemyTeam,
-        ourAncient: GetAncient(team),
-        enemyAncient: GetAncient(enemyTeam),
-        aliveAllyCount: jmz.GetNumOfAliveHeroes(false),
-        aliveEnemyCount: jmz.GetNumOfAliveHeroes(true),
-        isLaningPhase: jmz.IsInLaningPhase(),
-        isEarlyGame: jmz.IsEarlyGame(),
-        isMidGame: jmz.IsMidGame(),
-        isLateGame: jmz.IsLateGame(),
-        teamFountain: jmz.GetTeamFountain(),
-        teamFountainTpPoint: jmz.Utils.GetTeamFountainTpPoint(),
-    };
-
-    return defendGameStateCache;
-}
-
-/** Update defend location state cache if needed */
-function updateDefendLocationStateCache(): CachedDefendLocationState {
-    const now = DotaTime();
-    if (defendLocationStateCache && now - defendLocationStateCache.lastUpdate < DEFEND_CACHE_TTL) {
-        return defendLocationStateCache;
-    }
-
-    const team = GetTeam();
-    const enemyTeam = GetOpposingTeam();
-
-    defendLocationStateCache = {
-        lastUpdate: now,
-        laneFronts: {
-            [Lane.Top]: GetLaneFrontLocation(team, Lane.Top, 0),
-            [Lane.Mid]: GetLaneFrontLocation(team, Lane.Mid, 0),
-            [Lane.Bot]: GetLaneFrontLocation(team, Lane.Bot, 0),
-        },
-        enemyLaneFronts: {
-            [Lane.Top]: GetLaneFrontLocation(enemyTeam, Lane.Top, 0),
-            [Lane.Mid]: GetLaneFrontLocation(enemyTeam, Lane.Mid, 0),
-            [Lane.Bot]: GetLaneFrontLocation(enemyTeam, Lane.Bot, 0),
-        },
-        highGroundEdgeWaitPoints: {
-            [Lane.Top]: GetHighGroundEdgeWaitPoint(team, Lane.Top),
-            [Lane.Mid]: GetHighGroundEdgeWaitPoint(team, Lane.Mid),
-            [Lane.Bot]: GetHighGroundEdgeWaitPoint(team, Lane.Bot),
-        },
-    };
-
-    return defendLocationStateCache;
-}
-
-/** Update defend unit state cache if needed */
-function updateDefendUnitStateCache(): CachedDefendUnitState {
-    const now = DotaTime();
-    if (defendUnitStateCache && now - defendUnitStateCache.lastUpdate < DEFEND_CACHE_TTL) {
-        return defendUnitStateCache;
-    }
-
-    const teamMembers: Unit[] = [];
-    for (let i = 1; i <= GetTeamPlayers(GetTeam()).length; i++) {
-        const member = GetTeamMember(i);
-        if (member !== null) {
-            teamMembers.push(member);
-        }
-    }
-
-    defendUnitStateCache = {
-        lastUpdate: now,
-        enemyBuildings: GetUnitList(UnitType.EnemyBuildings),
-        alliedHeroes: GetUnitList(UnitType.AlliedHeroes),
-        enemyHeroes: GetUnitList(UnitType.Enemies).filter(u => jmz.IsValidHero(u)),
-        alliedCreeps: GetUnitList(UnitType.AlliedCreeps),
-        enemyCreeps: GetUnitList(UnitType.Enemies).filter(u => u.IsCreep() || u.IsAncientCreep()),
-        teamMembers,
-        enemies: GetUnitList(UnitType.Enemies),
-    };
-
-    return defendUnitStateCache;
-}
-
 // small utils (keep GC low)
 function _q(v: Vector | null | undefined): string {
     return v ? `${math.floor(v.x / 200) * 200}:${math.floor(v.y / 200) * 200}` : "0:0";
@@ -217,7 +78,7 @@ function _keyLoc(v: Vector, r?: number) {
 }
 
 function _recentHeroCountNear(loc: Vector, r: number, window = CACHE_LASTSEEN_WINDOW): number {
-    const gameState = updateDefendGameStateCache();
+    const gameState = getGlobalGameState();
     let cnt = 0;
     for (const id of GetTeamPlayers(gameState.enemyTeam)) {
         if (!IsHeroAlive(id)) continue;
@@ -245,7 +106,7 @@ function WeightedEnemiesAroundLocation(vLoc: Vector, nRadius: number): number {
     const c = _cacheEnemyAroundLoc[key];
     if (c && now - c.t <= CACHE_ENEMY_AROUND_LOC_HZ) return c.count;
 
-    const unitState = updateDefendUnitStateCache();
+    const unitState = getGlobalUnitState();
     let count = 0;
     for (const unit of unitState.enemies) {
         if (jmz.IsValid(unit) && GetUnitToLocationDistance(unit, vLoc) <= nRadius) {
@@ -471,7 +332,7 @@ export function GetFurthestBuildingOnLaneHelper(lane: Lane): [Unit | any, number
 
 // Travel Boots defender dedupe
 function IsThereNoTeammateTravelBootsDefender(bot: Unit): boolean {
-    const unitState = updateDefendUnitStateCache();
+    const unitState = getGlobalUnitState();
     for (const m of unitState.teamMembers) {
         if (bot !== m && jmz.IsValidHero(m) && (m as any).travel_boots_defender === true) {
             return false;
@@ -480,38 +341,11 @@ function IsThereNoTeammateTravelBootsDefender(bot: Unit): boolean {
     return true;
 }
 
-// Compute a “high-ground edge” wait point a bit outside the T3 toward lane
-function GetHighGroundEdgeWaitPoint(team: Team, lane: Lane): Vector {
-    const t3 = lane === Lane.Top ? GetTower(team, Tower.Top3) : lane === Lane.Mid ? GetTower(team, Tower.Mid3) : GetTower(team, Tower.Bot3);
-
-    // try lane rax if T3 is gone
-    const raxM =
-        lane === Lane.Top ? GetBarracks(team, Barracks.TopMelee) : lane === Lane.Mid ? GetBarracks(team, Barracks.MidMelee) : GetBarracks(team, Barracks.BotMelee);
-    const raxR =
-        lane === Lane.Top ? GetBarracks(team, Barracks.TopRanged) : lane === Lane.Mid ? GetBarracks(team, Barracks.MidRanged) : GetBarracks(team, Barracks.BotRanged);
-
-    const anc = GetAncient(team);
-
-    // choose a lane HG anchor: T3 > any rax > last-resort fallback
-    const anchorBuilding = (jmz.IsValidBuilding(t3) ? t3 : jmz.IsValidBuilding(raxM) ? raxM : jmz.IsValidBuilding(raxR) ? raxR : undefined) as Unit | undefined;
-
-    if (anchorBuilding && jmz.IsValidBuilding(anc)) {
-        const t = anchorBuilding.GetLocation();
-        const a = (anc as Unit).GetLocation();
-        const dir = Vector(a.x - t.x, a.y - t.y, 0);
-        const len = math.max(1, math.sqrt(dir.x * dir.x + dir.y * dir.y));
-        return Vector(t.x + (dir.x / len) * 250, t.y + (dir.y / len) * 250, 0);
-    }
-
-    // safer fallback: deeper inside base so HG hero clumps get counted
-    return jmz.AdjustLocationWithOffsetTowardsFountain(GetLaneFrontLocation(team, lane, 0), 600);
-}
-
 // Role-aware defend decision (cached)
 export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number): boolean {
     if (!IsValidBuildingTarget(hBuilding)) return false;
 
-    const gameState = updateDefendGameStateCache();
+    const gameState = getGlobalGameState();
     let enemyHeroNearby = 0;
     for (const id of GetTeamPlayers(gameState.enemyTeam)) {
         if (IsHeroAlive(id)) {
@@ -525,7 +359,7 @@ export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number)
         }
     }
 
-    const unitState = updateDefendUnitStateCache();
+    const unitState = getGlobalUnitState();
     let creepWeights = 0;
     for (const unit of unitState.enemyCreeps) {
         if (jmz.IsValid(unit) && GetUnitToUnitDistance(hBuilding, unit) <= nRadius) {
@@ -623,7 +457,7 @@ export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number)
 
 // Ping teammates to defend (rate-limited; role-aware)
 function ConsiderPingedDefend(bot: Unit, lane: Lane, desire: number, building: Unit | null, tier: number, nEffAllies: number, nEnemies: number) {
-    const gameState = updateDefendGameStateCache();
+    const gameState = getGlobalGameState();
     if (gameState.isLaningPhase || gameState.aliveAllyCount === 0) return;
     if (!IsValidBuildingTarget(building)) return;
 
@@ -689,9 +523,9 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     if ((bot as any).laneToDefend == null) (bot as any).laneToDefend = lane;
     if ((bot as any).DefendLaneDesire == null) (bot as any).DefendLaneDesire = [0, 0, 0];
 
-    const gameState = updateDefendGameStateCache();
-    const locationState = updateDefendLocationStateCache();
-    const unitState = updateDefendUnitStateCache();
+    const gameState = getGlobalGameState();
+    const locationState = getGlobalLocationState();
+    const unitState = getGlobalUnitState();
 
     const team = gameState.team;
     const ancient = gameState.ourAncient;

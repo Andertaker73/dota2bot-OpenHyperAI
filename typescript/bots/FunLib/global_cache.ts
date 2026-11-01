@@ -3,14 +3,10 @@
  * Provides shared caching across all bot modules to reduce redundant API calls
  */
 
-import { Lane, Team, Unit, UnitType, Vector } from "bots/ts_libs/dota";
+import { Barracks, Lane, Team, Tower, Unit, UnitType, Vector } from "bots/ts_libs/dota";
+import * as jmz from "bots/FunLib/jmz_func";
 
-interface GlobalCacheEntry {
-    lastUpdate: number;
-    data: any;
-}
-
-interface GlobalGameState {
+export interface GlobalGameState {
     lastUpdate: number;
     currentTime: number;
     gameMode: number;
@@ -30,25 +26,36 @@ interface GlobalGameState {
     isMidGame: boolean;
     isLateGame: boolean;
     isLaningPhase: boolean;
+    teamFountain: Vector;
+    teamFountainTpPoint: Vector;
 }
 
-interface GlobalUnitState {
+export interface GlobalUnitState {
     lastUpdate: number;
     enemyBuildings: Unit[];
     alliedHeroes: Unit[];
     enemyHeroes: Unit[];
     alliedCreeps: Unit[];
     enemyCreeps: Unit[];
+    teamMembers: Unit[];
+    enemies: Unit[];
 }
 
-interface GlobalLocationState {
+export interface GlobalLocationState {
     lastUpdate: number;
     laneFronts: Record<Lane, Vector>;
+    enemyLaneFronts: Record<Lane, Vector>;
     teamFountain: Vector;
     enemyFountain: Vector;
     roshanLocation: Vector;
     tormentorLocation: Vector;
     tormentorWaitingLocation: Vector;
+    highGroundEdgeWaitPoints: Record<Lane, Vector>;
+}
+
+interface GlobalCacheEntry {
+    lastUpdate: number;
+    data: any;
 }
 
 // Global cache storage
@@ -59,9 +66,6 @@ const GLOBAL_CACHE_TTL = 0.5; // 500ms TTL for global cache
 let globalGameStateCache: GlobalGameState | null = null;
 let globalUnitStateCache: GlobalUnitState | null = null;
 let globalLocationStateCache: GlobalLocationState | null = null;
-
-// Import jmz here to avoid circular dependencies
-import * as jmz from "bots/FunLib/jmz_func";
 
 /**
  * Get or update global game state cache
@@ -101,6 +105,8 @@ export function getGlobalGameState(): GlobalGameState {
         isMidGame: jmz.IsMidGame(),
         isLateGame: jmz.IsLateGame(),
         isLaningPhase: jmz.IsInLaningPhase(),
+        teamFountain: jmz.GetTeamFountain(),
+        teamFountainTpPoint: jmz.Utils.GetTeamFountainTpPoint(),
     };
 
     return globalGameStateCache;
@@ -115,8 +121,13 @@ export function getGlobalUnitState(): GlobalUnitState {
         return globalUnitStateCache;
     }
 
-    // Import jmz here to avoid circular dependencies
-    const jmz = require("bots/FunLib/jmz_func");
+    const teamMembers: Unit[] = [];
+    for (let i = 1; i <= GetTeamPlayers(GetTeam()).length; i++) {
+        const member = GetTeamMember(i);
+        if (member !== null) {
+            teamMembers.push(member);
+        }
+    }
 
     globalUnitStateCache = {
         lastUpdate: now,
@@ -125,9 +136,31 @@ export function getGlobalUnitState(): GlobalUnitState {
         enemyHeroes: GetUnitList(UnitType.Enemies).filter(u => jmz.IsValidHero(u)),
         alliedCreeps: GetUnitList(UnitType.AlliedCreeps),
         enemyCreeps: GetUnitList(UnitType.Enemies).filter(u => u.IsCreep() || u.IsAncientCreep()),
+        teamMembers,
+        enemies: GetUnitList(UnitType.Enemies),
     };
 
     return globalUnitStateCache;
+}
+
+// Helper for high ground edge wait point (used in location state)
+export function GetHighGroundEdgeWaitPoint(team: Team, lane: Lane): Vector {
+    const t3 = lane === Lane.Top ? GetTower(team, Tower.Top3) : lane === Lane.Mid ? GetTower(team, Tower.Mid3) : GetTower(team, Tower.Bot3);
+    const raxM = lane === Lane.Top ? GetBarracks(team, Barracks.TopMelee) : lane === Lane.Mid ? GetBarracks(team, Barracks.MidMelee) : GetBarracks(team, Barracks.BotMelee);
+    const raxR = lane === Lane.Top ? GetBarracks(team, Barracks.TopRanged) : lane === Lane.Mid ? GetBarracks(team, Barracks.MidRanged) : GetBarracks(team, Barracks.BotRanged);
+    const anc = GetAncient(team);
+
+    const anchorBuilding = (jmz.IsValidBuilding(t3) ? t3 : jmz.IsValidBuilding(raxM) ? raxM : jmz.IsValidBuilding(raxR) ? raxR : undefined) as Unit | undefined;
+
+    if (anchorBuilding && jmz.IsValidBuilding(anc)) {
+        const t = anchorBuilding.GetLocation();
+        const a = (anc as Unit).GetLocation();
+        const dir = Vector(a.x - t.x, a.y - t.y, 0);
+        const len = math.max(1, math.sqrt(dir.x * dir.x + dir.y * dir.y));
+        return Vector(t.x + (dir.x / len) * 250, t.y + (dir.y / len) * 250, 0);
+    }
+
+    return jmz.AdjustLocationWithOffsetTowardsFountain(GetLaneFrontLocation(team, lane, 0), 600);
 }
 
 /**
@@ -139,10 +172,8 @@ export function getGlobalLocationState(): GlobalLocationState {
         return globalLocationStateCache;
     }
 
-    // Import jmz here to avoid circular dependencies
-    const jmz = require("bots/FunLib/jmz_func");
-
     const team = GetTeam();
+    const enemyTeam = GetOpposingTeam();
 
     globalLocationStateCache = {
         lastUpdate: now,
@@ -151,11 +182,21 @@ export function getGlobalLocationState(): GlobalLocationState {
             [Lane.Mid]: GetLaneFrontLocation(team, Lane.Mid, 0),
             [Lane.Bot]: GetLaneFrontLocation(team, Lane.Bot, 0),
         },
+        enemyLaneFronts: {
+            [Lane.Top]: GetLaneFrontLocation(enemyTeam, Lane.Top, 0),
+            [Lane.Mid]: GetLaneFrontLocation(enemyTeam, Lane.Mid, 0),
+            [Lane.Bot]: GetLaneFrontLocation(enemyTeam, Lane.Bot, 0),
+        },
         teamFountain: jmz.GetTeamFountain(),
         enemyFountain: jmz.GetTeamFountain(), // Note: GetEnemyFountain doesn't exist
         roshanLocation: jmz.GetCurrentRoshanLocation(),
         tormentorLocation: jmz.GetTormentorLocation(team),
         tormentorWaitingLocation: jmz.GetTormentorWaitingLocation(team),
+        highGroundEdgeWaitPoints: {
+            [Lane.Top]: GetHighGroundEdgeWaitPoint(team, Lane.Top),
+            [Lane.Mid]: GetHighGroundEdgeWaitPoint(team, Lane.Mid),
+            [Lane.Bot]: GetHighGroundEdgeWaitPoint(team, Lane.Bot),
+        },
     };
 
     return globalLocationStateCache;
@@ -213,7 +254,6 @@ export function clearAllCaches(): void {
 export function getCachedAlliesNearLoc(location: Vector, radius: number): Unit[] {
     const key = `allies_${Math.floor(location.x)}_${Math.floor(location.y)}_${radius}_${Math.floor(DotaTime() * 2)}`;
     return getCachedData(key, 0.5, () => {
-        const jmz = require("bots/FunLib/jmz_func");
         return jmz.GetAlliesNearLoc(location, radius);
     });
 }
@@ -224,7 +264,6 @@ export function getCachedAlliesNearLoc(location: Vector, radius: number): Unit[]
 export function getCachedEnemiesNearLoc(location: Vector, radius: number): Unit[] {
     const key = `enemies_${Math.floor(location.x)}_${Math.floor(location.y)}_${radius}_${Math.floor(DotaTime() * 2)}`;
     return getCachedData(key, 0.5, () => {
-        const jmz = require("bots/FunLib/jmz_func");
         return jmz.GetEnemiesNearLoc(location, radius);
     });
 }

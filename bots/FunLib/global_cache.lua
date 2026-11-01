@@ -186,7 +186,9 @@ end
 -- End of Lua Library inline imports
 local ____exports = {}
 local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
+local Barracks = ____dota.Barracks
 local Lane = ____dota.Lane
+local Tower = ____dota.Tower
 local UnitType = ____dota.UnitType
 local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
 local globalCache = {}
@@ -225,7 +227,9 @@ function ____exports.getGlobalGameState()
         isEarlyGame = jmz.IsEarlyGame(),
         isMidGame = jmz.IsMidGame(),
         isLateGame = jmz.IsLateGame(),
-        isLaningPhase = jmz.IsInLaningPhase()
+        isLaningPhase = jmz.IsInLaningPhase(),
+        teamFountain = jmz.GetTeamFountain(),
+        teamFountainTpPoint = jmz.Utils.GetTeamFountainTpPoint()
     }
     return globalGameStateCache
 end
@@ -235,7 +239,17 @@ function ____exports.getGlobalUnitState()
     if globalUnitStateCache and now - globalUnitStateCache.lastUpdate < GLOBAL_CACHE_TTL then
         return globalUnitStateCache
     end
-    local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
+    local teamMembers = {}
+    do
+        local i = 1
+        while i <= #GetTeamPlayers(GetTeam()) do
+            local member = GetTeamMember(i)
+            if member ~= nil then
+                teamMembers[#teamMembers + 1] = member
+            end
+            i = i + 1
+        end
+    end
     globalUnitStateCache = {
         lastUpdate = now,
         enemyBuildings = GetUnitList(UnitType.EnemyBuildings),
@@ -248,9 +262,86 @@ function ____exports.getGlobalUnitState()
         enemyCreeps = __TS__ArrayFilter(
             GetUnitList(UnitType.Enemies),
             function(____, u) return u:IsCreep() or u:IsAncientCreep() end
-        )
+        ),
+        teamMembers = teamMembers,
+        enemies = GetUnitList(UnitType.Enemies)
     }
     return globalUnitStateCache
+end
+function ____exports.GetHighGroundEdgeWaitPoint(team, lane)
+    local ____temp_1
+    if lane == Lane.Top then
+        ____temp_1 = GetTower(team, Tower.Top3)
+    else
+        local ____temp_0
+        if lane == Lane.Mid then
+            ____temp_0 = GetTower(team, Tower.Mid3)
+        else
+            ____temp_0 = GetTower(team, Tower.Bot3)
+        end
+        ____temp_1 = ____temp_0
+    end
+    local t3 = ____temp_1
+    local ____temp_3
+    if lane == Lane.Top then
+        ____temp_3 = GetBarracks(team, Barracks.TopMelee)
+    else
+        local ____temp_2
+        if lane == Lane.Mid then
+            ____temp_2 = GetBarracks(team, Barracks.MidMelee)
+        else
+            ____temp_2 = GetBarracks(team, Barracks.BotMelee)
+        end
+        ____temp_3 = ____temp_2
+    end
+    local raxM = ____temp_3
+    local ____temp_5
+    if lane == Lane.Top then
+        ____temp_5 = GetBarracks(team, Barracks.TopRanged)
+    else
+        local ____temp_4
+        if lane == Lane.Mid then
+            ____temp_4 = GetBarracks(team, Barracks.MidRanged)
+        else
+            ____temp_4 = GetBarracks(team, Barracks.BotRanged)
+        end
+        ____temp_5 = ____temp_4
+    end
+    local raxR = ____temp_5
+    local anc = GetAncient(team)
+    local ____jmz_IsValidBuilding_result_8
+    if jmz.IsValidBuilding(t3) then
+        ____jmz_IsValidBuilding_result_8 = t3
+    else
+        local ____jmz_IsValidBuilding_result_7
+        if jmz.IsValidBuilding(raxM) then
+            ____jmz_IsValidBuilding_result_7 = raxM
+        else
+            local ____jmz_IsValidBuilding_result_6
+            if jmz.IsValidBuilding(raxR) then
+                ____jmz_IsValidBuilding_result_6 = raxR
+            else
+                ____jmz_IsValidBuilding_result_6 = nil
+            end
+            ____jmz_IsValidBuilding_result_7 = ____jmz_IsValidBuilding_result_6
+        end
+        ____jmz_IsValidBuilding_result_8 = ____jmz_IsValidBuilding_result_7
+    end
+    local anchorBuilding = ____jmz_IsValidBuilding_result_8
+    if anchorBuilding and jmz.IsValidBuilding(anc) then
+        local t = anchorBuilding:GetLocation()
+        local a = anc:GetLocation()
+        local dir = Vector(a.x - t.x, a.y - t.y, 0)
+        local len = math.max(
+            1,
+            math.sqrt(dir.x * dir.x + dir.y * dir.y)
+        )
+        return Vector(t.x + dir.x / len * 250, t.y + dir.y / len * 250, 0)
+    end
+    return jmz.AdjustLocationWithOffsetTowardsFountain(
+        GetLaneFrontLocation(team, lane, 0),
+        600
+    )
 end
 --- Get or update global location state cache
 function ____exports.getGlobalLocationState()
@@ -258,8 +349,8 @@ function ____exports.getGlobalLocationState()
     if globalLocationStateCache and now - globalLocationStateCache.lastUpdate < GLOBAL_CACHE_TTL then
         return globalLocationStateCache
     end
-    local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
     local team = GetTeam()
+    local enemyTeam = GetOpposingTeam()
     globalLocationStateCache = {
         lastUpdate = now,
         laneFronts = {
@@ -267,11 +358,21 @@ function ____exports.getGlobalLocationState()
             [Lane.Mid] = GetLaneFrontLocation(team, Lane.Mid, 0),
             [Lane.Bot] = GetLaneFrontLocation(team, Lane.Bot, 0)
         },
+        enemyLaneFronts = {
+            [Lane.Top] = GetLaneFrontLocation(enemyTeam, Lane.Top, 0),
+            [Lane.Mid] = GetLaneFrontLocation(enemyTeam, Lane.Mid, 0),
+            [Lane.Bot] = GetLaneFrontLocation(enemyTeam, Lane.Bot, 0)
+        },
         teamFountain = jmz.GetTeamFountain(),
         enemyFountain = jmz.GetTeamFountain(),
         roshanLocation = jmz.GetCurrentRoshanLocation(),
         tormentorLocation = jmz.GetTormentorLocation(team),
-        tormentorWaitingLocation = jmz.GetTormentorWaitingLocation(team)
+        tormentorWaitingLocation = jmz.GetTormentorWaitingLocation(team),
+        highGroundEdgeWaitPoints = {
+            [Lane.Top] = ____exports.GetHighGroundEdgeWaitPoint(team, Lane.Top),
+            [Lane.Mid] = ____exports.GetHighGroundEdgeWaitPoint(team, Lane.Mid),
+            [Lane.Bot] = ____exports.GetHighGroundEdgeWaitPoint(team, Lane.Bot)
+        }
     }
     return globalLocationStateCache
 end
@@ -318,7 +419,6 @@ function ____exports.getCachedAlliesNearLoc(location, radius)
         key,
         0.5,
         function()
-            local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
             return jmz.GetAlliesNearLoc(location, radius)
         end
     )
@@ -330,7 +430,6 @@ function ____exports.getCachedEnemiesNearLoc(location, radius)
         key,
         0.5,
         function()
-            local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
             return jmz.GetEnemiesNearLoc(location, radius)
         end
     )
