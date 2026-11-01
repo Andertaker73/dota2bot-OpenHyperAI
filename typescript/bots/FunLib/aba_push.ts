@@ -4,7 +4,8 @@ import Customize = require("bots/Customize/general");
 import { Barracks, BotMode, BotModeDesire, DamageType, Lane, Team, Tower, Unit, UnitType, Vector } from "bots/ts_libs/dota";
 import { IsValidUnit, GetLocationToLocationDistance, RadiantFountainTpPoint, DireFountainTpPoint, NonTier1Towers } from "./utils";
 import { getGlobalGameState, getGlobalLocationState, getCachedAlliesNearLoc, getCachedEnemiesNearLoc, autoCleanupCache, getCachedData } from "./global_cache";
-import { GetDesignatedResponders, GetBaseThreatLevel, GetFurthestBuildingOnLane } from "./aba_defend";
+import { GetDesignatedResponders, GetBaseThreatLevel } from "./responder_policy";
+import { GetFurthestBuildingOnLane } from "./aba_defend";
 
 Customize.ThinkLess = Customize.Enable ? Customize.ThinkLess : 1;
 

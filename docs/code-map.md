@@ -77,7 +77,7 @@
 | `J.HasItemInInventory` | hItem | — | sim | bots/ability_item_usage_generic.lua | 1577 |
 | `J.IsInTeamFight` | bot, nRadius | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua | 1581 |
 | `J.GetItem` | itemName | — | sim | bots/BotLib/hero_tinker.lua<br>bots/FunLib/utils.lua<br>typescript/bots/FunLib/utils.ts | 1591 |
-| `J.GetItem2` | bot, sItemName | — | sim | bots/FunLib/aba_defend.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 1606 |
+| `J.GetItem2` | bot, sItemName | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/responder_policy.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/jmz_func.d.ts<br>typescript/bots/FunLib/responder_policy.ts | 1606 |
 | `J.IsRetreating` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua | 1622 |
 | `J.GetAbility` | bot, abilityName | — | sim | — | 1635 |
 | `J.IsUnitNearby` | bot, tUnits, nRadius, sUnitName, bHero | — | sim | bots/mode_retreat_generic.lua | 1648 |
@@ -223,7 +223,7 @@
 | `J.IsAnyAllyHeroSurroundedByManyAllies` | — | — | sim | — | 4245 |
 | `J.IsAllyHeroAroundLocation` | vLoc, nRadius | — | sim | — | 4262 |
 | `J.IsEnemyHeroAroundLocation` | vLoc, nRadius | — | sim | bots/BotLib/hero_keeper_of_the_light.lua<br>bots/BotLib/hero_phantom_assassin.lua<br>bots/ability_item_usage_generic.lua | 4280 |
-| `J.GetLastSeenEnemiesNearLoc` | vLoc, nRadius | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>bots/mode_farm_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_side_shop_generic.lua | 4307 |
+| `J.GetLastSeenEnemiesNearLoc` | vLoc, nRadius | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>bots/FunLib/responder_policy.lua<br>bots/mode_farm_generic.lua<br>bots/mode_roshan_generic.lua | 4307 |
 | `J.GetNumOfAliveHeroes` | bEnemy | — | sim | bots/BotLib/hero_mirana.lua<br>bots/BotLib/hero_phantom_assassin.lua<br>bots/BotLib/hero_queenofpain.lua<br>bots/BotLib/hero_riki.lua<br>bots/FunLib/aba_defend.lua | 4334 |
 | `J.GetNumOfHeroesNearLocation` | bEnemy, location, distance | — | sim | — | 4356 |
 | `J.GetHeroesNearLocation` | bEnemy, location, distance | — | sim | bots/BotLib/hero_elder_titan.lua<br>bots/BotLib/hero_invoker.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 4368 |
@@ -668,70 +668,66 @@
 | Função | Parâmetros | Retorno | Exportada | Chamada por | Linha |
 |---|---|---|---|---|---|
 | `GetScriptDirectory` | — | string | não | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua | 2 |
-| `getDefendState` | bot: Unit | DefendBotState | não | bots/FunLib/aba_defend.lua | 43 |
-| `updateDefendGameStateCache` | — | CachedDefendGameState | não | bots/FunLib/aba_defend.lua | 111 |
-| `updateDefendLocationStateCache` | — | CachedDefendLocationState | não | bots/FunLib/aba_defend.lua | 147 |
-| `updateDefendUnitStateCache` | — | CachedDefendUnitState | não | bots/FunLib/aba_defend.lua | 179 |
-| `_q` | v: Vector \| null \| undefined | string | não | bots/FunLib/aba_defend.lua | 208 |
-| `_keyLoc` | v: Vector, r: number | string | não | bots/FunLib/aba_defend.lua | 211 |
-| `_recentHeroCountNear` | loc: Vector, r: number, window | number | não | bots/FunLib/aba_defend.lua | 215 |
-| `IsValidBuildingTarget` | unit: Unit \| null | unit is Unit | não | bots/FunLib/aba_defend.lua | 230 |
-| `IsBaseThreatActive` | — | boolean | não | bots/FunLib/aba_defend.lua | 233 |
-| `GetBaseThreatLevel` | — | number | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_push.ts | 247 |
-| `GetDesignatedResponders` | threatLevel: number, threatBuilding: Unit \| null | number[] | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_push.ts | 294 |
-| `WeightedEnemiesAroundLocation` | vLoc: Vector, nRadius: number | number | não | bots/FunLib/aba_defend.lua | 362 |
-| `GetHumanLanePressureLane` | — | Lane | null | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_push.ts | 410 |
-| `IsValidUnit` | unit: Unit \| null \| undefined | unit is Unit | não | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_axe.lua | 439 |
-| `IsEnemyThreatNearOurBase` | — | boolean | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_push.ts | 453 |
-| `GetThreatenedLane` | — | Lane | não | bots/FunLib/aba_defend.lua | 465 |
-| `GetClosestAllyPos` | tPosList: number[], vLocation: Vector | number | não | bots/FunLib/aba_defend.lua | 520 |
-| `GetFurthestBuildingOnLane` | lane: Lane | [Unit | any, number, number] | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_push.ts | 543 |
-| `GetFurthestBuildingOnLaneHelper` | lane: Lane | [Unit | any, number, number] | sim | bots/FunLib/aba_defend.lua | 556 |
-| `IsThereNoTeammateTravelBootsDefender` | bot: Unit | boolean | não | bots/FunLib/aba_defend.lua | 622 |
-| `GetHighGroundEdgeWaitPoint` | team: Team, lane: Lane | Vector | não | bots/FunLib/aba_defend.lua | 633 |
-| `ShouldDefend` | bot: Unit, hBuilding: Unit \| null, nRadius: number | boolean | sim | bots/FunLib/aba_defend.lua<br>bots/mode_team_roam_generic.lua | 660 |
-| `ConsiderPingedDefend` | bot: Unit, lane: Lane, desire: number, building: Unit \| null, tier: number, nEffAllies: number, nEnemies: number | void | não | bots/FunLib/aba_defend.lua | 774 |
-| `GetDefendDesire` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 810 |
-| `GetDefendDesireHelper` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua | 837 |
-| `DefendThink` | bot: Unit, lane: Lane | void | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 1114 |
-| `OnEnd` | — | void | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 1338 |
+| `getDefendState` | bot: Unit | DefendBotState | não | bots/FunLib/aba_defend.lua | 47 |
+| `updateDefendGameStateCache` | — | CachedDefendGameState | não | bots/FunLib/aba_defend.lua | 115 |
+| `updateDefendLocationStateCache` | — | CachedDefendLocationState | não | bots/FunLib/aba_defend.lua | 151 |
+| `updateDefendUnitStateCache` | — | CachedDefendUnitState | não | bots/FunLib/aba_defend.lua | 183 |
+| `_q` | v: Vector \| null \| undefined | string | não | bots/FunLib/aba_defend.lua | 212 |
+| `_keyLoc` | v: Vector, r: number | string | não | bots/FunLib/aba_defend.lua | 215 |
+| `_recentHeroCountNear` | loc: Vector, r: number, window | number | não | bots/FunLib/aba_defend.lua | 219 |
+| `IsValidBuildingTarget` | unit: Unit \| null | unit is Unit | não | bots/FunLib/aba_defend.lua<br>bots/FunLib/responder_policy.lua<br>typescript/bots/FunLib/responder_policy.ts | 234 |
+| `IsBaseThreatActive` | — | boolean | não | bots/FunLib/aba_defend.lua | 237 |
+| `WeightedEnemiesAroundLocation` | vLoc: Vector, nRadius: number | number | não | bots/FunLib/aba_defend.lua | 242 |
+| `GetHumanLanePressureLane` | — | Lane | null | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_push.ts | 290 |
+| `GetThreatenedLane` | — | Lane | não | bots/FunLib/aba_defend.lua | 316 |
+| `GetClosestAllyPos` | tPosList: number[], vLocation: Vector | number | não | bots/FunLib/aba_defend.lua | 371 |
+| `GetFurthestBuildingOnLane` | lane: Lane | [Unit | any, number, number] | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_push.ts | 394 |
+| `GetFurthestBuildingOnLaneHelper` | lane: Lane | [Unit | any, number, number] | sim | bots/FunLib/aba_defend.lua | 407 |
+| `IsThereNoTeammateTravelBootsDefender` | bot: Unit | boolean | não | bots/FunLib/aba_defend.lua | 473 |
+| `GetHighGroundEdgeWaitPoint` | team: Team, lane: Lane | Vector | não | bots/FunLib/aba_defend.lua | 484 |
+| `ShouldDefend` | bot: Unit, hBuilding: Unit \| null, nRadius: number | boolean | sim | bots/FunLib/aba_defend.lua<br>bots/mode_team_roam_generic.lua | 511 |
+| `ConsiderPingedDefend` | bot: Unit, lane: Lane, desire: number, building: Unit \| null, tier: number, nEffAllies: number, nEnemies: number | void | não | bots/FunLib/aba_defend.lua | 625 |
+| `GetDefendDesire` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 661 |
+| `GetDefendDesireHelper` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua | 688 |
+| `DefendThink` | bot: Unit, lane: Lane | void | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 965 |
+| `OnEnd` | — | void | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 1189 |
 
 ## `typescript/bots/FunLib/aba_push.ts`
 
 | Função | Parâmetros | Retorno | Exportada | Chamada por | Linha |
 |---|---|---|---|---|---|
-| `updateGameStateCache` | — | CachedGameState | não | bots/FunLib/aba_push.lua | 88 |
-| `updateLocationStateCache` | — | CachedLocationState | não | bots/FunLib/aba_push.lua | 128 |
-| `updateUnitStateCache` | — | CachedUnitState | não | bots/FunLib/aba_push.lua | 153 |
-| `updateBotStateCache` | bot: Unit, targetLoc: Vector | CachedBotState | não | bots/FunLib/aba_push.lua | 172 |
-| `GetPushDesire` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_push.lua<br>bots/mode_push_tower_bot_generic.lua<br>bots/mode_push_tower_mid_generic.lua<br>bots/mode_push_tower_top_generic.lua | 229 |
-| `GetHumanLanePressureLane` | — | Lane | null | não | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_defend.ts | 257 |
-| `IsEnemyThreatNearOurBase` | — | boolean | não | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_defend.ts | 291 |
-| `GetPushDesireHelper` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_push.lua | 318 |
-| `presence_adjust` | score: number, loc: Vector | number | não | bots/FunLib/aba_push.lua | 706 |
-| `UnitIsValidObjective` | u: Unit \| null | u is Unit | não | bots/FunLib/aba_push.lua | 712 |
-| `UnitIsBarracks` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 716 |
-| `UnitIsMeleeBarracks` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 720 |
-| `UnitIsRangedBarracks` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 723 |
-| `UnitIsT3` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 726 |
-| `UnitIsT4` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 729 |
-| `ObjectiveScore` | bot: Unit, u: Unit \| null, targetLoc: Vector \| null | number | não | bots/FunLib/aba_push.lua | 743 |
-| `SelectOrStickHGTarget` | bot: Unit, lane: Lane, targetLoc: Vector \| null | Unit | null | não | bots/FunLib/aba_push.lua | 765 |
-| `WhichLaneToPush` | _bot: Unit, _lane: Lane | Lane | sim | bots/FunLib/aba_push.lua | 820 |
-| `PushThink` | bot: Unit, lane: Lane | void | sim | bots/FunLib/aba_push.lua<br>bots/mode_push_tower_bot_generic.lua<br>bots/mode_push_tower_mid_generic.lua<br>bots/mode_push_tower_top_generic.lua | 944 |
-| `TryClearingOtherLaneHighGround` | _bot: Unit, vLocation: Vector | Unit | null | sim | bots/FunLib/aba_push.lua | 1118 |
-| `CanBeAttacked` | building: Unit \| null | boolean | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_bristleback.lua<br>bots/BotLib/hero_broodmother.lua | 1177 |
-| `IsEnemyTP` | nID: number | boolean | sim | bots/FunLib/aba_push.lua | 1181 |
-| `IsInDangerWithinTower` | hUnit: Unit, fThreshold: number, fDuration: number | boolean | sim | bots/FunLib/aba_push.lua | 1190 |
-| `GetSpecialUnitsNearby` | bot: Unit, hUnitList: Unit[], nRadius: number | Unit[] | sim | bots/FunLib/aba_push.lua | 1202 |
-| `IsHealthyInsideFountain` | hUnit: Unit | boolean | sim | bots/FunLib/aba_push.lua | 1230 |
-| `GetAllyHeroesAttackingUnit` | hUnit: Unit | Unit[] | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1234 |
-| `GetAllyCreepsAttackingUnit` | hUnit: Unit | Unit[] | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1245 |
-| `GetLaneBuildingTier` | nLane: Lane | number | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1257 |
-| `ShouldWaitForImportantItemsSpells` | vLocation: Vector | boolean | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1283 |
-| `HasBackdoorProtect` | target: Unit | boolean | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1292 |
-| `IsAnyTargetBackdooredAt` | _bot: Unit, lane: Lane | boolean | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1309 |
-| `FindBestHGTarget` | bot: Unit, radius: number, targetLoc: Vector \| null | Unit | null | sim | bots/FunLib/aba_push.lua | 1335 |
+| `updateGameStateCache` | — | CachedGameState | não | bots/FunLib/aba_push.lua | 89 |
+| `updateLocationStateCache` | — | CachedLocationState | não | bots/FunLib/aba_push.lua | 129 |
+| `updateUnitStateCache` | — | CachedUnitState | não | bots/FunLib/aba_push.lua | 154 |
+| `updateBotStateCache` | bot: Unit, targetLoc: Vector | CachedBotState | não | bots/FunLib/aba_push.lua | 173 |
+| `GetPushDesire` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_push.lua<br>bots/mode_push_tower_bot_generic.lua<br>bots/mode_push_tower_mid_generic.lua<br>bots/mode_push_tower_top_generic.lua | 230 |
+| `GetHumanLanePressureLane` | — | Lane | null | não | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_defend.ts | 258 |
+| `IsEnemyThreatNearOurBase` | — | boolean | não | bots/FunLib/aba_push.lua<br>bots/FunLib/responder_policy.lua<br>typescript/bots/FunLib/responder_policy.ts | 292 |
+| `GetPushDesireHelper` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_push.lua | 319 |
+| `presence_adjust` | score: number, loc: Vector | number | não | bots/FunLib/aba_push.lua | 707 |
+| `UnitIsValidObjective` | u: Unit \| null | u is Unit | não | bots/FunLib/aba_push.lua | 713 |
+| `UnitIsBarracks` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 717 |
+| `UnitIsMeleeBarracks` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 721 |
+| `UnitIsRangedBarracks` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 724 |
+| `UnitIsT3` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 727 |
+| `UnitIsT4` | u: Unit | boolean | não | bots/FunLib/aba_push.lua | 730 |
+| `ObjectiveScore` | bot: Unit, u: Unit \| null, targetLoc: Vector \| null | number | não | bots/FunLib/aba_push.lua | 744 |
+| `SelectOrStickHGTarget` | bot: Unit, lane: Lane, targetLoc: Vector \| null | Unit | null | não | bots/FunLib/aba_push.lua | 766 |
+| `WhichLaneToPush` | _bot: Unit, _lane: Lane | Lane | sim | bots/FunLib/aba_push.lua | 821 |
+| `PushThink` | bot: Unit, lane: Lane | void | sim | bots/FunLib/aba_push.lua<br>bots/mode_push_tower_bot_generic.lua<br>bots/mode_push_tower_mid_generic.lua<br>bots/mode_push_tower_top_generic.lua | 945 |
+| `TryClearingOtherLaneHighGround` | _bot: Unit, vLocation: Vector | Unit | null | sim | bots/FunLib/aba_push.lua | 1119 |
+| `CanBeAttacked` | building: Unit \| null | boolean | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_bristleback.lua<br>bots/BotLib/hero_broodmother.lua | 1178 |
+| `IsEnemyTP` | nID: number | boolean | sim | bots/FunLib/aba_push.lua | 1182 |
+| `IsInDangerWithinTower` | hUnit: Unit, fThreshold: number, fDuration: number | boolean | sim | bots/FunLib/aba_push.lua | 1191 |
+| `GetSpecialUnitsNearby` | bot: Unit, hUnitList: Unit[], nRadius: number | Unit[] | sim | bots/FunLib/aba_push.lua | 1203 |
+| `IsHealthyInsideFountain` | hUnit: Unit | boolean | sim | bots/FunLib/aba_push.lua | 1231 |
+| `GetAllyHeroesAttackingUnit` | hUnit: Unit | Unit[] | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1235 |
+| `GetAllyCreepsAttackingUnit` | hUnit: Unit | Unit[] | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1246 |
+| `GetLaneBuildingTier` | nLane: Lane | number | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1258 |
+| `ShouldWaitForImportantItemsSpells` | vLocation: Vector | boolean | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1284 |
+| `HasBackdoorProtect` | target: Unit | boolean | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1293 |
+| `IsAnyTargetBackdooredAt` | _bot: Unit, lane: Lane | boolean | sim | bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 1310 |
+| `FindBestHGTarget` | bot: Unit, radius: number, targetLoc: Vector \| null | Unit | null | sim | bots/FunLib/aba_push.lua | 1336 |
 
 ## `typescript/bots/FunLib/global_cache.ts`
 

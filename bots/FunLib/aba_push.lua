@@ -72,9 +72,10 @@ local getCachedAlliesNearLoc = ____global_cache.getCachedAlliesNearLoc
 local getCachedEnemiesNearLoc = ____global_cache.getCachedEnemiesNearLoc
 local autoCleanupCache = ____global_cache.autoCleanupCache
 local getCachedData = ____global_cache.getCachedData
+local ____responder_policy = require(GetScriptDirectory().."/FunLib/responder_policy")
+local GetDesignatedResponders = ____responder_policy.GetDesignatedResponders
+local GetBaseThreatLevel = ____responder_policy.GetBaseThreatLevel
 local ____aba_defend = require(GetScriptDirectory().."/FunLib/aba_defend")
-local GetDesignatedResponders = ____aba_defend.GetDesignatedResponders
-local GetBaseThreatLevel = ____aba_defend.GetBaseThreatLevel
 local GetFurthestBuildingOnLane = ____aba_defend.GetFurthestBuildingOnLane
 function updateGameStateCache()
     local now = DotaTime()
