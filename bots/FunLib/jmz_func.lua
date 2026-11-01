@@ -1,5 +1,18 @@
 local J = {}
 
+local ActionGates = require(GetScriptDirectory().."/FunLib/action_gates")
+local HeroInit = require(GetScriptDirectory().."/FunLib/hero_init")
+
+-- Aliases para manter compatibilidade com os modos em Lua e arquivos TS
+J.HasQueuedAction = ActionGates.HasQueuedAction
+J.IsTryingtoUseAbility = ActionGates.IsTryingtoUseAbility
+J.MustReactNow = ActionGates.MustReactNow
+J.CanNotUseAction = ActionGates.CanNotUseAction
+J.IsBotBusyChannelingOrStunned = ActionGates.IsBotBusyChannelingOrStunned
+J.CanNotUseAbility = ActionGates.CanNotUseAbility
+J.SetUserHeroInit = HeroInit.SetUserHeroInit
+J.GetTalentBuildList = HeroInit.GetTalentBuildList
+
 local bDebugMode = ( 1 == 10 )
 local tAllyIDList = GetTeamPlayers( GetTeam() )
 local tAllyHeroList = {}
@@ -34,228 +47,6 @@ J.Skill = require( GetScriptDirectory()..'/FunLib/aba_skill' )
 J.Chat = require( GetScriptDirectory()..'/FunLib/aba_chat' )
 J.Utils = require( GetScriptDirectory()..'/FunLib/utils' )
 J.Customize = require(GetScriptDirectory()..'/FunLib/custom_loader')
-
-
-function J.SetUserHeroInit( nAbilityBuildList, nTalentBuildList, sBuyList, sSellList )
-	-- A place to change the bot setup.
-	local bot = GetBot()
-	local botName = bot:GetUnitName()
-	local sBotDir, tBotSet = "game/Customize/hero/" .. string.gsub(botName, "npc_dota_hero_", ""), nil
-	local status, _ = xpcall(function() tBotSet = require( sBotDir ) end, function( err ) print( '[WARN] When loading customized game file: '..err ) end )
-	if not (status and tBotSet) then
-		sBotDir = GetScriptDirectory() .. "/Customize/hero/" .. string.gsub(botName, "npc_dota_hero_", "")
-		status, _ = xpcall(function() tBotSet = require( sBotDir ) end, function( err ) print( '[WARN] When loading customized file: '..err ) end )
-	end
-	if status and tBotSet and tBotSet.Enable then
-		nAbilityBuildList = tBotSet.AbilityUpgrade
-		nTalentBuildList = J.GetTalentBuildList( tBotSet.Talent )
-		sBuyList = tBotSet.PurchaseList
-		sSellList = tBotSet.SellList
-	end
-	return nAbilityBuildList, nTalentBuildList, sBuyList, sSellList
-end
-
-function J.GetTalentBuildList( nLocalList )
-	local sTargetList = {}
-	for i = 1, #nLocalList
-    do
-		local rawTalent = nLocalList[i] == 'l' and 10 or 0
-		if rawTalent == 10
-		then
-			sTargetList[#sTargetList + 1] = i * 2
-		else
-			sTargetList[#sTargetList + 1] = i * 2 - 1
-		end
-	end
-	for i = 1, #nLocalList
-    do
-		local rawTalent = nLocalList[i] == 'r' and 10 or 0
-		if rawTalent ~= 10
-		then
-			sTargetList[#sTargetList + 1] = i * 2
-		else
-			sTargetList[#sTargetList + 1] = i * 2 - 1
-		end
-	end
-	return sTargetList
-end
-
-function J.HasQueuedAction( bot )
-    if bot ~= nil and bot == GetBot() then
-        -- OHA MOD: detecção de travamento.
-        -- Se temos ação na fila mas o bot não se moveu em 1.5s, o path está
-        -- bloqueado (creep sumiu, loc atrás de árvore, etc). Limpamos a fila
-        -- para que o Think() do modo possa emitir uma nova ação.
-        if bot:NumQueuedActions() > 0 then
-            local now = DotaTime()
-            local pos = bot:GetLocation()
-            if bot._stuckLastPos == nil then
-                bot._stuckLastPos = pos
-                bot._stuckLastCheckTime = now
-            end
-            local moved = GetLocationToLocationDistance(pos, bot._stuckLastPos)
-            if moved > 60 then
-                -- Está se movendo normalmente
-                bot._stuckLastPos = pos
-                bot._stuckLastCheckTime = now
-            elseif now - bot._stuckLastCheckTime > 1.5 then
-                -- Travado: 1.5s sem se mover com ação na fila
-                bot:Action_ClearActions(true)
-                bot._stuckLastPos = pos
-                bot._stuckLastCheckTime = now
-                return false
-            end
-        else
-            bot._stuckLastPos = bot:GetLocation()
-            bot._stuckLastCheckTime = DotaTime()
-        end
-
-        -- Grace period pós-TP
-        local hasTp = bot:HasModifier("modifier_teleporting")
-        if hasTp then
-            bot._wasTeleporting = true
-        elseif bot._wasTeleporting then
-            bot._wasTeleporting = false
-            bot._tpGraceUntil = DotaTime() + 0.5
-        end
-        if bot._tpGraceUntil ~= nil and DotaTime() < bot._tpGraceUntil then
-            return false
-        end
-    end
-    return bot:NumQueuedActions() > 0
-end
-
-function J.IsTryingtoUseAbility(bot)
-	return bot:IsCastingAbility()
-	or bot:IsUsingAbility()
-	or bot:IsChanneling()
-end
-
---[[
-J.MustReactNow(bot)
-  Retorna true quando o bot DEVE ignorar a fila de ações e agir imediatamente.
-  Cenários cobertos:
-    1. Grace period pós-teleporte (500ms após modifier_teleporting sair)
-    2. Dano recente de herói (últimos 1.5s)
-    3. HP crítico (<30%) com inimigo em 900
-    4. DoTs/zonas perigosas (Jakiro Macropyre, Viper, Venomancer, avoidance zones)
-  NÃO interrompe canalização/cast deliberado nem bot invulnerável.
---]]
-function J.MustReactNow(bot)
-    if bot == nil or not bot:IsAlive() then return false end
-    if bot:IsInvulnerable() then return false end
-
-    -- Não interromper canalização ou cast deliberado
-    if bot:IsChanneling() or bot:IsCastingAbility() then return false end
-
-    -- (1) Grace period pós-TP
-    local hasTp = bot:HasModifier("modifier_teleporting")
-    if hasTp then
-        bot._wasTeleporting = true
-    elseif bot._wasTeleporting then
-        bot._wasTeleporting = false
-        bot._tpGraceUntil = DotaTime() + 0.5
-    end
-    if bot._tpGraceUntil ~= nil and DotaTime() < bot._tpGraceUntil then
-        return true
-    end
-
-    -- (2) Dano recente de herói
-    if bot:WasRecentlyDamagedByAnyHero(1.5) then return true end
-
-    -- (3) HP crítico + inimigo próximo
-    if J.GetHP(bot) < 0.30 then
-        local enemies = bot:GetNearbyHeroes(900, true, BOT_MODE_NONE)
-        if enemies ~= nil and #enemies > 0 then return true end
-    end
-
-    -- (4) DoTs perigosos
-    if bot:HasModifier("modifier_jakiro_macropyre") then return true end
-    if bot:HasModifier("modifier_jakiro_macropyre_burn") then return true end
-    if bot:HasModifier("modifier_jakiro_dual_breath_dot") and J.GetHP(bot) < 0.5 then return true end
-    if bot:HasModifier("modifier_viper_poison_attack") and J.GetHP(bot) < 0.35 then return true end
-    if bot:HasModifier("modifier_venomancer_venomous_gale") and J.GetHP(bot) < 0.35 then return true end
-
-    -- (5) Avoidance zones (Macropyre, áreas de dano persistente)
-    if GetAvoidanceZones ~= nil then
-        local zones = GetAvoidanceZones()
-        if zones ~= nil then
-            for _, z in pairs(zones) do
-                if z.location ~= nil
-                    and GetUnitToLocationDistance(bot, z.location) <= (z.radius or 300) then
-                    return true
-                end
-            end
-        end
-    end
-
-		-- (6) OHA MOD: travado + inimigo próximo → reagir.
-    -- Cobre o caso onde o bot está preso num move inválido e o inimigo chega
-    -- antes que o gate de "recent damage" dispare.
-    local vel = bot:GetVelocity()
-    if vel:Length2D() < 30
-        and not bot:IsCastingAbility()
-        and not bot:IsUsingAbility()
-        and not bot:IsChanneling() then
-        local enemiesNear = bot:GetNearbyHeroes(900, true, BOT_MODE_NONE)
-        if enemiesNear ~= nil and #enemiesNear > 0 then
-            return true
-        end
-    end
-
-    return false
-end
-
-function J.CanNotUseAction( bot )
-        -- OHA MOD: Bypass the action gate if the bot must react immediately.
-        -- This fixes the freeze (first blood) in laning and post-TP, because
-        -- MustReactNow allows the bot to issue a new command (like retreating
-        -- or attacking) even if it has a stale move command in its queue.
-        if J.MustReactNow(bot) then return false end
-
-        return not bot:IsAlive()
-                        or J.HasQueuedAction( bot )
-                        or (bot:IsInvulnerable() and not bot:HasModifier("modifier_dark_willow_shadow_realm_buff"))
-                        or bot:IsCastingAbility()
-                        or bot:IsUsingAbility()
-                        or bot:IsChanneling()
-end
-
--- OHA MOD 2026/08/30: like CanNotUseAction but WITHOUT the queued-action check.
--- Used when a mode just became active, to override a stale order left by whatever
--- mode was running previously (e.g. Defend responding to a ping while the bot was
--- still mid-walk from farming) instead of waiting for that old order to finish.
-function J.IsBotBusyChannelingOrStunned( bot )
-	return not bot:IsAlive()
-			or (bot:IsInvulnerable() and not bot:HasModifier('modifier_fountain_invulnerability') and not bot:HasModifier('modifier_dazzle_nothl_projection_soul_debuff'))
-			or bot:IsCastingAbility()
-			or bot:IsUsingAbility()
-			or bot:IsChanneling()
-			or (bot:IsStunned() and not bot:HasModifier('modifier_dazzle_nothl_projection_soul_debuff'))
-			or bot:IsNightmared()
-			or bot:HasModifier( 'modifier_ringmaster_the_box_buff' )
-			or bot:HasModifier( 'modifier_item_forcestaff_active' )
-			or bot:HasModifier( 'modifier_phantom_lancer_phantom_edge_boost' )
-			or bot:HasModifier( 'modifier_tinker_rearm' )
-end
-
-function J.CanNotUseAbility( bot )
-	return not bot:IsAlive()
-			or J.HasQueuedAction( bot )
-			or (bot:IsInvulnerable() and not bot:HasModifier('modifier_fountain_invulnerability') and not bot:HasModifier('modifier_dazzle_nothl_projection_soul_debuff'))
-			or bot:IsCastingAbility()
-			or bot:IsUsingAbility()
-			or bot:IsChanneling()
-			or bot:IsSilenced()
-			or (bot:IsStunned() and not bot:HasModifier('modifier_dazzle_nothl_projection_soul_debuff'))
-			or bot:IsHexed()
-			or bot:IsNightmared()
-			or bot:HasModifier( 'modifier_ringmaster_the_box_buff' )
-			or bot:HasModifier( "modifier_doom_bringer_doom" )
-			or bot:HasModifier( 'modifier_item_forcestaff_active' )
-
-end
-
 
 local TempMovableModifierNames = {
     'modifier_abaddon_borrowed_time',
