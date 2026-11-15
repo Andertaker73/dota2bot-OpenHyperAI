@@ -116,14 +116,59 @@ local SpitOutDesire, SpitOutLocation
 local MortimerKissesDesire, MortimerKissesLocation
 
 function X.SkillsComplement()
-	if J.CanNotUseAbility(bot) then return end
+    if J.CanNotUseAbility(bot) then return end
 
+    -- OHA FIX: Re-mira contínua durante a Mortimer Kisses (Perseguição Inteligente)
+    if bot:HasModifier('modifier_snapfire_mortimer_kisses') then
+        local target = bot.snapfire_ult_target
+
+        -- Verifica se o alvo original ainda é válido
+        local bTargetValid = target ~= nil
+            and J.IsValidHero(target)
+            and not target:IsInvulnerable()
+            and not target:IsMagicImmune()
+            and GetUnitToUnitDistance(bot, target) <= 2500
+
+        -- Se o alvo original morreu ou fugiu, procura outro (priorizando HP baixo)
+        if not bTargetValid then
+            local nEnemies = bot:GetNearbyHeroes(2500, true, BOT_MODE_NONE)
+            local bestScore = -1
+            target = nil
+
+            for _, enemy in pairs(nEnemies) do
+                if J.IsValidHero(enemy) and J.CanCastOnNonMagicImmune(enemy) and not J.IsSuspiciousIllusion(enemy) then
+                    local score = 0
+                    local enemyHp = J.GetHP(enemy)
+                    -- Prioriza HP baixo
+                    if enemyHp < 0.3 then score = score + 5
+                    elseif enemyHp < 0.5 then score = score + 3 end
+                    -- Prioriza quem estiver preso
+                    if J.IsDisabled(enemy) then score = score + 2 end
+
+                    if score > bestScore then
+                        bestScore = score
+                        target = enemy
+                    end
+                end
+            end
+            bot.snapfire_ult_target = target
+        end
+
+        -- Atualiza a localização da ultimate para o alvo atual
+        if target ~= nil then
+            bot:Action_UseAbilityOnLocation(MortimerKisses, target:GetLocation())
+        end
+        return -- Retorna para não executar outras habilidades enquanto canaliza
+    end
+
+    -- Lógica original de conjuração (primeira vez)
     MortimerKissesDesire, MortimerKissesLocation = X.ConsiderMortimerKisses()
-    if MortimerKissesDesire > 0
-    then
+    if MortimerKissesDesire > 0 then
         bot:Action_UseAbilityOnLocation(MortimerKisses, MortimerKissesLocation)
         return
     end
+
+    -- ... resto do código original ...
 
     LilShredderDesire = X.ConsiderLilShredder()
     if LilShredderDesire > 0
@@ -630,109 +675,38 @@ function X.ConsiderLilShredder()
 end
 
 function X.ConsiderMortimerKisses()
-    local bChanneling = bot:HasModifier('modifier_snapfire_mortimer_kisses')
-    local nMinDistance = MortimerKisses:GetSpecialValueInt('min_range')
+    if X.IsSkillsAllocated() and J.CanCastAbility(MortimerKisses) then
 
-    ----------------------------------------------------------------
-    -- CASO 1: Canalizando — re-mira contínua em direção ao alvo.
-    -- Não dependemos de J.IsGoingOnSomeone (retorna false em canal).
-    ----------------------------------------------------------------
-    if bChanneling
-    then
-        -- Previsão curta: cada salva leva ~0.1s pra sair do canhão.
-        local nLookahead = 0.1
-
-        -- 1) Alvo "próprio" do bot (o que ele estava atacando antes de canalizar)
-        local botTarget = J.GetProperTarget(bot)
-        if J.IsValidHero(botTarget)
-        and J.CanCastOnNonMagicImmune(botTarget)
-        and not J.IsSuspiciousIllusion(botTarget)
-        and not J.IsInRange(bot, botTarget, nMinDistance)
-        and not botTarget:HasModifier('modifier_abaddon_borrowed_time')
-        and not botTarget:HasModifier('modifier_dazzle_shallow_grave')
-        and not botTarget:HasModifier('modifier_necrolyte_reapers_scythe')
-        and not botTarget:HasModifier('modifier_oracle_false_promise_timer')
-        and not botTarget:HasModifier('modifier_templar_assassin_refraction_absorb')
-        then
-            return BOT_ACTION_DESIRE_HIGH,
-                   botTarget:GetExtrapolatedLocation(nLookahead)
-        end
-
-        -- 2) Senão, re-adquire o inimigo mais próximo em range que ainda possa ser alvo
-        local nInRangeEnemy = J.GetNearbyHeroes(bot, 1600, true, BOT_MODE_NONE)
-        for _, enemyHero in pairs(nInRangeEnemy)
-        do
-            if J.IsValidHero(enemyHero)
-            and J.CanCastOnNonMagicImmune(enemyHero)
-            and not J.IsInRange(bot, enemyHero, nMinDistance)
-            and not J.IsSuspiciousIllusion(enemyHero)
-            and not enemyHero:HasModifier('modifier_abaddon_borrowed_time')
-            and not enemyHero:HasModifier('modifier_dazzle_shallow_grave')
-            and not enemyHero:HasModifier('modifier_necrolyte_reapers_scythe')
-            and not enemyHero:HasModifier('modifier_oracle_false_promise_timer')
-            and not enemyHero:HasModifier('modifier_templar_assassin_refraction_absorb')
-            then
-                return BOT_ACTION_DESIRE_HIGH,
-                       enemyHero:GetExtrapolatedLocation(nLookahead)
+        -- OHA FIX: Conjuração agressiva contra alvos com HP baixo (Ignora IsGoingOnSomeone)
+        local nEnemies = bot:GetNearbyHeroes(2500, true, BOT_MODE_NONE)
+        local lowHpTarget = nil
+        for _, enemy in pairs(nEnemies) do
+            if J.IsValidHero(enemy) and J.CanCastOnNonMagicImmune(enemy)
+               and not J.IsSuspiciousIllusion(enemy)
+               and J.GetHP(enemy) < 0.45 then
+                lowHpTarget = enemy
+                break
             end
         end
 
-        -- 3) Sem alvo visível — devolve NONE. O SkillsComplement
-        -- deixa o canal seguir até o fim (as salvas batem no último ponto).
-        return BOT_ACTION_DESIRE_NONE, 0
+        if lowHpTarget ~= nil then
+            bot.snapfire_ult_target = lowHpTarget -- Salva o alvo original
+            return BOT_ACTION_DESIRE_HIGH, lowHpTarget:GetLocation()
+        end
+
+        -- Lógica original mantida para team fights normais
+        if not J.IsGoingOnSomeone(bot) then return BOT_ACTION_DESIRE_NONE, nil end
+        local target = J.GetProperTarget(bot)
+        if not J.IsValidHero(target) or not J.CanCastOnNonMagicImmune(target) then return BOT_ACTION_DESIRE_NONE, nil end
+
+        local nInRangeAlly = J.GetAlliesNearLoc(bot:GetLocation(), 2500)
+        local nInRangeEnemy = J.GetEnemiesNearLoc(bot:GetLocation(), 2500)
+        if #nInRangeAlly >= #nInRangeEnemy then
+            bot.snapfire_ult_target = target -- Salva o alvo original
+            return BOT_ACTION_DESIRE_HIGH, target:GetLocation()
+        end
     end
-
-    ----------------------------------------------------------------
-    -- CASO 2: Não está canalizando — lógica original de INICIAR o ult.
-    ----------------------------------------------------------------
-    if not MortimerKisses:IsFullyCastable()
-    then
-        return BOT_ACTION_DESIRE_NONE, 0
-    end
-
-	if J.IsGoingOnSomeone(bot)
-	then
-        local nInRangeEnemy = J.GetNearbyHeroes(bot,1600, true, BOT_MODE_NONE)
-        for _, enemyHero in pairs(nInRangeEnemy)
-        do
-            if J.IsValidHero(enemyHero)
-            and J.CanCastOnNonMagicImmune(enemyHero)
-            and not J.IsInRange(bot, enemyHero, nMinDistance)
-            and not J.IsSuspiciousIllusion(enemyHero)
-            then
-                if J.IsLocationInChrono(enemyHero:GetLocation())
-                or J.IsLocationInBlackHole(enemyHero:GetLocation())
-                then
-                    return BOT_ACTION_DESIRE_HIGH, enemyHero:GetLocation()
-                end
-            end
-
-            if J.IsValidHero(enemyHero)
-            and J.CanCastOnNonMagicImmune(enemyHero)
-            and not J.IsInRange(bot, enemyHero, nMinDistance)
-            and not J.IsSuspiciousIllusion(enemyHero)
-            and not enemyHero:HasModifier('modifier_abaddon_borrowed_time')
-            and not enemyHero:HasModifier('modifier_dazzle_shallow_grave')
-            and not enemyHero:HasModifier('modifier_oracle_false_promise_timer')
-            and not enemyHero:HasModifier('modifier_necrolyte_reapers_scythe')
-            then
-                local nInRangeAlly = J.GetNearbyHeroes(enemyHero, 1600, true, BOT_MODE_NONE)
-                local nTargetInRangeAlly = J.GetNearbyHeroes(enemyHero, 1600, false, BOT_MODE_NONE)
-
-                if nInRangeAlly ~= nil and nTargetInRangeAlly ~= nil
-                and #nInRangeAlly >= #nTargetInRangeAlly
-                then
-                    if (#nTargetInRangeAlly >= 1 and #nTargetInRangeAlly >= 1)
-                    or #nTargetInRangeAlly == 0
-                    then
-                        return BOT_ACTION_DESIRE_HIGH, enemyHero:GetLocation()
-                    end
-                end
-            end
-        end
-	end
-
-    return BOT_ACTION_DESIRE_NONE, 0
+    return BOT_ACTION_DESIRE_NONE, nil
 end
 
 function X.ConsiderGobbleUp()
