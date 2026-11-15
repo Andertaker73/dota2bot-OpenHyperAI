@@ -192,6 +192,15 @@ function GetThreatenedLane(): Lane {
         const enemiesAtHGBuilding = jmz.GetLastSeenEnemiesNearLoc(hgEdge, 2000);
         const enemiesAtBase = (ancient !== null) ? jmz.GetLastSeenEnemiesNearLoc(ancient.GetLocation(), 2600) : [];
 
+        // OHA FIX: Conta creeps atacando o Ancient (mega creeps)
+        let creepsAtAncient = 0;
+        if (ancient !== null && ancient.GetHealth() < ancient.GetMaxHealth()) {
+            const nearAncient = jmz.GetEnemiesNearLoc(ancient.GetLocation(), 800);
+            for (const u of nearAncient) {
+                if (u.IsCreep() || u.IsAncientCreep()) creepsAtAncient++;
+            }
+        }
+
         const barracksForLane =
             ln === Lane.Top ? [GetBarracks(nTeam, Barracks.TopMelee), GetBarracks(nTeam, Barracks.TopRanged)] :
             ln === Lane.Mid ? [GetBarracks(nTeam, Barracks.MidMelee), GetBarracks(nTeam, Barracks.MidRanged)] :
@@ -199,11 +208,12 @@ function GetThreatenedLane(): Lane {
         const enemiesAtBarracks = barracksForLane.reduce(
             (acc, b) => acc + (b ? jmz.GetLastSeenEnemiesNearLoc(b.GetLocation(), 1800).length : 0), 0);
 
-        // NOVO: contar heróis ao redor do T3 desta lane (cerco a T3 era invisível antes)
         const t3 = ln === Lane.Top ? GetTower(nTeam, Tower.Top3) : ln === Lane.Mid ? GetTower(nTeam, Tower.Mid3) : GetTower(nTeam, Tower.Bot3);
         const enemiesAtT3 = (t3 && IsValidBuildingTarget(t3)) ? jmz.GetLastSeenEnemiesNearLoc(t3.GetLocation(), 1800).length : 0;
 
-        const threatCount = enemiesAtHGBuilding.length + enemiesAtBase.length + enemiesAtBarracks + enemiesAtT3;
+        // OHA FIX: (creepsAtAncient * 2) força a engine a escolher a lane com creeps no Ancient
+        const threatCount = enemiesAtHGBuilding.length + enemiesAtBase.length + enemiesAtBarracks + enemiesAtT3 + (creepsAtAncient * 2);
+
         if (threatCount >= 1) {
             score = 999 + threatCount;
         }
@@ -344,6 +354,13 @@ function IsThereNoTeammateTravelBootsDefender(bot: Unit): boolean {
 // Role-aware defend decision (cached)
 export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number): boolean {
     if (!IsValidBuildingTarget(hBuilding)) return false;
+
+    // OHA FIX: Hard Override - Se o Ancient está sob ataque, TODOS devem defender.
+    const ourAncient = GetAncient(nTeam);
+    if (hBuilding === ourAncient && hBuilding.GetHealth() < hBuilding.GetMaxHealth()) {
+        return true;
+    }
+
 
     const gameState = getGlobalGameState();
     let enemyHeroNearby = 0;

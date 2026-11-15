@@ -433,6 +433,18 @@ function GetThreatenedLane()
             ancient:GetLocation(),
             2600
         ) or ({})
+        local creepsAtAncient = 0
+        if ancient ~= nil and ancient:GetHealth() < ancient:GetMaxHealth() then
+            local nearAncient = jmz.GetEnemiesNearLoc(
+                ancient:GetLocation(),
+                800
+            )
+            for ____, u in ipairs(nearAncient) do
+                if u:IsCreep() or u:IsAncientCreep() then
+                    creepsAtAncient = creepsAtAncient + 1
+                end
+            end
+        end
         local barracksForLane = ln == Lane.Top and ({
             GetBarracks(nTeam, Barracks.TopMelee),
             GetBarracks(nTeam, Barracks.TopRanged)
@@ -468,7 +480,7 @@ function GetThreatenedLane()
             t3:GetLocation(),
             1800
         ) or 0
-        local threatCount = #enemiesAtHGBuilding + #enemiesAtBase + enemiesAtBarracks + enemiesAtT3
+        local threatCount = #enemiesAtHGBuilding + #enemiesAtBase + enemiesAtBarracks + enemiesAtT3 + creepsAtAncient * 2
         if threatCount >= 1 then
             score = 999 + threatCount
         end
@@ -751,6 +763,10 @@ end
 function ____exports.ShouldDefend(bot, hBuilding, nRadius)
     if not IsValidBuildingTarget(hBuilding) then
         return false
+    end
+    local ourAncient = GetAncient(nTeam)
+    if hBuilding == ourAncient and hBuilding:GetHealth() < hBuilding:GetMaxHealth() then
+        return true
     end
     local gameState = getGlobalGameState()
     local enemyHeroNearby = 0
@@ -1361,10 +1377,10 @@ function ____exports.DefendThink(bot, lane)
         local liveEnemies = bot:GetNearbyHeroes(1600, true, BotMode.None)
         for ____, e in ipairs(liveEnemies) do
             do
-                local __continue207
+                local __continue212
                 repeat
                     if not jmz.IsValidHero(e) or jmz.IsSuspiciousIllusion(e) then
-                        __continue207 = true
+                        __continue212 = true
                         break
                     end
                     if jmz.IsInRange(
@@ -1378,7 +1394,7 @@ function ____exports.DefendThink(bot, lane)
                     bot:Action_MoveToLocation(e:GetLocation())
                     return
                 until true
-                if not __continue207 then
+                if not __continue212 then
                     break
                 end
             end

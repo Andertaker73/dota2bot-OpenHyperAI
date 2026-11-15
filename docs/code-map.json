@@ -291,9 +291,7 @@
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
-      "bots/FunLib/responder_policy.lua",
-      "typescript/bots/FunLib/aba_defend.ts",
-      "typescript/bots/FunLib/responder_policy.ts"
+      "typescript/bots/FunLib/aba_defend.ts"
     ]
   },
   {
@@ -356,7 +354,7 @@
     "name": "GetClosestAllyPos",
     "params": "tPosList: number[], vLocation: Vector",
     "returns": "number",
-    "line": 232,
+    "line": 242,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -369,7 +367,7 @@
     "name": "GetFurthestBuildingOnLane",
     "params": "lane: Lane",
     "returns": "[Unit | any, number, number]",
-    "line": 255,
+    "line": 265,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -384,7 +382,7 @@
     "name": "GetFurthestBuildingOnLaneHelper",
     "params": "lane: Lane",
     "returns": "[Unit | any, number, number]",
-    "line": 268,
+    "line": 278,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -397,7 +395,7 @@
     "name": "IsThereNoTeammateTravelBootsDefender",
     "params": "bot: Unit",
     "returns": "boolean",
-    "line": 334,
+    "line": 344,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -410,7 +408,7 @@
     "name": "ShouldDefend",
     "params": "bot: Unit, hBuilding: Unit | null, nRadius: number",
     "returns": "boolean",
-    "line": 345,
+    "line": 355,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -424,7 +422,7 @@
     "name": "ConsiderPingedDefend",
     "params": "bot: Unit, lane: Lane, desire: number, building: Unit | null, tier: number, nEffAllies: number, nEnemies: number",
     "returns": "void",
-    "line": 459,
+    "line": 476,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -437,7 +435,7 @@
     "name": "GetDefendDesire",
     "params": "bot: Unit, lane: Lane",
     "returns": "BotModeDesire",
-    "line": 495,
+    "line": 512,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -453,7 +451,7 @@
     "name": "GetDefendDesireHelper",
     "params": "bot: Unit, lane: Lane",
     "returns": "BotModeDesire",
-    "line": 522,
+    "line": 539,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -466,7 +464,7 @@
     "name": "DefendThink",
     "params": "bot: Unit, lane: Lane",
     "returns": "void",
-    "line": 799,
+    "line": 816,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -482,7 +480,7 @@
     "name": "OnEnd",
     "params": "",
     "returns": "void",
-    "line": 1023,
+    "line": 1040,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -1745,6 +1743,7 @@
       "bots/FunLib/minion_lib/minion_with_skill.lua",
       "bots/FunLib/minion_lib/primal_split.lua",
       "bots/FunLib/override_generic/mode_attack_generic.lua",
+      "bots/FunLib/responder_policy.lua",
       "bots/FunLib/rubick_hero/abyssal_underlord.lua",
       "bots/FunLib/rubick_hero/alchemist.lua",
       "bots/FunLib/rubick_hero/ancient_apparition.lua",
@@ -1768,7 +1767,8 @@
       "bots/mode_ward_generic.lua",
       "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/global_cache.ts",
-      "typescript/bots/FunLib/jmz_func.d.ts"
+      "typescript/bots/FunLib/jmz_func.d.ts",
+      "typescript/bots/FunLib/responder_policy.ts"
     ]
   },
   {
@@ -6796,6 +6796,7 @@
       "bots/FunLib/minion_lib/minion_with_skill.lua",
       "bots/FunLib/override_generic/mode_attack_generic.lua",
       "bots/FunLib/override_generic/mode_laning_generic.lua",
+      "bots/FunLib/responder_policy.lua",
       "bots/FunLib/rubick_hero/clinkz.lua",
       "bots/FunLib/utils.lua",
       "bots/ability_item_usage_generic.lua",
@@ -6807,6 +6808,7 @@
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts",
+      "typescript/bots/FunLib/responder_policy.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
   },
@@ -8569,14 +8571,12 @@
       "bots/FunLib/aba_defend.lua",
       "bots/FunLib/aba_push.lua",
       "bots/FunLib/jmz_func.lua",
-      "bots/FunLib/responder_policy.lua",
       "bots/mode_farm_generic.lua",
       "bots/mode_roshan_generic.lua",
       "bots/mode_side_shop_generic.lua",
       "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
-      "typescript/bots/FunLib/jmz_func.d.ts",
-      "typescript/bots/FunLib/responder_policy.ts"
+      "typescript/bots/FunLib/jmz_func.d.ts"
     ]
   },
   {

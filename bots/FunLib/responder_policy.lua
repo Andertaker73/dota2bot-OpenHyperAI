@@ -38,10 +38,9 @@ local function __TS__ArraySort(self, compareFn)
 end
 -- End of Lua Library inline imports
 local ____exports = {}
-local IsValidUnit, IsValidBuildingTarget
+local IsValidUnit
 local jmz = require(GetScriptDirectory().."/FunLib/jmz_func")
 local ____dota = require(GetScriptDirectory().."/ts_libs/dota/index")
-local Barracks = ____dota.Barracks
 local Tower = ____dota.Tower
 function IsValidUnit(unit)
     if not unit then
@@ -55,9 +54,6 @@ function IsValidUnit(unit)
     end
     return true
 end
-function IsValidBuildingTarget(unit)
-    return unit ~= nil and unit:IsAlive() and unit:IsBuilding()
-end
 local nTeam = GetTeam()
 ____exports.BaseThreatLevel = BaseThreatLevel or ({})
 ____exports.BaseThreatLevel.None = 0
@@ -70,90 +66,51 @@ ____exports.BaseThreatLevel.Ancient = 3
 ____exports.BaseThreatLevel[____exports.BaseThreatLevel.Ancient] = "Ancient"
 --- Nível agregado de ameaça à base da equipe.
 function ____exports.GetBaseThreatLevel()
-    local team = nTeam
+    local team = GetTeam()
     local ancient = GetAncient(team)
     if ancient ~= nil then
         if jmz.Utils.CountEnemyHeroesNear(
             ancient:GetLocation(),
             2600
         ) >= 1 then
-            return 3
+            return ____exports.BaseThreatLevel.Ancient
+        end
+        if ancient:GetHealth() < ancient:GetMaxHealth() then
+            local enemiesNearAncient = jmz.GetEnemiesNearLoc(
+                ancient:GetLocation(),
+                800
+            )
+            local creepCount = 0
+            for ____, unit in ipairs(enemiesNearAncient) do
+                if unit:IsCreep() or unit:IsAncientCreep() or unit:HasModifier("modifier_dominated") then
+                    creepCount = creepCount + 1
+                end
+            end
+            if creepCount >= 3 then
+                print("[OHA DEBUG] Ancient sob ataque de creeps! Contagem: " .. tostring(creepCount))
+                return ____exports.BaseThreatLevel.Ancient
+            end
         end
     end
     if jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1 then
-        return 3
+        return ____exports.BaseThreatLevel.Ancient
     end
-    local innerStructures = {
+    local t3s = {
         GetTower(team, Tower.Top3),
         GetTower(team, Tower.Mid3),
-        GetTower(team, Tower.Bot3),
-        GetBarracks(team, Barracks.TopMelee),
-        GetBarracks(team, Barracks.TopRanged),
-        GetBarracks(team, Barracks.MidMelee),
-        GetBarracks(team, Barracks.MidRanged),
-        GetBarracks(team, Barracks.BotMelee),
-        GetBarracks(team, Barracks.BotRanged)
+        GetTower(team, Tower.Bot3)
     }
-    for ____, s in ipairs(innerStructures) do
-        do
-            local __continue6
-            repeat
-                if not s or not IsValidBuildingTarget(s) then
-                    __continue6 = true
-                    break
-                end
-                if jmz.Utils.CountEnemyHeroesNear(
-                    s:GetLocation(),
-                    1800
-                ) >= 1 then
-                    return 2
-                end
-                if #jmz.GetLastSeenEnemiesNearLoc(
-                    s:GetLocation(),
-                    1800
-                ) >= 1 then
-                    return 2
-                end
-                __continue6 = true
-            until true
-            if not __continue6 then
-                break
+    for ____, t3 in ipairs(t3s) do
+        if t3 and jmz.IsValidBuilding(t3) then
+            if jmz.Utils.CountEnemyHeroesNear(
+                t3:GetLocation(),
+                1800
+            ) >= 1 then
+                return ____exports.BaseThreatLevel.Inner
             end
         end
     end
-    local outerStructures = {
-        GetTower(team, Tower.Top2),
-        GetTower(team, Tower.Mid2),
-        GetTower(team, Tower.Bot2)
-    }
-    for ____, s in ipairs(outerStructures) do
-        do
-            local __continue11
-            repeat
-                if not s or not IsValidBuildingTarget(s) then
-                    __continue11 = true
-                    break
-                end
-                if jmz.Utils.CountEnemyHeroesNear(
-                    s:GetLocation(),
-                    1600
-                ) >= 1 then
-                    return 1
-                end
-                if #jmz.GetLastSeenEnemiesNearLoc(
-                    s:GetLocation(),
-                    1600
-                ) >= 1 then
-                    return 1
-                end
-                __continue11 = true
-            until true
-            if not __continue11 then
-                break
-            end
-        end
-    end
-    return 0
+    return ____exports.BaseThreatLevel.None
 end
 --- Quantos bots devem recuar para defender, dado o nível de ameaça.
 function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
@@ -187,16 +144,16 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
         local i = 1
         while i <= 5 do
             do
-                local __continue23
+                local __continue22
                 repeat
                     local m = GetTeamMember(i)
                     if not m or not m:IsAlive() then
-                        __continue23 = true
+                        __continue22 = true
                         break
                     end
                     local pos = jmz.GetPosition(m)
                     if pos == 1 then
-                        __continue23 = true
+                        __continue22 = true
                         break
                     end
                     local tp = jmz.GetItem2(m, "item_tpscroll")
@@ -206,9 +163,9 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
                         dist = GetUnitToLocationDistance(m, loc),
                         hasTp = jmz.CanCastAbility(tp)
                     }
-                    __continue23 = true
+                    __continue22 = true
                 until true
-                if not __continue23 then
+                if not __continue22 then
                     break
                 end
             end

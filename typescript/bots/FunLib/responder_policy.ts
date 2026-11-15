@@ -2,10 +2,9 @@
 //
 // Módulo neutro: política de resposta a ameaças na base.
 // Extraído de aba_defend.ts para desacoplar aba_push.ts de aba_defend.ts.
-// NÃO importa aba_push nem aba_defend — deve permanecer folha na árvore de deps.
 
 import * as jmz from "bots/FunLib/jmz_func";
-import { Barracks, Tower, Unit } from "bots/ts_libs/dota";
+import { Tower, Unit } from "bots/ts_libs/dota";
 
 // == State ==
 const nTeam = GetTeam();
@@ -19,37 +18,47 @@ export enum BaseThreatLevel {
 
 /** Nível agregado de ameaça à base da equipe. */
 export function GetBaseThreatLevel(): BaseThreatLevel {
-  const team = nTeam;
-  const ancient = GetAncient(team);
+    const team = GetTeam();
+    const ancient = GetAncient(team);
 
-  if (ancient !== null) {
-      if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) return 3;
-  }
-  if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) return 3;
+    if (ancient !== null) {
+        // Verifica heróis próximos ao Ancient (comportamento original)
+        if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) {
+            return BaseThreatLevel.Ancient;
+        }
 
-  const innerStructures: Array<Unit | null> = [
-      GetTower(team, Tower.Top3), GetTower(team, Tower.Mid3), GetTower(team, Tower.Bot3),
-      GetBarracks(team, Barracks.TopMelee), GetBarracks(team, Barracks.TopRanged),
-      GetBarracks(team, Barracks.MidMelee), GetBarracks(team, Barracks.MidRanged),
-      GetBarracks(team, Barracks.BotMelee), GetBarracks(team, Barracks.BotRanged),
-  ];
-  for (const s of innerStructures) {
-      if (!s || !IsValidBuildingTarget(s)) continue;
-      if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1800) >= 1) return 2;
-      if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1800).length >= 1) return 2;
-  }
+        // OHA FIX: Verifica se há creeps atacando o Ancient
+        if (ancient.GetHealth() < ancient.GetMaxHealth()) {
+            const enemiesNearAncient = jmz.GetEnemiesNearLoc(ancient.GetLocation(), 800);
+            let creepCount = 0;
+            for (const unit of enemiesNearAncient) {
+                if (unit.IsCreep() || unit.IsAncientCreep() || unit.HasModifier("modifier_dominated")) {
+                    creepCount++;
+                }
+            }
+            if (creepCount >= 3) {
+                // Log de diagnóstico para vermos no console do Dota 2
+                print("[OHA DEBUG] Ancient sob ataque de creeps! Contagem: " + creepCount);
+                return BaseThreatLevel.Ancient;
+            }
+        }
+    }
 
-  // --- Nível 1: T2 (pressão externa) ---
-  const outerStructures: Array<Unit | null> = [
-      GetTower(team, Tower.Top2), GetTower(team, Tower.Mid2), GetTower(team, Tower.Bot2),
-  ];
-  for (const s of outerStructures) {
-      if (!s || !IsValidBuildingTarget(s)) continue;
-      if (jmz.Utils.CountEnemyHeroesNear(s.GetLocation(), 1600) >= 1) return 1;
-      if (jmz.GetLastSeenEnemiesNearLoc(s.GetLocation(), 1600).length >= 1) return 1;
-  }
+    if (jmz.Utils.CountEnemyHeroesOnHighGround(team) >= 1) {
+        return BaseThreatLevel.Ancient;
+    }
 
-  return 0;
+    // Verifica T3 (mantido do original)
+    const t3s = [GetTower(team, Tower.Top3), GetTower(team, Tower.Mid3), GetTower(team, Tower.Bot3)];
+    for (const t3 of t3s) {
+        if (t3 && jmz.IsValidBuilding(t3)) {
+            if (jmz.Utils.CountEnemyHeroesNear(t3.GetLocation(), 1800) >= 1) {
+                return BaseThreatLevel.Inner;
+            }
+        }
+    }
+
+    return BaseThreatLevel.None;
 }
 
 /** Quantos bots devem recuar para defender, dado o nível de ameaça. */
@@ -110,9 +119,6 @@ export function GetDesignatedResponders(
         return a.dist - b.dist;
     });
 
-    // Kill advantage ≥ 3 em T3/rax: ainda só 1.
-    // Nível 3 sem HP crítico: 1.
-    // Se o mais próximo está a > 5000 e não tem TP, permitir um segundo.
     const result = [cands[0].pid];
     if (cands[0].dist > 5000 && !cands[0].hasTp && cands.length > 1) {
         result.push(cands[1].pid);
@@ -127,8 +133,6 @@ export function IsEnemyThreatNearOurBase(
 ): boolean {
     const team = nTeam;
     const ancient = GetAncient(team);
-    // OHA MOD: sempre detecta Ancient/HG com 1+ inimigo. Gating por kill
-    // advantage acontece em ShouldDefend, não aqui.
     if (ancient && IsValidUnit(ancient)) {
         if (jmz.Utils.CountEnemyHeroesNear(ancient.GetLocation(), 2600) >= 1) return true;
     }
@@ -136,18 +140,9 @@ export function IsEnemyThreatNearOurBase(
     return false;
 }
 
-/**
- * Validação de unidade: existe, é uma unidade real e está viva.
- * `IsValidUnit` não existe como global do TSTL — wrapper local.
- */
 function IsValidUnit(unit: Unit | null | undefined): unit is Unit {
     if (!unit) return false;
     if (!jmz.IsValid(unit)) return false;
     if (!unit.IsAlive()) return false;
     return true;
-}
-
-// == Small helpers ==
-function IsValidBuildingTarget(unit: Unit | null): unit is Unit {
-    return unit !== null && unit.IsAlive() && unit.IsBuilding();
 }
