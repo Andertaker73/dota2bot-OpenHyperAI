@@ -106,7 +106,12 @@ export function GetDesignatedResponders(
     const building = threatBuilding !== null ? threatBuilding : GetAncient(nTeam);
     if (building === null) return [];
 
+    // OHA FIX: Definição do loc que estava faltando
     const loc = building.GetLocation();
+
+    // Conta os inimigos ao redor da construção ameaçada
+    const enemiesNear = jmz.GetEnemiesNearLoc(loc, 1600);
+    const enemyHeroCount = enemiesNear.filter(u => jmz.IsValidHero(u)).length;
 
     // OHA FIX: Ancient sob ataque = TODOS voltam (a menos que estejam vencendo a corrida acima)
     if (threatLevel >= 3) {
@@ -137,10 +142,12 @@ export function GetDesignatedResponders(
     }
 
     if (cands.length === 0) {
+        // Último caso: permite pos1.
         const p1 = GetTeamMember(1);
         return (p1 && p1.IsAlive()) ? [p1.GetPlayerID()] : [];
     }
 
+    // Ordem de prioridade por nível.
     const posOrder = [3, 2, 4, 5];
     cands.sort((a, b) => {
         const pa = posOrder.indexOf(a.pos);
@@ -150,10 +157,17 @@ export function GetDesignatedResponders(
         return a.dist - b.dist;
     });
 
-    const result = [cands[0].pid];
-    if (cands[0].dist > 5000 && !cands[0].hasTp && cands.length > 1) {
-        result.push(cands[1].pid);
+    const result: number[] = [];
+
+    // OHA FIX: Escala o número de respondedores de acordo com os inimigos
+    let requiredResponders = 1; // Padrão: 1 herói
+    if (enemyHeroCount >= 2) requiredResponders = 2;
+    if (enemyHeroCount >= 4) requiredResponders = 3;
+
+    for (let i = 0; i < requiredResponders && i < cands.length; i++) {
+        result.push(cands[i].pid);
     }
+
     return result;
 }
 

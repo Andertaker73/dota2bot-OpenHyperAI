@@ -711,7 +711,7 @@
 | `GetDefendDesire` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 505 |
 | `GetDefendDesireHelper` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua | 532 |
 | `DefendThink` | bot: Unit, lane: Lane | void | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 814 |
-| `OnEnd` | — | void | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 1050 |
+| `OnEnd` | — | void | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 1052 |
 
 ## `typescript/bots/FunLib/aba_push.ts`
 

@@ -480,7 +480,7 @@
     "name": "OnEnd",
     "params": "",
     "returns": "void",
-    "line": 1050,
+    "line": 1052,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -6711,6 +6711,7 @@
       "bots/FunLib/minion_lib/vengeful_spirit.lua",
       "bots/FunLib/override_generic/mode_attack_generic.lua",
       "bots/FunLib/override_generic/mode_laning_generic.lua",
+      "bots/FunLib/responder_policy.lua",
       "bots/FunLib/rubick_hero/abaddon.lua",
       "bots/FunLib/rubick_hero/abyssal_underlord.lua",
       "bots/FunLib/rubick_hero/alchemist.lua",
@@ -6751,6 +6752,7 @@
       "typescript/bots/FunLib/enemy_role_estimation.ts",
       "typescript/bots/FunLib/global_cache.ts",
       "typescript/bots/FunLib/jmz_func.d.ts",
+      "typescript/bots/FunLib/responder_policy.ts",
       "typescript/bots/FunLib/utils.ts"
     ]
   },

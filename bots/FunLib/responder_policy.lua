@@ -1,5 +1,17 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 -- Lua Library inline imports
+local function __TS__ArrayFilter(self, callbackfn, thisArg)
+    local result = {}
+    local len = 0
+    for i = 1, #self do
+        if callbackfn(thisArg, self[i], i - 1, self) then
+            len = len + 1
+            result[len] = self[i]
+        end
+    end
+    return result
+end
+
 local function __TS__ArrayIndexOf(self, searchElement, fromIndex)
     if fromIndex == nil then
         fromIndex = 0
@@ -158,6 +170,11 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
         return {}
     end
     local loc = building:GetLocation()
+    local enemiesNear = jmz.GetEnemiesNearLoc(loc, 1600)
+    local enemyHeroCount = #__TS__ArrayFilter(
+        enemiesNear,
+        function(____, u) return jmz.IsValidHero(u) end
+    )
     if threatLevel >= 3 then
         local all = {}
         do
@@ -177,16 +194,16 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
         local i = 1
         while i <= 5 do
             do
-                local __continue28
+                local __continue29
                 repeat
                     local m = GetTeamMember(i)
                     if not m or not m:IsAlive() then
-                        __continue28 = true
+                        __continue29 = true
                         break
                     end
                     local pos = jmz.GetPosition(m)
                     if pos == 1 then
-                        __continue28 = true
+                        __continue29 = true
                         break
                     end
                     local tp = jmz.GetItem2(m, "item_tpscroll")
@@ -196,9 +213,9 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
                         dist = GetUnitToLocationDistance(m, loc),
                         hasTp = jmz.CanCastAbility(tp)
                     }
-                    __continue28 = true
+                    __continue29 = true
                 until true
-                if not __continue28 then
+                if not __continue29 then
                     break
                 end
             end
@@ -224,9 +241,20 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
             return a.dist - b.dist
         end
     )
-    local result = {cands[1].pid}
-    if cands[1].dist > 5000 and not cands[1].hasTp and #cands > 1 then
-        result[#result + 1] = cands[2].pid
+    local result = {}
+    local requiredResponders = 1
+    if enemyHeroCount >= 2 then
+        requiredResponders = 2
+    end
+    if enemyHeroCount >= 4 then
+        requiredResponders = 3
+    end
+    do
+        local i = 0
+        while i < requiredResponders and i < #cands do
+            result[#result + 1] = cands[i + 1].pid
+            i = i + 1
+        end
     end
     return result
 end

@@ -1324,23 +1324,27 @@ function ____exports.DefendThink(bot, lane)
     do
         local baseThreat = GetBaseThreatLevel()
         if baseThreat >= 2 then
-            local threatBld = unpack(____exports.GetFurthestBuildingOnLane(lane))
-            local anc = GetAncient(nTeam)
-            local targetLoc = IsValidBuildingTarget(threatBld) and threatBld:GetLocation() or (anc and IsValidBuildingTarget(anc) and anc:GetLocation() or nil)
-            if targetLoc then
-                local distToTarget = GetUnitToLocationDistance(bot, targetLoc)
-                if distToTarget > 2000 then
-                    local dest = add(
-                        jmz.AdjustLocationWithOffsetTowardsFountain(targetLoc, 250),
-                        jmz.RandomForwardVector(150)
-                    )
-                    local tp = jmz.GetItem2(bot, "item_tpscroll")
-                    if jmz.CanCastAbility(tp) then
-                        bot:Action_UseAbilityOnLocation(tp, dest)
-                        return
+            local responders = GetDesignatedResponders(baseThreat, nil)
+            if __TS__ArrayIndexOf(
+                responders,
+                bot:GetPlayerID()
+            ) ~= -1 then
+                local threatBld = unpack(____exports.GetFurthestBuildingOnLane(lane))
+                local anc = GetAncient(nTeam)
+                local targetLoc = IsValidBuildingTarget(threatBld) and threatBld:GetLocation() or (anc and IsValidBuildingTarget(anc) and anc:GetLocation() or nil)
+                if targetLoc then
+                    local distToTarget = GetUnitToLocationDistance(bot, targetLoc)
+                    if distToTarget > 2500 then
+                        local dest = add(
+                            jmz.AdjustLocationWithOffsetTowardsFountain(targetLoc, 250),
+                            jmz.RandomForwardVector(150)
+                        )
+                        local tp = jmz.GetItem2(bot, "item_tpscroll")
+                        if jmz.CanCastAbility(tp) then
+                            bot:Action_UseAbilityOnLocation(tp, dest)
+                            return
+                        end
                     end
-                    bot:Action_MoveToLocation(dest)
-                    return
                 end
             end
         end
@@ -1381,10 +1385,10 @@ function ____exports.DefendThink(bot, lane)
         local liveEnemies = bot:GetNearbyHeroes(1600, true, BotMode.None)
         for ____, e in ipairs(liveEnemies) do
             do
-                local __continue213
+                local __continue214
                 repeat
                     if not jmz.IsValidHero(e) or jmz.IsSuspiciousIllusion(e) then
-                        __continue213 = true
+                        __continue214 = true
                         break
                     end
                     if jmz.IsInRange(
@@ -1398,7 +1402,7 @@ function ____exports.DefendThink(bot, lane)
                     bot:Action_MoveToLocation(e:GetLocation())
                     return
                 until true
-                if not __continue213 then
+                if not __continue214 then
                     break
                 end
             end

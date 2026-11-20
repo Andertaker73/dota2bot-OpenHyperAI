@@ -855,23 +855,25 @@ export function DefendThink(bot: Unit, lane: Lane) {
     {
         const baseThreat = GetBaseThreatLevel();
         if (baseThreat >= 2) {
-            const [threatBld] = GetFurthestBuildingOnLane(lane);
-            const anc = GetAncient(nTeam);
-            const targetLoc = IsValidBuildingTarget(threatBld)
-                ? threatBld.GetLocation()
-                : (anc && IsValidBuildingTarget(anc) ? anc.GetLocation() : null);
+            // OHA FIX: Se somos um respondedor designado, usamos TP imediatamente se estivermos longe
+            const responders = GetDesignatedResponders(baseThreat, null);
+            if (responders.indexOf(bot.GetPlayerID()) !== -1) {
+                const [threatBld] = GetFurthestBuildingOnLane(lane);
+                const anc = GetAncient(nTeam);
+                const targetLoc = IsValidBuildingTarget(threatBld)
+                    ? threatBld.GetLocation()
+                    : (anc && IsValidBuildingTarget(anc) ? anc.GetLocation() : null);
 
-            if (targetLoc) {
-                const distToTarget = GetUnitToLocationDistance(bot, targetLoc);
-                if (distToTarget > 2000) {
-                    const dest = add(jmz.AdjustLocationWithOffsetTowardsFountain(targetLoc, 250), jmz.RandomForwardVector(150));
-                    const tp = jmz.GetItem2(bot, "item_tpscroll");
-                    if (jmz.CanCastAbility(tp)) {
-                        bot.Action_UseAbilityOnLocation(tp, dest);
-                        return;
+                if (targetLoc) {
+                    const distToTarget = GetUnitToLocationDistance(bot, targetLoc);
+                    if (distToTarget > 2500) { // Se estiver longe, força o TP
+                        const dest = add(jmz.AdjustLocationWithOffsetTowardsFountain(targetLoc, 250), jmz.RandomForwardVector(150));
+                        const tp = jmz.GetItem2(bot, "item_tpscroll");
+                        if (jmz.CanCastAbility(tp)) {
+                            bot.Action_UseAbilityOnLocation(tp, dest);
+                            return;
+                        }
                     }
-                    bot.Action_MoveToLocation(dest);
-                    return;
                 }
             }
         }
