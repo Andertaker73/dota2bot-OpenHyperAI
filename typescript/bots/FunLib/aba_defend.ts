@@ -355,13 +355,6 @@ function IsThereNoTeammateTravelBootsDefender(bot: Unit): boolean {
 export function ShouldDefend(bot: Unit, hBuilding: Unit | null, nRadius: number): boolean {
     if (!IsValidBuildingTarget(hBuilding)) return false;
 
-    // OHA FIX: Hard Override - Se o Ancient está sob ataque, TODOS devem defender.
-    const ourAncient = GetAncient(nTeam);
-    if (hBuilding === ourAncient && hBuilding.GetHealth() < hBuilding.GetMaxHealth()) {
-        return true;
-    }
-
-
     const gameState = getGlobalGameState();
     let enemyHeroNearby = 0;
     for (const id of GetTeamPlayers(gameState.enemyTeam)) {
@@ -607,7 +600,12 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
         ? GetThreatenedLane()
         : (humanPressureLane !== null ? humanPressureLane : GetThreatenedLane());
 
-    if (baseThreatActiveNow && lane !== threatenedLane) return BotModeDesire.VeryLow;
+    if (baseThreatActiveNow && lane !== threatenedLane) {
+        const responders = GetDesignatedResponders(baseThreatLevel, null);
+        if (responders.indexOf(bot.GetPlayerID()) !== -1) {
+            return BotModeDesire.VeryLow;
+        }
+    }
 
     // ---- Panic floor ----
     let panic: PanicHint = { active: false, floor: 0 };
@@ -616,30 +614,30 @@ export function GetDefendDesireHelper(bot: Unit, lane: Lane): BotModeDesire {
     }
 
     if (baseThreatActiveNow) {
-        baseThreatUntil = DotaTime() + BASE_THREAT_HOLD;
-        // OHA MOD: floor sempre alto em Ancient/HG (0.97) e T3/rax (0.90).
-        // NÃO reduzir por kill advantage — a redução é feita em ShouldDefend
-        // (por-bot), não no piso global.
-        const panicFloor = baseThreatSevere ? 0.97 : 0.9;
-        const forceLoc = ancient
-            ? jmz.AdjustLocationWithOffsetTowardsFountain(ancient.GetLocation(), 300)
-            : ds.defendLoc;
-        panic = { active: true, floor: math.max(panic.floor, panicFloor), forceLoc };
-        (bot as any).laneToDefend = lane;
+        const responders = GetDesignatedResponders(baseThreatLevel, null);
+        if (responders.indexOf(bot.GetPlayerID()) !== -1) {
+            baseThreatUntil = DotaTime() + BASE_THREAT_HOLD;
+            const panicFloor = baseThreatSevere ? 0.97 : 0.9;
+            const forceLoc = ancient
+                ? jmz.AdjustLocationWithOffsetTowardsFountain(ancient.GetLocation(), 300)
+                : ds.defendLoc;
+            panic = { active: true, floor: panicFloor, forceLoc };
+            (bot as any).laneToDefend = lane;
 
-        // Estende hold se aliados estão TPando pra lane ameaçada
-        const enemyTeamIds = GetTeamPlayers(gameState.enemyTeam);
-        const threatenedLaneLoc = threatenedLane === Lane.Top
-            ? GetLaneFrontLocation(nTeam, Lane.Top, 0)
-            : threatenedLane === Lane.Bot
-                ? GetLaneFrontLocation(nTeam, Lane.Bot, 0)
-                : GetLaneFrontLocation(nTeam, Lane.Mid, 0);
-        const incoming = GetIncomingTeleports().filter(tp => {
-            if (!tp) return false;
-            const isEnemy = enemyTeamIds.some(id => id === tp.playerid);
-            return !isEnemy && jmz.GetDistance(tp.location, threatenedLaneLoc) <= 3000;
-        });
-        if (incoming.length >= 1) baseThreatUntil = DotaTime() + BASE_THREAT_HOLD + 4;
+            // Estende hold se aliados estão TPando pra lane ameaçada
+            const enemyTeamIds = GetTeamPlayers(gameState.enemyTeam);
+            const threatenedLaneLoc = threatenedLane === Lane.Top
+                ? GetLaneFrontLocation(nTeam, Lane.Top, 0)
+                : threatenedLane === Lane.Bot
+                    ? GetLaneFrontLocation(nTeam, Lane.Bot, 0)
+                    : GetLaneFrontLocation(nTeam, Lane.Mid, 0);
+            const incoming = GetIncomingTeleports().filter(tp => {
+                if (!tp) return false;
+                const isEnemy = enemyTeamIds.some(id => id === tp.playerid);
+                return !isEnemy && jmz.GetDistance(tp.location, threatenedLaneLoc) <= 3000;
+            });
+            if (incoming.length >= 1) baseThreatUntil = DotaTime() + BASE_THREAT_HOLD + 4;
+        }
     }
 
     // Sticky (creeps mantendo)

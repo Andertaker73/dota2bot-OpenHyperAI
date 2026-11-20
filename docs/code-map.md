@@ -707,11 +707,11 @@
 | `GetFurthestBuildingOnLaneHelper` | lane: Lane | [Unit | any, number, number] | sim | bots/FunLib/aba_defend.lua | 278 |
 | `IsThereNoTeammateTravelBootsDefender` | bot: Unit | boolean | não | bots/FunLib/aba_defend.lua | 344 |
 | `ShouldDefend` | bot: Unit, hBuilding: Unit \| null, nRadius: number | boolean | sim | bots/FunLib/aba_defend.lua<br>bots/mode_team_roam_generic.lua | 355 |
-| `ConsiderPingedDefend` | bot: Unit, lane: Lane, desire: number, building: Unit \| null, tier: number, nEffAllies: number, nEnemies: number | void | não | bots/FunLib/aba_defend.lua | 476 |
-| `GetDefendDesire` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 512 |
-| `GetDefendDesireHelper` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua | 539 |
-| `DefendThink` | bot: Unit, lane: Lane | void | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 816 |
-| `OnEnd` | — | void | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 1040 |
+| `ConsiderPingedDefend` | bot: Unit, lane: Lane, desire: number, building: Unit \| null, tier: number, nEffAllies: number, nEnemies: number | void | não | bots/FunLib/aba_defend.lua | 469 |
+| `GetDefendDesire` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 505 |
+| `GetDefendDesireHelper` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua | 532 |
+| `DefendThink` | bot: Unit, lane: Lane | void | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 814 |
+| `OnEnd` | — | void | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 1038 |
 
 ## `typescript/bots/FunLib/aba_push.ts`
 

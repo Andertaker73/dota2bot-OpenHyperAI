@@ -764,10 +764,6 @@ function ____exports.ShouldDefend(bot, hBuilding, nRadius)
     if not IsValidBuildingTarget(hBuilding) then
         return false
     end
-    local ourAncient = GetAncient(nTeam)
-    if hBuilding == ourAncient and hBuilding:GetHealth() < hBuilding:GetMaxHealth() then
-        return true
-    end
     local gameState = getGlobalGameState()
     local enemyHeroNearby = 0
     for ____, id in ipairs(GetTeamPlayers(gameState.enemyTeam)) do
@@ -1001,7 +997,13 @@ function ____exports.GetDefendDesireHelper(bot, lane)
     local humanPressureLane = ____exports.GetHumanLanePressureLane()
     local threatenedLane = baseThreatActiveNow and GetThreatenedLane() or (humanPressureLane ~= nil and humanPressureLane or GetThreatenedLane())
     if baseThreatActiveNow and lane ~= threatenedLane then
-        return BotModeDesire.VeryLow
+        local responders = GetDesignatedResponders(baseThreatLevel, nil)
+        if __TS__ArrayIndexOf(
+            responders,
+            bot:GetPlayerID()
+        ) ~= -1 then
+            return BotModeDesire.VeryLow
+        end
     end
     local panic = {active = false, floor = 0}
     if humanPressureLane ~= nil and lane == humanPressureLane then
@@ -1012,35 +1014,37 @@ function ____exports.GetDefendDesireHelper(bot, lane)
         }
     end
     if baseThreatActiveNow then
-        baseThreatUntil = DotaTime() + BASE_THREAT_HOLD
-        local panicFloor = baseThreatSevere and 0.97 or 0.9
-        local forceLoc = ancient and jmz.AdjustLocationWithOffsetTowardsFountain(
-            ancient:GetLocation(),
-            300
-        ) or ds.defendLoc
-        panic = {
-            active = true,
-            floor = math.max(panic.floor, panicFloor),
-            forceLoc = forceLoc
-        }
-        bot.laneToDefend = lane
-        local enemyTeamIds = GetTeamPlayers(gameState.enemyTeam)
-        local threatenedLaneLoc = threatenedLane == Lane.Top and GetLaneFrontLocation(nTeam, Lane.Top, 0) or (threatenedLane == Lane.Bot and GetLaneFrontLocation(nTeam, Lane.Bot, 0) or GetLaneFrontLocation(nTeam, Lane.Mid, 0))
-        local incoming = __TS__ArrayFilter(
-            GetIncomingTeleports(),
-            function(____, tp)
-                if not tp then
-                    return false
+        local responders = GetDesignatedResponders(baseThreatLevel, nil)
+        if __TS__ArrayIndexOf(
+            responders,
+            bot:GetPlayerID()
+        ) ~= -1 then
+            baseThreatUntil = DotaTime() + BASE_THREAT_HOLD
+            local panicFloor = baseThreatSevere and 0.97 or 0.9
+            local forceLoc = ancient and jmz.AdjustLocationWithOffsetTowardsFountain(
+                ancient:GetLocation(),
+                300
+            ) or ds.defendLoc
+            panic = {active = true, floor = panicFloor, forceLoc = forceLoc}
+            bot.laneToDefend = lane
+            local enemyTeamIds = GetTeamPlayers(gameState.enemyTeam)
+            local threatenedLaneLoc = threatenedLane == Lane.Top and GetLaneFrontLocation(nTeam, Lane.Top, 0) or (threatenedLane == Lane.Bot and GetLaneFrontLocation(nTeam, Lane.Bot, 0) or GetLaneFrontLocation(nTeam, Lane.Mid, 0))
+            local incoming = __TS__ArrayFilter(
+                GetIncomingTeleports(),
+                function(____, tp)
+                    if not tp then
+                        return false
+                    end
+                    local isEnemy = __TS__ArraySome(
+                        enemyTeamIds,
+                        function(____, id) return id == tp.playerid end
+                    )
+                    return not isEnemy and jmz.GetDistance(tp.location, threatenedLaneLoc) <= 3000
                 end
-                local isEnemy = __TS__ArraySome(
-                    enemyTeamIds,
-                    function(____, id) return id == tp.playerid end
-                )
-                return not isEnemy and jmz.GetDistance(tp.location, threatenedLaneLoc) <= 3000
+            )
+            if #incoming >= 1 then
+                baseThreatUntil = DotaTime() + BASE_THREAT_HOLD + 4
             end
-        )
-        if #incoming >= 1 then
-            baseThreatUntil = DotaTime() + BASE_THREAT_HOLD + 4
         end
     end
     if ancient then
@@ -1377,10 +1381,10 @@ function ____exports.DefendThink(bot, lane)
         local liveEnemies = bot:GetNearbyHeroes(1600, true, BotMode.None)
         for ____, e in ipairs(liveEnemies) do
             do
-                local __continue212
+                local __continue213
                 repeat
                     if not jmz.IsValidHero(e) or jmz.IsSuspiciousIllusion(e) then
-                        __continue212 = true
+                        __continue213 = true
                         break
                     end
                     if jmz.IsInRange(
@@ -1394,7 +1398,7 @@ function ____exports.DefendThink(bot, lane)
                     bot:Action_MoveToLocation(e:GetLocation())
                     return
                 until true
-                if not __continue212 then
+                if not __continue213 then
                     break
                 end
             end

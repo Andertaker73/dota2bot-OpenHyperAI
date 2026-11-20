@@ -422,7 +422,7 @@
     "name": "ConsiderPingedDefend",
     "params": "bot: Unit, lane: Lane, desire: number, building: Unit | null, tier: number, nEffAllies: number, nEnemies: number",
     "returns": "void",
-    "line": 476,
+    "line": 469,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -435,7 +435,7 @@
     "name": "GetDefendDesire",
     "params": "bot: Unit, lane: Lane",
     "returns": "BotModeDesire",
-    "line": 512,
+    "line": 505,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -451,7 +451,7 @@
     "name": "GetDefendDesireHelper",
     "params": "bot: Unit, lane: Lane",
     "returns": "BotModeDesire",
-    "line": 539,
+    "line": 532,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -464,7 +464,7 @@
     "name": "DefendThink",
     "params": "bot: Unit, lane: Lane",
     "returns": "void",
-    "line": 816,
+    "line": 814,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -480,7 +480,7 @@
     "name": "OnEnd",
     "params": "",
     "returns": "void",
-    "line": 1040,
+    "line": 1038,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -1635,6 +1635,7 @@
       "bots/FunLib/global_cache.lua",
       "bots/FunLib/jmz_func.lua",
       "bots/FunLib/override_generic/mode_attack_generic.lua",
+      "bots/FunLib/responder_policy.lua",
       "bots/FunLib/rubick_hero/abyssal_underlord.lua",
       "bots/FunLib/rubick_hero/antimage.lua",
       "bots/FunLib/rubick_hero/arc_warden.lua",
@@ -1656,7 +1657,8 @@
       "typescript/bots/FunLib/aba_defend.ts",
       "typescript/bots/FunLib/aba_push.ts",
       "typescript/bots/FunLib/global_cache.ts",
-      "typescript/bots/FunLib/jmz_func.d.ts"
+      "typescript/bots/FunLib/jmz_func.d.ts",
+      "typescript/bots/FunLib/responder_policy.ts"
     ]
   },
   {

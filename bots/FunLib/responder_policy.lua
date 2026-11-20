@@ -112,9 +112,45 @@ function ____exports.GetBaseThreatLevel()
     end
     return ____exports.BaseThreatLevel.None
 end
+--- Retorna true se o time está em uma corrida pela base e vai vencer antes de perder a sua.
+function ____exports.IsWinningBaseRace()
+    local team = GetTeam()
+    local enemyTeam = GetOpposingTeam()
+    local ourAncient = GetAncient(team)
+    local enemyAncient = GetAncient(enemyTeam)
+    if not ourAncient or not enemyAncient then
+        return false
+    end
+    if ourAncient:GetHealth() >= ourAncient:GetMaxHealth() then
+        return false
+    end
+    local alliesAtEnemy = jmz.GetAlliesNearLoc(
+        enemyAncient:GetLocation(),
+        1600
+    )
+    local enemiesAtOur = jmz.GetEnemiesNearLoc(
+        ourAncient:GetLocation(),
+        1600
+    )
+    if #alliesAtEnemy < 3 then
+        return false
+    end
+    if #alliesAtEnemy <= #enemiesAtOur then
+        return false
+    end
+    if enemyAncient:GetHealth() >= enemyAncient:GetMaxHealth() then
+        return false
+    end
+    local ourHpPct = ourAncient:GetHealth() / ourAncient:GetMaxHealth()
+    local enemyHpPct = enemyAncient:GetHealth() / enemyAncient:GetMaxHealth()
+    return enemyHpPct < ourHpPct
+end
 --- Quantos bots devem recuar para defender, dado o nível de ameaça.
 function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
     if threatLevel <= 1 then
+        return {}
+    end
+    if threatLevel >= 3 and ____exports.IsWinningBaseRace() then
         return {}
     end
     local building = threatBuilding ~= nil and threatBuilding or GetAncient(nTeam)
@@ -123,37 +159,34 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
     end
     local loc = building:GetLocation()
     if threatLevel >= 3 then
-        local anc = GetAncient(nTeam)
-        if anc ~= nil and anc:GetHealth() / anc:GetMaxHealth() < 0.3 then
-            local all = {}
-            do
-                local i = 1
-                while i <= 5 do
-                    local m = GetTeamMember(i)
-                    if m and m:IsAlive() then
-                        all[#all + 1] = m:GetPlayerID()
-                    end
-                    i = i + 1
+        local all = {}
+        do
+            local i = 1
+            while i <= 5 do
+                local m = GetTeamMember(i)
+                if m and m:IsAlive() then
+                    all[#all + 1] = m:GetPlayerID()
                 end
+                i = i + 1
             end
-            return all
         end
+        return all
     end
     local cands = {}
     do
         local i = 1
         while i <= 5 do
             do
-                local __continue22
+                local __continue28
                 repeat
                     local m = GetTeamMember(i)
                     if not m or not m:IsAlive() then
-                        __continue22 = true
+                        __continue28 = true
                         break
                     end
                     local pos = jmz.GetPosition(m)
                     if pos == 1 then
-                        __continue22 = true
+                        __continue28 = true
                         break
                     end
                     local tp = jmz.GetItem2(m, "item_tpscroll")
@@ -163,9 +196,9 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
                         dist = GetUnitToLocationDistance(m, loc),
                         hasTp = jmz.CanCastAbility(tp)
                     }
-                    __continue22 = true
+                    __continue28 = true
                 until true
-                if not __continue22 then
+                if not __continue28 then
                     break
                 end
             end
@@ -176,7 +209,7 @@ function ____exports.GetDesignatedResponders(threatLevel, threatBuilding)
         local p1 = GetTeamMember(1)
         return p1 and p1:IsAlive() and ({p1:GetPlayerID()}) or ({})
     end
-    local posOrder = threatLevel >= 3 and ({4, 5, 3, 2}) or ({3, 2, 4, 5})
+    local posOrder = {3, 2, 4, 5}
     __TS__ArraySort(
         cands,
         function(____, a, b)
