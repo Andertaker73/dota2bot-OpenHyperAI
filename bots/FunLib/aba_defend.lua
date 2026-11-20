@@ -1438,6 +1438,25 @@ function ____exports.DefendThink(bot, lane)
     if not hub then
         hub = GetLaneFrontLocation(nTeam, lane, 0)
     end
+    local localAllies = jmz.GetAlliesNearLoc(
+        bot:GetLocation(),
+        1600
+    )
+    local localEnemies = jmz.GetEnemiesNearLoc(
+        bot:GetLocation(),
+        1600
+    )
+    if #localEnemies > #localAllies and not jmz.WeAreStronger(bot, 1600) then
+        local retreatLoc = jmz.AdjustLocationWithOffsetTowardsFountain(
+            bot:GetLocation(),
+            600
+        )
+        bot:Action_MoveToLocation(add(
+            retreatLoc,
+            jmz.RandomForwardVector(100)
+        ))
+        return
+    end
     if buildingTier >= 3 then
         local edgeInside = GetHighGroundEdgeWaitPoint(nTeam, lane)
         local enemyAtHG = jmz.Utils.CountEnemyHeroesOnHighGround(nTeam)

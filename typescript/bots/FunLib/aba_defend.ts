@@ -962,6 +962,18 @@ export function DefendThink(bot: Unit, lane: Lane) {
     if (IsValidBuildingTarget(bld)) hub = bld.GetLocation();
     if (!hub) hub = GetLaneFrontLocation(nTeam, lane, 0);
 
+    // OHA FIX: Evitar suicídio em push inimigo.
+    // Se estamos em desvantagem numérica local e não somos mais fortes, recuamos.
+    const localAllies = jmz.GetAlliesNearLoc(bot.GetLocation(), 1600);
+    const localEnemies = jmz.GetEnemiesNearLoc(bot.GetLocation(), 1600);
+
+    if (localEnemies.length > localAllies.length && !jmz.WeAreStronger(bot, 1600)) {
+        // Recua em direção à fonte (ou para a próxima torre) em vez de avançar
+        const retreatLoc = jmz.AdjustLocationWithOffsetTowardsFountain(bot.GetLocation(), 600);
+        bot.Action_MoveToLocation(add(retreatLoc, jmz.RandomForwardVector(100)));
+        return;
+    }
+
     // If we are defending tier ≥3 lane hold the edge of the high ground
     if (buildingTier >= 3) {
         const edgeInside = GetHighGroundEdgeWaitPoint(nTeam, lane);
