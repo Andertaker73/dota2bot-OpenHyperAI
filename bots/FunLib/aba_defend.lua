@@ -1492,6 +1492,13 @@ function ____exports.DefendThink(bot, lane)
         bot:Action_AttackUnit(nEnemyHeroes[1], true)
         return
     end
+    if jmz.IsValidHero(nEnemyHeroes[1]) then
+        local heroDist = GetUnitToUnitDistance(bot, nEnemyHeroes[1])
+        if heroDist > nSearchRange and (ds.weAreStronger or #ds.nInRangeAlly >= #ds.nInRangeEnemy) then
+            bot:Action_MoveToLocation(nEnemyHeroes[1]:GetLocation())
+            return
+        end
+    end
     local creeps = bot:GetNearbyCreeps(900, true)
     if creeps and #creeps > 0 and (not enemiesAtHub or #enemiesAtHub == 0) then
         local best = nil

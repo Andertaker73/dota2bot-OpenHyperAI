@@ -1009,6 +1009,17 @@ export function DefendThink(bot: Unit, lane: Lane) {
         return;
     }
 
+    // OHA FIX: Gank agressivo.
+    // Se o herói inimigo está visível e próximo (mas fora do alcance de ataque),
+    // e temos vantagem de força ou números, nós avançamos sobre ele em vez de ir para a estrutura.
+    if (jmz.IsValidHero(nEnemyHeroes[0])) {
+        const heroDist = GetUnitToUnitDistance(bot, nEnemyHeroes[0]);
+        if (heroDist > nSearchRange && (ds.weAreStronger || ds.nInRangeAlly.length >= ds.nInRangeEnemy.length)) {
+            bot.Action_MoveToLocation(nEnemyHeroes[0].GetLocation());
+            return;
+        }
+    }
+
     // Otherwise, clear strongest creep (avoid full scans)
     const creeps = bot.GetNearbyCreeps(900, true);
     if (creeps && creeps.length > 0 && (!enemiesAtHub || enemiesAtHub.length === 0)) {
