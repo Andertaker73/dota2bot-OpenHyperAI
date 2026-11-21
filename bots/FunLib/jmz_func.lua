@@ -2901,6 +2901,11 @@ end
 
 
 function J.IsValid( nTarget )
+	-- OHA FIX: Ignora o Watcher neutro para evitar travamentos
+	if nTarget ~= nil and not nTarget:IsNull() and string.find(nTarget:GetUnitName(), "npc_dota_watcher") ~= nil then
+		return false
+	end
+
 	return nTarget ~= nil
 			and not nTarget:IsNull()
 			and nTarget:CanBeSeen()
@@ -3588,6 +3593,11 @@ function J.GetBestTeamTarget(bot, enemyHeroes, allyHeroes)
 end
 
 function J.CanBeAttacked( unit )
+	-- OHA FIX: Ignora o Watcher neutro
+	if unit ~= nil and not unit:IsNull() and string.find(unit:GetUnitName(), "npc_dota_watcher") ~= nil then
+		return false
+	end
+
 	return  unit ~= nil
 			and not J.HasForbiddenModifier( unit )
 			and unit:IsAlive()
