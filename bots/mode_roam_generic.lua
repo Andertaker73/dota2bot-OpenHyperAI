@@ -52,6 +52,17 @@ function GetDesire()
 	-- local cacheKey = 'GetRoamDesire'..tostring(bot:GetPlayerID())
 	-- local cachedVar = J.Utils.GetCachedVars(cacheKey, 0.5 * (1 + Customize.ThinkLess))
 	-- if DotaTime() > 30 and cachedVar ~= nil then return cachedVar end
+	-- OHA FIX: Força o bot a ir para a Bounty Rune se ela estiver disponível
+	local runeList = GetRuneList()
+	if runeList ~= nil then
+					for _, rune in pairs(runeList) do
+									if rune:GetRuneType() == RUNE_BOUNTY and rune:IsVisible() then
+													if GetUnitToLocationDistance(bot, rune:GetLocation()) < 2500 then
+																	return BOT_MODE_DESIRE_HIGH
+													end
+									end
+					end
+	end
 	local res = GetDesireHelper()
 	-- J.Utils.SetCachedVars(cacheKey, res)
 	return res
