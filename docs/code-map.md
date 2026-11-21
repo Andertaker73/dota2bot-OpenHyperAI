@@ -477,12 +477,12 @@
 | `scanDroppedForAegis` | radius | — | não | — | 33 |
 | `buildContext` | — | — | não | — | 44 |
 | `GetDesire` | — | — | não | bots/--mode_item_generic.lua<br>bots/BotLib/hero_muerta.lua<br>bots/FunLib/aba_special_units.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua | 120 |
-| `GetDesireHelper` | — | — | não | bots/mode_farm_generic.lua<br>bots/mode_outpost_generic.lua<br>bots/mode_roam_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_secret_shop_generic.lua | 129 |
-| `X.LowChanceToRun` | — | — | não | — | 401 |
-| `X.GetUnitDesire` | nRadius | — | não | — | 421 |
-| `X.RetreatWhenTowerTargetedDesire` | — | — | não | — | 460 |
-| `X.ShouldRun` | — | — | não | bots/mode_farm_generic.lua | 491 |
-| `X.ConsiderCompleteItem` | — | — | não | — | 737 |
+| `GetDesireHelper` | — | — | não | bots/mode_farm_generic.lua<br>bots/mode_outpost_generic.lua<br>bots/mode_roam_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_secret_shop_generic.lua | 151 |
+| `X.LowChanceToRun` | — | — | não | — | 423 |
+| `X.GetUnitDesire` | nRadius | — | não | — | 443 |
+| `X.RetreatWhenTowerTargetedDesire` | — | — | não | — | 482 |
+| `X.ShouldRun` | — | — | não | bots/mode_farm_generic.lua | 513 |
+| `X.ConsiderCompleteItem` | — | — | não | — | 759 |
 
 ## `bots/mode_retreat_generic_wip.lua`
 

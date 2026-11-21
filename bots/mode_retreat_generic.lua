@@ -118,6 +118,28 @@ end
 -- === existing functions, now reusing context ===
 
 function GetDesire()
+    -- OHA FIX: Força o retorno à base se o inventário principal estiver cheio e houver ouro para gastar
+    local bot = GetBot()
+
+    -- Verifica se o inventário principal (slots 0 a 5) está cheio
+    local inventoryFull = true
+    for i = 0, 5 do
+        if bot:GetItemInSlot(i) == nil then
+            inventoryFull = false
+            break
+        end
+    end
+
+    -- Se estiver cheio, com mais de 2000 de ouro e longe da base
+    if inventoryFull and bot:GetGold() > 2000 and bot:DistanceFromFountain() > 1500 then
+        -- Não interrompe uma luta de time (team fight) para ir comprar
+        local enemiesNearby = bot:GetNearbyHeroes(1200, true, BOT_MODE_NONE)
+        if enemiesNearby == nil or #enemiesNearby == 0 then
+            return BOT_MODE_DESIRE_HIGH
+        end
+    end
+
+    -- O restante do código original (mantendo o cache comentado como estava)
     -- local cacheKey = 'GetRetreatDesire'..tostring(bot:GetPlayerID())
     -- local cachedVar = J.Utils.GetCachedVars(cacheKey, 0.35 * (1 + Customize.ThinkLess))
     -- if DotaTime() > 30 and cachedVar ~= nil then return cachedVar end
@@ -489,25 +511,25 @@ end
 
 local enemyPids = nil;
 function X.ShouldRun()
-    if bot:HasModifier('modifier_medusa_stone_gaze_facing') 
+    if bot:HasModifier('modifier_medusa_stone_gaze_facing')
 	then
 		AttackTarget=bot:GetAttackTarget()
-		if AttackTarget~=nil and AttackTarget:GetUnitName() == "npc_dota_hero_medusa"  
+		if AttackTarget~=nil and AttackTarget:GetUnitName() == "npc_dota_hero_medusa"
 		and J.IsOtherAllyCanKillTarget( bot, AttackTarget )
 		then
-			
-		else  
+
+		else
 			return 3.33
 		end
 	end
-    
-		
-	if bot:IsChanneling() 
+
+
+	if bot:IsChanneling()
     or not bot:IsAlive()
     then
         return 0
-    end	   
-    
+    end
+
     local botMode     = bot:GetActiveMode();
     local hEnemyHeroList = J.GetEnemyList(bot,1600);
     local hAllyHeroList  = J.GetAllyList(bot,1600);
@@ -536,7 +558,7 @@ function X.ShouldRun()
 	then
 		if botTarget ~= nil and botTarget:IsHero()
 		   and J.GetHP(botTarget) > 0.35
-		   and (  not J.IsInRange(bot,botTarget,bot:GetAttackRange() + 150) 
+		   and (  not J.IsInRange(bot,botTarget,bot:GetAttackRange() + 150)
 				  or not J.CanKillTarget(botTarget, bot:GetAttackDamage() * 2.33, DAMAGE_TYPE_PHYSICAL) )
 		then
 			return 2.88;
@@ -562,7 +584,7 @@ function X.ShouldRun()
 
     local nEnemyTowers = bot:GetNearbyTowers(898, true);
 	local nEnemyBrracks = bot:GetNearbyBarracks(800,true);
-	
+
 	if #nEnemyBrracks >= 1 and aliveEnemyCount >= 2 and #hEnemyHeroList >= #hAllyHeroList
 	then
 		if #nEnemyTowers >= 2
@@ -578,7 +600,7 @@ function X.ShouldRun()
 		then
 			return 2.5;
 		end
-		
+
 		if  enemyAncientDistance > 2100
 			and enemyAncientDistance < GetUnitToUnitDistance(nEnemyTowers[1],enemyAncient) - rushEnemyTowerDistance
 		then
@@ -587,12 +609,12 @@ function X.ShouldRun()
 			then
 				return 3.9;
 			end
-			
+
 			if J.IsValidHero(nTarget) and aliveEnemyCount > 2
 			then
-				
+
 				local assistAlly = false;
-				
+
 				for _,ally in pairs(hAllyHeroList)
 				do
 					if GetUnitToUnitDistance(ally,nTarget) <= ally:GetAttackRange() + 100
@@ -602,16 +624,16 @@ function X.ShouldRun()
 						break;
 					end
 				end
-				
-				if not assistAlly 
+
+				if not assistAlly
 				then
 					return 2.5;
 				end
-				
+
 			end
 		end
     end
-        
+
 	-- 前期谨慎冲塔
 	if botLevel <= 10 and DotaTime() > 0
     and (#hEnemyHeroList > 0 or bot:GetHealth() < 800)
@@ -637,29 +659,29 @@ function X.ShouldRun()
         end
     end
 
-    if #hAllyHeroList <= 1 
+    if #hAllyHeroList <= 1
     and botMode ~= BOT_MODE_TEAM_ROAM
     and botMode ~= BOT_MODE_LANING
     and botMode ~= BOT_MODE_RETREAT
-    and ( botLevel <= 1 or botLevel > 5 ) 
+    and ( botLevel <= 1 or botLevel > 5 )
     and bot:DistanceFromFountain() > 1400
     then
         if enemyPids == nil then
             enemyPids = GetTeamPlayers(GetOpposingTeam())
-        end	
+        end
         local enemyCount = 0
         for i = 1, #enemyPids do
             local info = GetHeroLastSeenInfo(enemyPids[i])
             if info ~= nil then
-                local dInfo = info[1]; 
-                if dInfo ~= nil and dInfo.time_since_seen < 2.0  
-                    and GetUnitToLocationDistance(bot,dInfo.location) < 1000 
+                local dInfo = info[1];
+                if dInfo ~= nil and dInfo.time_since_seen < 2.0
+                    and GetUnitToLocationDistance(bot,dInfo.location) < 1000
                 then
                     enemyCount = enemyCount +1;
                 end
-            end	
+            end
         end
-        if (enemyCount >= 4 or #hEnemyHeroList >= 4) 
+        if (enemyCount >= 4 or #hEnemyHeroList >= 4)
             and botMode ~= BOT_MODE_ATTACK
             and botMode ~= BOT_MODE_TEAM_ROAM
             and bot:GetCurrentMovementSpeed() > 300
@@ -669,9 +691,9 @@ function X.ShouldRun()
             then
                 return 4;
             end
-        end	
-        if  botLevel >= 9 and botLevel <= 17  
-            and (enemyCount >= 3 or #hEnemyHeroList >= 3) 
+        end
+        if  botLevel >= 9 and botLevel <= 17
+            and (enemyCount >= 3 or #hEnemyHeroList >= 3)
             and botMode ~= BOT_MODE_LANING
             and bot:GetCurrentMovementSpeed() > 300
         then
