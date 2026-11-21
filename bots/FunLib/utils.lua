@@ -538,6 +538,9 @@ function ____exports.IsValidUnit(target)
     if target == nil then
         return false
     end
+    if target:GetUnitName() == "npc_dota_lantern" then
+        return false
+    end
     return not target:IsNull() and target:CanBeSeen() and target:IsAlive() and not target:IsInvulnerable()
 end
 --- Check if the target is a valid hero.
@@ -1729,7 +1732,7 @@ function ____exports.CountMissingEnemyHeroes()
     local count = 0
     for ____, playerdId in ipairs(GetTeamPlayers(GetOpposingTeam())) do
         do
-            local __continue262
+            local __continue263
             repeat
                 if IsHeroAlive(playerdId) then
                     local lastSeenInfo = GetHeroLastSeenInfo(playerdId)
@@ -1737,14 +1740,14 @@ function ____exports.CountMissingEnemyHeroes()
                         local firstInfo = lastSeenInfo[1]
                         if firstInfo.time_since_seen >= 2.5 then
                             count = count + 1
-                            __continue262 = true
+                            __continue263 = true
                             break
                         end
                     end
                 end
-                __continue262 = true
+                __continue263 = true
             until true
-            if not __continue262 then
+            if not __continue263 then
                 break
             end
         end
@@ -1800,31 +1803,31 @@ local blinkBuffer = 1200
 function ____exports.IsAnySpecialAOEThreatNearby(bot, nRadius)
     for ____, enemy in ipairs(GetUnitList(UnitType.EnemyHeroes)) do
         do
-            local __continue291
+            local __continue292
             repeat
                 if not ____exports.IsValidHero(enemy) then
-                    __continue291 = true
+                    __continue292 = true
                     break
                 end
                 local enemyName = enemy:GetUnitName()
                 if not (SpecialAOEHeroesDetails[enemyName] ~= nil) then
-                    __continue291 = true
+                    __continue292 = true
                     break
                 end
                 if GetUnitToUnitDistance(bot, enemy) > nRadius + blinkBuffer then
-                    __continue291 = true
+                    __continue292 = true
                     break
                 end
                 if #bot:GetNearbyHeroes(nRadius, false, BotMode.None) <= 1 and #bot:GetNearbyLaneCreeps(nRadius, false) <= 2 then
-                    __continue291 = true
+                    __continue292 = true
                     break
                 end
                 if DoesHeroMeetThreatConditions(enemy, SpecialAOEHeroesDetails[enemyName]) then
                     return true
                 end
-                __continue291 = true
+                __continue292 = true
             until true
-            if not __continue291 then
+            if not __continue292 then
                 break
             end
         end

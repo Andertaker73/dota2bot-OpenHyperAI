@@ -3,6 +3,61 @@ local ActionGates = {}
 
 function ActionGates.HasQueuedAction( bot )
     if bot ~= nil and bot == GetBot() then
+        -- OHA FIX: Detecção de travamento perto de Watchers (npc_dota_lantern)
+        local nearbyUnits = bot:GetNearbyUnits(300, true) -- unidades próximas
+        local nearWatcher = false
+        for _, unit in pairs(nearbyUnits) do
+            if unit:GetUnitName() == "npc_dota_lantern" then
+                nearWatcher = true
+                break
+            end
+        end
+
+        if nearWatcher and bot:NumQueuedActions() > 0 then
+            local now = DotaTime()
+            local pos = bot:GetLocation()
+            if bot._stuckLastPos == nil then
+                bot._stuckLastPos = pos
+                bot._stuckLastCheckTime = now
+            end
+            local moved = (pos - bot._stuckLastPos):Length()
+            if moved > 60 then
+                bot._stuckLastPos = pos
+                bot._stuckLastCheckTime = now
+            elseif now - bot._stuckLastCheckTime > 1.0 then -- tempo menor para watchers
+                bot:Action_ClearActions(true)
+                -- Força uma movimentação para longe do watcher
+                local retreatLoc = bot:GetLocation() + RandomVector(200)
+                bot:Action_MoveToLocation(retreatLoc)
+                bot._stuckLastPos = pos
+                bot._stuckLastCheckTime = now
+                return false
+            end
+        elseif bot:NumQueuedActions() > 0 then
+            -- Lógica original de detecção de travamento (para outros casos)
+            local now = DotaTime()
+            local pos = bot:GetLocation()
+            if bot._stuckLastPos == nil then
+                bot._stuckLastPos = pos
+                bot._stuckLastCheckTime = now
+            end
+            local moved = (pos - bot._stuckLastPos):Length()
+            if moved > 60 then
+                bot._stuckLastPos = pos
+                bot._stuckLastCheckTime = now
+            elseif now - bot._stuckLastCheckTime > 2.0 then
+                if not bot:IsCastingAbility() and not bot:IsUsingAbility() and not bot:IsChanneling() then
+                    bot:Action_ClearActions(true)
+                    bot._stuckLastPos = pos
+                    bot._stuckLastCheckTime = now
+                    return false
+                end
+            end
+        else
+            bot._stuckLastPos = bot:GetLocation()
+            bot._stuckLastCheckTime = DotaTime()
+        end
+
         return bot:NumQueuedActions() > 0
     end
     return false

@@ -524,9 +524,9 @@ export function GetDistanceFromAncient(bot: Unit, enemy: boolean): number {
  * @returns True if the target is a valid unit, false otherwise.
  */
 export function IsValidUnit(target: Unit | null): boolean {
-    if (target === null) {
-        return false;
-    }
+    if (target === null) return false;
+    // OHA FIX: Ignora Watchers neutros para evitar travamentos
+    if (target.GetUnitName() === "npc_dota_lantern") return false;
     return !target.IsNull() && target.CanBeSeen() && target.IsAlive() && !target.IsInvulnerable();
 }
 
