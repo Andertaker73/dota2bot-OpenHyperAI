@@ -154,201 +154,201 @@
 | `J.IsKeyWordUnit` | keyWord, uUnit | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_bane.lua<br>bots/BotLib/hero_batrider.lua<br>bots/BotLib/hero_bounty_hunter.lua | 2885 |
 | `J.IsHumanPlayer` | nUnit | — | sim | bots/ability_item_usage_generic.lua | 2896 |
 | `J.IsValid` | nTarget | — | sim | bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_axe.lua<br>bots/BotLib/hero_bane.lua | 2903 |
-| `J.IsValidTarget` | nTarget | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua | 2916 |
-| `J.IsValidHero` | nTarget | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua | 2921 |
-| `J.IsValidBuilding` | nTarget | — | sim | bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_death_prophet.lua<br>bots/BotLib/hero_doom_bringer.lua<br>bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_drow_ranger.lua | 2925 |
-| `J.IsRoshan` | nTarget | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_arc_warden.lua | 2929 |
-| `J.IsMoving` | bot | — | sim | bots/BotLib/hero_dark_willow.lua<br>bots/BotLib/hero_kunkka.lua<br>bots/BotLib/hero_lone_druid.lua<br>bots/BotLib/hero_lone_druid_bear.lua<br>bots/BotLib/hero_muerta.lua | 2940 |
-| `J.IsRunning` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_bane.lua<br>bots/BotLib/hero_batrider.lua | 2955 |
-| `J.IsAttacking` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_arc_warden.lua | 2964 |
-| `J.IsChasingTarget` | bot, nTarget | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_bounty_hunter.lua | 2983 |
-| `J.IsRealInvisible` | bot | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_bounty_hunter.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_bristleback.lua | 2998 |
-| `J.GetModifierTime` | bot, sModifierName | — | sim | bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_invoker.lua<br>bots/BotLib/hero_keeper_of_the_light.lua<br>bots/BotLib/hero_largo.lua | 3020 |
-| `J.GetModifierCount` | bot, sModifierName | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_lion.lua<br>bots/BotLib/hero_nevermore.lua<br>bots/BotLib/hero_primal_beast.lua<br>bots/BotLib/hero_shadow_demon.lua | 3038 |
-| `J.GetUniqueModifierCount` | bot, sModifierName | — | sim | bots/BotLib/hero_oracle.lua | 3056 |
-| `J.GetRemainStunTime` | bot | — | sim | bots/BotLib/hero_mirana.lua | 3076 |
-| `J.IsTeamActivityCount` | bot, nCount | — | sim | bots/mode_farm_generic.lua | 3094 |
-| `J.GetSpecialModeAllies` | bot, nDistance, nMode | — | sim | bots/BotLib/hero_mars.lua<br>bots/BotLib/hero_phoenix.lua<br>bots/BotLib/hero_windrunner.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/mode_team_roam_generic.lua | 3114 |
-| `J.GetSpecialModeAlliesCount` | nMode | — | sim | — | 3136 |
-| `J.GetTeamFightLocation` | bot | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_centaur.lua<br>bots/BotLib/hero_chen.lua<br>bots/BotLib/hero_dark_willow.lua | 3145 |
-| `J.GetTeamFightAlliesCount` | bot | — | sim | bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_silencer.lua | 3174 |
-| `J.GetCenterOfUnits` | nUnits | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_batrider.lua<br>bots/BotLib/hero_beastmaster.lua | 3195 |
-| `J.GetMostFarmLaneDesire` | bot | — | sim | bots/BotLib/hero_tinker.lua<br>bots/ability_item_usage_generic.lua | 3220 |
-| `J.GetMostDefendLaneDesire` | — | — | sim | bots/BotLib/hero_furion.lua<br>bots/mode_farm_generic.lua<br>bots/mode_team_roam_generic.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 3245 |
-| `J.GetDefendLaneDesire` | lane | — | sim | bots/FunLib/aba_defend.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/ts_libs/dota/globals.d.ts | 3269 |
-| `J.IsT3TowerDown` | team, lane | — | sim | — | 3278 |
-| `J.IsPingCloseToValidTower` | nTeam, ping, nRadius, fInterval | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/aba_push.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 3288 |
-| `J.IsRoshanCloseToChangingSides` | — | — | sim | bots/ability_item_usage_generic.lua<br>bots/mode_roshan_generic.lua | 3326 |
-| `J.GetMostPushLaneDesire` | — | — | sim | bots/mode_team_roam_generic.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 3330 |
-| `J.GetClosestAlly` | bot, nRadius | — | sim | bots/mode_team_roam_generic.lua | 3350 |
-| `J.GetNearestLaneFrontLocation` | nUnitLoc, bEnemy, fDeltaFromFront | — | sim | bots/BotLib/hero_arc_warden.lua<br>bots/FunLib/rubick_hero/arc_warden.lua<br>bots/ability_item_usage_generic.lua | 3368 |
-| `J.GetAttackableWeakestUnit` | bot, nRadius, bHero, bEnemy | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_chen.lua<br>bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_huskar.lua<br>bots/BotLib/hero_lich.lua | 3395 |
-| `J.GetAttackableWeakestUnitFromList` | bot, unitList | — | sim | bots/mode_roam_generic.lua | 3407 |
-| `J.CannotBeKilled` | bot, botTarget | — | sim | bots/BotLib/hero_dazzle.lua | 3448 |
-| `J.CanIgnoreLowHp` | bot | — | sim | bots/mode_team_roam_generic.lua | 3460 |
-| `J.ScoreEnemyTarget` | bot, enemy, alliesNearby | — | sim | — | 3472 |
-| `J.GetBestTeamTarget` | bot, enemyHeroes, allyHeroes | — | sim | — | 3557 |
-| `J.CanBeAttacked` | unit | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_bristleback.lua<br>bots/BotLib/hero_broodmother.lua | 3595 |
-| `J.GetHP` | unit | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua | 3622 |
-| `J.GetEffectiveHP` | bot | — | sim | — | 3633 |
-| `J.GetMP` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_batrider.lua | 3655 |
-| `J.GetAllyList` | bot, nRadius | — | sim | bots/BotLib/hero_sven.lua<br>bots/ability_item_usage_generic.lua<br>bots/mode_farm_generic.lua<br>bots/mode_retreat_generic.lua<br>bots/mode_team_roam_generic.lua | 3663 |
-| `J.GetAllyCount` | bot, nRadius | — | sim | bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_razor.lua<br>bots/ability_item_usage_generic.lua<br>bots/mode_farm_generic.lua | 3685 |
-| `J.GetAroundEnemyHeroList` | nRadius | — | sim | bots/BotLib/hero_axe.lua<br>bots/BotLib/hero_bane.lua<br>bots/BotLib/hero_bounty_hunter.lua<br>bots/BotLib/hero_dazzle.lua<br>bots/BotLib/hero_ember_spirit.lua | 3694 |
-| `J.GetAroundCreepList` | nRadius, bEnemy, bNeutral, bLaneCreep | — | sim | — | 3703 |
-| `J.GetAroundBuildingList` | nRadius, bEnemy, bTower, bShrine, bFiller, bBarrack, bAcient | — | sim | — | 3724 |
-| `J.GetEnemyList` | bot, nRadius | — | sim | bots/BotLib/hero_chaos_knight.lua<br>bots/BotLib/hero_dazzle.lua<br>bots/BotLib/hero_jakiro.lua<br>bots/BotLib/hero_kunkka.lua<br>bots/BotLib/hero_lich.lua | 3741 |
-| `J.GetEnemyCount` | bot, nRadius | — | sim | bots/BotLib/hero_dazzle.lua<br>bots/BotLib/hero_medusa.lua<br>bots/BotLib/hero_muerta.lua<br>bots/BotLib/hero_razor.lua<br>bots/ability_item_usage_generic.lua | 3762 |
-| `J.ConsiderTarget` | — | — | sim | bots/BotLib/hero_luna.lua<br>bots/BotLib/hero_medusa.lua<br>bots/BotLib/hero_muerta.lua<br>bots/BotLib/hero_nevermore.lua<br>bots/BotLib/hero_sniper.lua | 3770 |
-| `J.IsHaveAegis` | bot | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_axe.lua<br>bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_doom_bringer.lua<br>bots/BotLib/hero_lina.lua | 3797 |
-| `J.DoesTeamHaveAegis` | — | — | sim | bots/FunLib/global_cache.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/global_cache.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 3801 |
-| `J.GetCoresAverageNetworth` | — | — | sim | bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_laning_generic.lua<br>bots/mode_side_shop_generic.lua | 3823 |
-| `J.GetCoresMaxNetworth` | — | — | sim | — | 3846 |
-| `J.IsLocHaveTower` | nRadius, bEnemy, nLoc | — | sim | bots/ability_item_usage_generic.lua | 3869 |
-| `J.GetNearbyLocationToTp` | nLoc | — | sim | bots/BotLib/hero_tinker.lua<br>bots/ability_item_usage_generic.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 3894 |
-| `J.IsEnemyFacingUnit` | bot, nRadius, nDegrees | — | sim | bots/ability_item_usage_generic.lua | 3940 |
-| `J.IsAllyFacingUnit` | bot, nRadius, nDegrees | — | sim | — | 3960 |
-| `J.IsEnemyTargetUnit` | nUnit, nRadius | — | sim | bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_zuus.lua | 3981 |
-| `J.IsCastingUltimateAbility` | bot | — | sim | bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_centaur.lua<br>bots/BotLib/hero_dark_willow.lua<br>bots/BotLib/hero_dawnbreaker.lua<br>bots/BotLib/hero_earth_spirit.lua | 3999 |
-| `J.IsInAllyArea` | bot | — | sim | bots/mode_farm_generic.lua | 4016 |
-| `J.IsInEnemyArea` | bot | — | sim | bots/BotLib/hero_bounty_hunter.lua<br>bots/BotLib/hero_phantom_assassin.lua<br>bots/BotLib/hero_sven.lua<br>bots/BotLib/hero_templar_assassin.lua<br>bots/FunLib/rubick_hero/bounty_hunter.lua | 4031 |
-| `J.IsAnyAllyHeroSurroundedByManyAllies` | — | — | sim | — | 4046 |
-| `J.IsAllyHeroAroundLocation` | vLoc, nRadius | — | sim | — | 4063 |
-| `J.IsEnemyHeroAroundLocation` | vLoc, nRadius | — | sim | bots/BotLib/hero_keeper_of_the_light.lua<br>bots/BotLib/hero_phantom_assassin.lua<br>bots/ability_item_usage_generic.lua | 4081 |
-| `J.GetLastSeenEnemiesNearLoc` | vLoc, nRadius | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>bots/mode_farm_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_side_shop_generic.lua | 4108 |
-| `J.GetNumOfAliveHeroes` | bEnemy | — | sim | bots/BotLib/hero_mirana.lua<br>bots/BotLib/hero_phantom_assassin.lua<br>bots/BotLib/hero_queenofpain.lua<br>bots/BotLib/hero_riki.lua<br>bots/FunLib/global_cache.lua | 4135 |
-| `J.GetNumOfHeroesNearLocation` | bEnemy, location, distance | — | sim | — | 4157 |
-| `J.GetHeroesNearLocation` | bEnemy, location, distance | — | sim | bots/BotLib/hero_elder_titan.lua<br>bots/BotLib/hero_invoker.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 4169 |
-| `J.GetAverageLevel` | bEnemy | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>bots/FunLib/global_cache.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/aba_defend.ts | 4182 |
-| `J.GetNumOfTeamTotalKills` | bEnemy | — | sim | bots/ability_item_usage_generic.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/aba_push.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 4205 |
-| `J.IsEarlyGame` | — | — | sim | bots/BotLib/hero_chaos_knight.lua<br>bots/BotLib/hero_morphling.lua<br>bots/FunLib/aba_ward_utility.lua<br>bots/FunLib/global_cache.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua | 4225 |
-| `J.IsMidGame` | — | — | sim | bots/BotLib/hero_chaos_knight.lua<br>bots/FunLib/global_cache.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/global_cache.ts | 4232 |
-| `J.IsLateGame` | — | — | sim | bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_mars.lua<br>bots/FunLib/aba_push.lua<br>bots/FunLib/global_cache.lua | 4239 |
-| `J.DotProduct` | A, B | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_marci.lua<br>bots/BotLib/hero_mars.lua | 4246 |
-| `J.ConsiderForMkbDisassembleMask` | bot | — | sim | bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_medusa.lua<br>bots/BotLib/hero_muerta.lua<br>bots/BotLib/hero_razor.lua<br>bots/BotLib/hero_sniper.lua | 4250 |
-| `J.HasNotActionLast` | nCD, nNumber | — | sim | bots/mode_farm_generic.lua | 4320 |
-| `J.GetCastDelay` | bot, unit, nPointTime, nProjectSpeed | — | sim | — | 4335 |
-| `J.CanBreakTeleport` | bot, unit, nPointTime, nProjectSpeed | — | sim | — | 4347 |
-| `J.CanBeCast` | ability | — | sim | bots/BotLib/hero_nyx_assassin.lua | 4360 |
-| `J.CanSpamSpell` | bot, manaCost | — | sim | bots/BotLib/hero_tiny.lua | 4364 |
-| `J.GetProperCastRange` | bIgnore, hUnit, abilityCR | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_brewmaster.lua | 4374 |
-| `J.GetLowestHPUnit` | tUnits, bIgnoreImmune | — | sim | — | 4389 |
-| `J.AllowedToSpam` | bot, manaCost | — | sim | bots/BotLib/hero_ember_spirit.lua | 4404 |
-| `J.CountVulnerableUnit` | tUnits, locAOE, nRadius, nUnits | — | sim | — | 4408 |
-| `J.GetProperLocation` | hUnit, nDelay | — | sim | — | 4421 |
-| `J.CountNotStunnedUnits` | tUnits, locAOE, nRadius, nUnits | — | sim | bots/BotLib/hero_snapfire.lua | 4428 |
-| `J.CountInvUnits` | pierceImmune, units | — | sim | — | 4441 |
-| `J.GetMostHPPercent` | listUnits, magicImmune | — | sim | bots/BotLib/hero_terrorblade.lua | 4453 |
-| `J.HasAghanimsShard` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_earth_spirit.lua<br>bots/BotLib/hero_pugna.lua | 4469 |
-| `J.GetCanBeKilledUnit` | units, nDamage, nDmgType, magicImmune | — | sim | bots/BotLib/hero_earth_spirit.lua | 4473 |
-| `J.GetClosestUnit` | units | — | sim | bots/BotLib/hero_earth_spirit.lua | 4486 |
-| `J.IsModeTurbo` | — | — | sim | bots/BotLib/hero_alchemist.lua<br>bots/FunLib/aba_site.lua<br>bots/FunLib/rubick_hero/alchemist.lua<br>bots/FunLib/utils.lua<br>bots/ability_item_usage_generic.lua | 4494 |
-| `J.IsCore` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_chen.lua | 4510 |
-| `J.IsPosxHuman` | x | — | sim | bots/mode_laning_generic.lua | 4515 |
-| `J.GetCoresTotalNetworth` | — | — | sim | — | 4529 |
-| `J.GetPosition` | bot | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_item.lua<br>bots/FunLib/aba_role.lua<br>bots/FunLib/aba_site.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua | 4537 |
-| `GetEffectiveHealthFromArmor` | nHealth, fArmor | — | não | — | 4549 |
-| `GetHealthMultiplier` | hUnit | — | não | — | 4554 |
-| `J.WeAreStronger` | bot, nRadius | — | sim | bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_earth_spirit.lua<br>bots/BotLib/hero_ember_spirit.lua<br>bots/BotLib/hero_enchantress.lua<br>bots/BotLib/hero_grimstroke.lua | 4576 |
-| `J.CanCastAbilitySoon` | ability, fTime | — | sim | — | 4681 |
-| `J.GetManaThreshold` | bot, nManaCost, hAbilityList | — | sim | bots/BotLib/hero_bristleback.lua<br>bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_largo.lua<br>bots/BotLib/hero_life_stealer.lua | 4701 |
-| `J.CheckLoneDruid` | — | — | sim | bots/mode_farm_generic.lua | 4736 |
-| `J.RandomForwardVector` | length | — | sim | bots/FunLib/aba_defend.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 4751 |
-| `J.GetUnitWithMinDistanceToLoc` | hUnit, hUnits, cUnits, fMinDist, vLoc | — | sim | — | 4768 |
-| `J.GetUnitWithMaxDistanceToLoc` | hUnit, hUnits, cUnits, fMinDist, vLoc | — | sim | — | 4786 |
-| `J.GetFurthestUnitToLocationFrommAll` | hUnit, nRange, vLoc | — | sim | bots/BotLib/hero_tiny.lua | 4804 |
-| `J.GetClosestUnitToLocationFrommAll` | hUnit, nRange, vLoc | — | sim | — | 4825 |
-| `J.GetClosestUnitToLocationFrommAll2` | hUnit, nRange, vLoc | — | sim | bots/BotLib/hero_tiny.lua | 4846 |
-| `J.CheckTimeOfDay` | — | — | sim | bots/BotLib/hero_lycan.lua<br>bots/BotLib/hero_night_stalker.lua<br>bots/ability_item_usage_generic.lua<br>bots/mode_roshan_generic.lua | 4867 |
-| `J.GetArmorReducers` | hero | — | sim | — | 4877 |
-| `J.IsRoshanAlive` | — | — | sim | bots/ability_item_usage_generic.lua<br>bots/mode_farm_generic.lua<br>bots/mode_retreat_generic.lua<br>bots/mode_roshan_generic.lua | 4919 |
-| `J.HasEnoughDPSForRoshan` | heroes | — | sim | bots/mode_roshan_generic.lua | 4934 |
-| `J.IsNotSelf` | bot, ally | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_bounty_hunter.lua<br>bots/BotLib/hero_rattletrap.lua<br>bots/BotLib/hero_spectre.lua<br>bots/BotLib/hero_winter_wyvern.lua | 4964 |
-| `J.IsThereNonSelfCoreNearby` | nRadius | — | sim | bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_earthshaker.lua<br>bots/BotLib/hero_grimstroke.lua<br>bots/BotLib/hero_hoodwink.lua<br>bots/BotLib/hero_kez.lua | 4973 |
-| `J.GetAliveAllyCoreCount` | — | — | sim | bots/mode_side_shop_generic.lua | 4993 |
-| `J.GetStrongestUnit` | nRange, hUnit, bEnemy, bMagicImune, fTime | — | sim | bots/BotLib/hero_batrider.lua<br>bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_enchantress.lua<br>bots/BotLib/hero_grimstroke.lua<br>bots/BotLib/hero_gyrocopter.lua | 5008 |
-| `J.GetStrongestEnemyHero` | enemies | — | sim | bots/FunLib/minion_lib/primal_split.lua | 5030 |
-| `J.GetDistance` | s, t | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_mars.lua<br>bots/BotLib/hero_rattletrap.lua<br>bots/BotLib/hero_techies.lua<br>bots/BotLib/hero_tinker.lua | 5045 |
-| `J.IsHeroBetweenMeAndLocation` | hSource, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5049 |
-| `J.IsEnemyBetweenMeAndLocation` | hSource, vLoc, nRadius | — | sim | bots/BotLib/hero_magnataur.lua | 5078 |
-| `J.IsHeroBetweenMeAndTarget` | hSource, hTarget, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5097 |
-| `J.IsCreepBetweenMeAndLocation` | hSource, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5124 |
-| `J.IsUnitBetweenMeAndLocation` | hSource, hTarget, vTargetLoc, nRadius | — | sim | bots/BotLib/hero_pudge.lua<br>bots/BotLib/hero_rattletrap.lua<br>bots/BotLib/hero_ringmaster.lua | 5147 |
-| `J.IsNonSiegeCreepBetweenMeAndLocation` | hSource, vLoc, nRadius | — | sim | — | 5168 |
-| `J.IsThereCoreNearby` | nRadius | — | sim | bots/BotLib/hero_jakiro.lua<br>bots/BotLib/hero_keeper_of_the_light.lua<br>bots/BotLib/hero_morphling.lua<br>bots/BotLib/hero_pudge.lua<br>bots/BotLib/hero_venomancer.lua | 5197 |
-| `J.GetClosestCore` | bot, nRadius | — | sim | bots/mode_team_roam_generic.lua | 5213 |
-| `J.IsCreepBetweenMeAndTarget` | hSource, hTarget, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5232 |
-| `J.IsAllyHeroBetweenMeAndTarget` | hSource, hTarget, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5320 |
-| `J.DidEnemyCastAbility` | — | — | sim | bots/BotLib/hero_dark_willow.lua | 5371 |
-| `J.GetWeakestUnit` | nEnemyUnits | — | sim | bots/BotLib/hero_dark_willow.lua<br>bots/FunLib/minion_lib/primal_split.lua | 5409 |
-| `J.HasInvisibilityOrItem` | npcEnemy | — | sim | bots/ability_item_usage_generic.lua | 5413 |
-| `J.HasEnemyIceSpireNearby` | bot, nRange | — | sim | bots/mode_roam_generic.lua | 5428 |
-| `J.AnyAllyAffectedByChainFrost` | bot, nRange | — | sim | bots/mode_roam_generic.lua | 5446 |
-| `J.AdjustLocationWithOffset` | vLoc, offset, target | — | sim | — | 5466 |
-| `J.AdjustLocationWithOffsetTowardsFountain` | loc, distance | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/global_cache.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/global_cache.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 5478 |
-| `J.IsInLaningPhase` | — | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_bristleback.lua | 5482 |
-| `J.IsTormentor` | nTarget | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_arc_warden.lua | 5497 |
-| `J.IsDoingTormentor` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua | 5505 |
-| `J.IsLocationInChrono` | loc | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_broodmother.lua<br>bots/BotLib/hero_disruptor.lua<br>bots/BotLib/hero_faceless_void.lua | 5509 |
-| `J.IsLocationInBlackHole` | loc | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_broodmother.lua<br>bots/BotLib/hero_disruptor.lua<br>bots/BotLib/hero_faceless_void.lua<br>bots/BotLib/hero_invoker.lua | 5535 |
-| `J.IsEnemyChronosphereInLocation` | loc | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_phoenix.lua<br>bots/BotLib/hero_primal_beast.lua<br>bots/BotLib/hero_windrunner.lua<br>bots/mode_roam_generic.lua | 5551 |
-| `J.IsEnemyBlackHoleInLocation` | loc | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_phoenix.lua<br>bots/BotLib/hero_primal_beast.lua<br>bots/BotLib/hero_windrunner.lua<br>bots/mode_roam_generic.lua | 5567 |
-| `J.IsLocationInArena` | loc, radius | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_faceless_void.lua<br>bots/BotLib/hero_mars.lua<br>bots/BotLib/hero_rattletrap.lua<br>bots/BotLib/hero_undying.lua | 5584 |
-| `J.GetMeepos` | — | — | sim | bots/BotLib/hero_meepo.lua | 5611 |
-| `J.IsMeepoClone` | hero | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_keeper_of_the_light.lua<br>bots/BotLib/hero_life_stealer.lua<br>bots/BotLib/hero_marci.lua | 5627 |
-| `J.DoesSomeoneHaveModifier` | nUnitList, modifierName | — | sim | bots/BotLib/hero_phoenix.lua | 5655 |
-| `J.NumHumanBotPlayersInTeam` | — | — | sim | bots/FunLib/aba_push.lua<br>bots/FunLib/aba_role.lua<br>bots/FunLib/utils.lua<br>bots/mode_farm_generic.lua<br>bots/mode_laning_generic.lua | 5669 |
-| `J.GetEnemiesAroundAncient` | bot, nRadius | — | sim | bots/mode_laning_generic.lua<br>bots/mode_outpost_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_side_shop_generic.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 5684 |
-| `J.DoesUnitHaveTemporaryBuff` | hUnit | — | sim | bots/mode_side_shop_generic.lua | 5688 |
-| `J.GetEnemiesAroundLoc` | vLoc, nRadius | — | sim | bots/BotLib/hero_invoker.lua<br>bots/FunLib/aba_push.lua<br>bots/ability_item_usage_generic.lua<br>typescript/bots/FunLib/aba_push.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 5706 |
-| `J.GetInventoryNetworth` | — | — | sim | bots/FunLib/global_cache.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/global_cache.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 5775 |
-| `J.FindEnemyUnit` | name | — | sim | bots/mode_roam_generic.lua | 5824 |
-| `J.GetHumanPing` | — | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>bots/FunLib/utils.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_roshan_generic.lua | 5837 |
-| `J.IsStaleARDMHero` | cachedBot, cachedName | — | sim | bots/ability_item_usage_generic.lua<br>bots/item_purchase_generic.lua | 5861 |
-| `J.ModeAnnounce` | bot, locKey, cooldown | — | sim | bots/mode_assemble_generic.lua<br>bots/mode_roshan_generic.lua | 5890 |
-| `J.HasAbility` | bot, abilityName | — | sim | bots/BotLib/hero_brewmaster.lua<br>bots/FretBots/DataTables.lua | 5902 |
-| `J.IsHumanInLoc` | vLoc, nRadius | — | sim | — | 5916 |
-| `J.GetCurrentRoshanLocation` | — | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_dark_seer.lua<br>bots/BotLib/hero_faceless_void.lua<br>bots/BotLib/hero_furion.lua | 5933 |
-| `J.GetTormentorLocation` | team | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_dark_seer.lua<br>bots/BotLib/hero_faceless_void.lua<br>bots/BotLib/hero_furion.lua | 5943 |
-| `J.GetTormentorWaitingLocation` | team | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/global_cache.lua<br>bots/mode_side_shop_generic.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/global_cache.ts | 5953 |
-| `J.IsClosestToDustLocation` | bot, loc | — | sim | bots/ability_item_usage_generic.lua | 5964 |
-| `J.GetXUnitsTowardsLocation2` | iLoc, tLoc, nUnits | — | sim | bots/ability_item_usage_generic.lua | 5995 |
-| `J.IsUnitWillGoInvisible` | unit | — | sim | bots/ability_item_usage_generic.lua | 6000 |
-| `J.HasInvisCounterBuff` | unit | — | sim | bots/ability_item_usage_generic.lua | 6018 |
-| `J.GetUnderlordPortal` | — | — | sim | — | 6032 |
-| `J.GetTotalEstimatedDamageToTarget` | nUnits, target | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_bristleback.lua<br>bots/BotLib/hero_invoker.lua<br>bots/BotLib/hero_life_stealer.lua<br>bots/BotLib/hero_mars.lua | 6062 |
-| `J.GetAliveCoreCount` | nEnemy | — | sim | bots/FunLib/global_cache.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/global_cache.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 6078 |
-| `J.GetEnemyCountInLane` | lane | — | sim | bots/mode_roam_generic.lua | 6104 |
-| `J.GetAllyCountInLane` | lane, nRadius | — | sim | — | 6130 |
-| `J.GetManaAfter` | manaCost | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_axe.lua<br>bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_brewmaster.lua | 6147 |
-| `J.GetHealthAfter` | hpCost | — | sim | bots/BotLib/hero_enigma.lua<br>bots/ability_item_usage_generic.lua | 6151 |
-| `J.GetCreepListAroundTargetCanKill` | target, nRadius, damage, bEnemy, bNeutral, bLaneCreep | — | sim | bots/BotLib/hero_tinker.lua | 6156 |
-| `J.GetPushTPLocation` | nLane | — | sim | bots/BotLib/hero_tinker.lua<br>bots/ability_item_usage_generic.lua | 6227 |
-| `J.GetDefendTPLocation` | nLane | — | sim | bots/BotLib/hero_tinker.lua<br>bots/ability_item_usage_generic.lua | 6236 |
-| `J.GetRandomLocationWithinDist` | sLoc, minDist, maxDist | — | sim | bots/BotLib/hero_techies.lua<br>bots/BotLib/hero_tinker.lua<br>bots/FunLib/aba_push.lua<br>bots/FunLib/minion_lib/illusions.lua<br>typescript/bots/FunLib/aba_push.ts | 6240 |
-| `J.GetHeroCountAttackingTarget` | nUnits, target | — | sim | bots/BotLib/hero_chen.lua<br>bots/FunLib/rubick_hero/chen.lua | 6248 |
-| `J.GetHighestRightClickDamageHero` | nUnits | — | sim | — | 6266 |
-| `J.IsBigCamp` | nUnits | — | sim | bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_viper.lua<br>bots/FunLib/rubick_hero/clinkz.lua | 6286 |
-| `J.GetETAWithAcceleration` | dist, speed, accel | — | sim | bots/BotLib/hero_techies.lua | 6304 |
-| `J.GetTechiesMines` | — | — | sim | — | 6308 |
-| `J.GetTechiesMinesInLoc` | loc, nRadius | — | sim | bots/BotLib/hero_techies.lua | 6323 |
-| `J.CheckBitfieldFlag` | bitfield, flag | — | sim | bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_techies.lua<br>bots/FunLib/minion_lib/minion_with_skill.lua | 6339 |
-| `J.GetPowerCogsCountInLoc` | loc, nRadius | — | sim | bots/FunLib/aba_special_units.lua | 6343 |
-| `J.HasPowerTreads` | bot | — | sim | bots/BotLib/hero_luna.lua<br>bots/BotLib/hero_viper.lua | 6358 |
-| `J.GetLanePartner` | bot | — | sim | bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/item_purchase_generic.lua | 6370 |
-| `J.IsEnemyHero` | hero | — | sim | — | 6392 |
-| `J.AddAvoidanceZone` | locationR, durationSec | — | sim | — | 6404 |
-| `J.GetClosestAllyHero` | bot | — | sim | — | 6417 |
-| `J.hasValue` | tab, val | — | sim | — | 6436 |
-| `J.CheckBotIdleState` | — | — | sim | bots/mode_team_roam_generic.lua | 6451 |
-| `J.AreTreesBetween` | bot, loc, r | — | sim | bots/BotLib/hero_shredder.lua | 6521 |
-| `J.VectorTowards` | vStart, vTowards, nDistance | — | sim | bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/ability_item_usage_generic.lua | 6558 |
-| `J.VectorAway` | vStart, vTowards, nDistance | — | sim | bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_keeper_of_the_light.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_attack_generic.lua | 6563 |
-| `J.GetAngleFromDotProduct` | dot | — | sim | — | 6568 |
-| `J.IsUnitTargetedByTower` | hUnit, bTeam | — | sim | bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_largo.lua | 6572 |
-| `J.GetBestRetreatTree` | bot, nCastRange | — | sim | bots/BotLib/hero_shredder.lua | 6585 |
-| `J.GetBestTree` | bot, enemyLoc, enemy, nCastRange, hitRadios | — | sim | bots/BotLib/hero_shredder.lua | 6615 |
-| `J.GetUltLoc` | bot, target, nManaCost, nCastRange, s | — | sim | bots/BotLib/hero_shredder.lua | 6655 |
+| `J.IsValidTarget` | nTarget | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua | 2911 |
+| `J.IsValidHero` | nTarget | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua | 2916 |
+| `J.IsValidBuilding` | nTarget | — | sim | bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_death_prophet.lua<br>bots/BotLib/hero_doom_bringer.lua<br>bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_drow_ranger.lua | 2920 |
+| `J.IsRoshan` | nTarget | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_arc_warden.lua | 2924 |
+| `J.IsMoving` | bot | — | sim | bots/BotLib/hero_dark_willow.lua<br>bots/BotLib/hero_kunkka.lua<br>bots/BotLib/hero_lone_druid.lua<br>bots/BotLib/hero_lone_druid_bear.lua<br>bots/BotLib/hero_muerta.lua | 2935 |
+| `J.IsRunning` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_bane.lua<br>bots/BotLib/hero_batrider.lua | 2950 |
+| `J.IsAttacking` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_arc_warden.lua | 2959 |
+| `J.IsChasingTarget` | bot, nTarget | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_bounty_hunter.lua | 2978 |
+| `J.IsRealInvisible` | bot | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_bounty_hunter.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_bristleback.lua | 2993 |
+| `J.GetModifierTime` | bot, sModifierName | — | sim | bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_invoker.lua<br>bots/BotLib/hero_keeper_of_the_light.lua<br>bots/BotLib/hero_largo.lua | 3015 |
+| `J.GetModifierCount` | bot, sModifierName | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_lion.lua<br>bots/BotLib/hero_nevermore.lua<br>bots/BotLib/hero_primal_beast.lua<br>bots/BotLib/hero_shadow_demon.lua | 3033 |
+| `J.GetUniqueModifierCount` | bot, sModifierName | — | sim | bots/BotLib/hero_oracle.lua | 3051 |
+| `J.GetRemainStunTime` | bot | — | sim | bots/BotLib/hero_mirana.lua | 3071 |
+| `J.IsTeamActivityCount` | bot, nCount | — | sim | bots/mode_farm_generic.lua | 3089 |
+| `J.GetSpecialModeAllies` | bot, nDistance, nMode | — | sim | bots/BotLib/hero_mars.lua<br>bots/BotLib/hero_phoenix.lua<br>bots/BotLib/hero_windrunner.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/mode_team_roam_generic.lua | 3109 |
+| `J.GetSpecialModeAlliesCount` | nMode | — | sim | — | 3131 |
+| `J.GetTeamFightLocation` | bot | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_centaur.lua<br>bots/BotLib/hero_chen.lua<br>bots/BotLib/hero_dark_willow.lua | 3140 |
+| `J.GetTeamFightAlliesCount` | bot | — | sim | bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_silencer.lua | 3169 |
+| `J.GetCenterOfUnits` | nUnits | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_batrider.lua<br>bots/BotLib/hero_beastmaster.lua | 3190 |
+| `J.GetMostFarmLaneDesire` | bot | — | sim | bots/BotLib/hero_tinker.lua<br>bots/ability_item_usage_generic.lua | 3215 |
+| `J.GetMostDefendLaneDesire` | — | — | sim | bots/BotLib/hero_furion.lua<br>bots/mode_farm_generic.lua<br>bots/mode_team_roam_generic.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 3240 |
+| `J.GetDefendLaneDesire` | lane | — | sim | bots/FunLib/aba_defend.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/ts_libs/dota/globals.d.ts | 3264 |
+| `J.IsT3TowerDown` | team, lane | — | sim | — | 3273 |
+| `J.IsPingCloseToValidTower` | nTeam, ping, nRadius, fInterval | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/aba_push.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 3283 |
+| `J.IsRoshanCloseToChangingSides` | — | — | sim | bots/ability_item_usage_generic.lua<br>bots/mode_roshan_generic.lua | 3321 |
+| `J.GetMostPushLaneDesire` | — | — | sim | bots/mode_team_roam_generic.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 3325 |
+| `J.GetClosestAlly` | bot, nRadius | — | sim | bots/mode_team_roam_generic.lua | 3345 |
+| `J.GetNearestLaneFrontLocation` | nUnitLoc, bEnemy, fDeltaFromFront | — | sim | bots/BotLib/hero_arc_warden.lua<br>bots/FunLib/rubick_hero/arc_warden.lua<br>bots/ability_item_usage_generic.lua | 3363 |
+| `J.GetAttackableWeakestUnit` | bot, nRadius, bHero, bEnemy | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_chen.lua<br>bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_huskar.lua<br>bots/BotLib/hero_lich.lua | 3390 |
+| `J.GetAttackableWeakestUnitFromList` | bot, unitList | — | sim | bots/mode_roam_generic.lua | 3402 |
+| `J.CannotBeKilled` | bot, botTarget | — | sim | bots/BotLib/hero_dazzle.lua | 3443 |
+| `J.CanIgnoreLowHp` | bot | — | sim | bots/mode_team_roam_generic.lua | 3455 |
+| `J.ScoreEnemyTarget` | bot, enemy, alliesNearby | — | sim | — | 3467 |
+| `J.GetBestTeamTarget` | bot, enemyHeroes, allyHeroes | — | sim | — | 3552 |
+| `J.CanBeAttacked` | unit | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_bristleback.lua<br>bots/BotLib/hero_broodmother.lua | 3590 |
+| `J.GetHP` | unit | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua | 3613 |
+| `J.GetEffectiveHP` | bot | — | sim | — | 3624 |
+| `J.GetMP` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_batrider.lua | 3646 |
+| `J.GetAllyList` | bot, nRadius | — | sim | bots/BotLib/hero_sven.lua<br>bots/ability_item_usage_generic.lua<br>bots/mode_farm_generic.lua<br>bots/mode_retreat_generic.lua<br>bots/mode_team_roam_generic.lua | 3654 |
+| `J.GetAllyCount` | bot, nRadius | — | sim | bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_razor.lua<br>bots/ability_item_usage_generic.lua<br>bots/mode_farm_generic.lua | 3676 |
+| `J.GetAroundEnemyHeroList` | nRadius | — | sim | bots/BotLib/hero_axe.lua<br>bots/BotLib/hero_bane.lua<br>bots/BotLib/hero_bounty_hunter.lua<br>bots/BotLib/hero_dazzle.lua<br>bots/BotLib/hero_ember_spirit.lua | 3685 |
+| `J.GetAroundCreepList` | nRadius, bEnemy, bNeutral, bLaneCreep | — | sim | — | 3694 |
+| `J.GetAroundBuildingList` | nRadius, bEnemy, bTower, bShrine, bFiller, bBarrack, bAcient | — | sim | — | 3715 |
+| `J.GetEnemyList` | bot, nRadius | — | sim | bots/BotLib/hero_chaos_knight.lua<br>bots/BotLib/hero_dazzle.lua<br>bots/BotLib/hero_jakiro.lua<br>bots/BotLib/hero_kunkka.lua<br>bots/BotLib/hero_lich.lua | 3732 |
+| `J.GetEnemyCount` | bot, nRadius | — | sim | bots/BotLib/hero_dazzle.lua<br>bots/BotLib/hero_medusa.lua<br>bots/BotLib/hero_muerta.lua<br>bots/BotLib/hero_razor.lua<br>bots/ability_item_usage_generic.lua | 3753 |
+| `J.ConsiderTarget` | — | — | sim | bots/BotLib/hero_luna.lua<br>bots/BotLib/hero_medusa.lua<br>bots/BotLib/hero_muerta.lua<br>bots/BotLib/hero_nevermore.lua<br>bots/BotLib/hero_sniper.lua | 3761 |
+| `J.IsHaveAegis` | bot | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_axe.lua<br>bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_doom_bringer.lua<br>bots/BotLib/hero_lina.lua | 3788 |
+| `J.DoesTeamHaveAegis` | — | — | sim | bots/FunLib/global_cache.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/global_cache.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 3792 |
+| `J.GetCoresAverageNetworth` | — | — | sim | bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_laning_generic.lua<br>bots/mode_side_shop_generic.lua | 3814 |
+| `J.GetCoresMaxNetworth` | — | — | sim | — | 3837 |
+| `J.IsLocHaveTower` | nRadius, bEnemy, nLoc | — | sim | bots/ability_item_usage_generic.lua | 3860 |
+| `J.GetNearbyLocationToTp` | nLoc | — | sim | bots/BotLib/hero_tinker.lua<br>bots/ability_item_usage_generic.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 3885 |
+| `J.IsEnemyFacingUnit` | bot, nRadius, nDegrees | — | sim | bots/ability_item_usage_generic.lua | 3931 |
+| `J.IsAllyFacingUnit` | bot, nRadius, nDegrees | — | sim | — | 3951 |
+| `J.IsEnemyTargetUnit` | nUnit, nRadius | — | sim | bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_zuus.lua | 3972 |
+| `J.IsCastingUltimateAbility` | bot | — | sim | bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_centaur.lua<br>bots/BotLib/hero_dark_willow.lua<br>bots/BotLib/hero_dawnbreaker.lua<br>bots/BotLib/hero_earth_spirit.lua | 3990 |
+| `J.IsInAllyArea` | bot | — | sim | bots/mode_farm_generic.lua | 4007 |
+| `J.IsInEnemyArea` | bot | — | sim | bots/BotLib/hero_bounty_hunter.lua<br>bots/BotLib/hero_phantom_assassin.lua<br>bots/BotLib/hero_sven.lua<br>bots/BotLib/hero_templar_assassin.lua<br>bots/FunLib/rubick_hero/bounty_hunter.lua | 4022 |
+| `J.IsAnyAllyHeroSurroundedByManyAllies` | — | — | sim | — | 4037 |
+| `J.IsAllyHeroAroundLocation` | vLoc, nRadius | — | sim | — | 4054 |
+| `J.IsEnemyHeroAroundLocation` | vLoc, nRadius | — | sim | bots/BotLib/hero_keeper_of_the_light.lua<br>bots/BotLib/hero_phantom_assassin.lua<br>bots/ability_item_usage_generic.lua | 4072 |
+| `J.GetLastSeenEnemiesNearLoc` | vLoc, nRadius | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>bots/mode_farm_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_side_shop_generic.lua | 4099 |
+| `J.GetNumOfAliveHeroes` | bEnemy | — | sim | bots/BotLib/hero_mirana.lua<br>bots/BotLib/hero_phantom_assassin.lua<br>bots/BotLib/hero_queenofpain.lua<br>bots/BotLib/hero_riki.lua<br>bots/FunLib/global_cache.lua | 4126 |
+| `J.GetNumOfHeroesNearLocation` | bEnemy, location, distance | — | sim | — | 4148 |
+| `J.GetHeroesNearLocation` | bEnemy, location, distance | — | sim | bots/BotLib/hero_elder_titan.lua<br>bots/BotLib/hero_invoker.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 4160 |
+| `J.GetAverageLevel` | bEnemy | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>bots/FunLib/global_cache.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/aba_defend.ts | 4173 |
+| `J.GetNumOfTeamTotalKills` | bEnemy | — | sim | bots/ability_item_usage_generic.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/aba_push.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 4196 |
+| `J.IsEarlyGame` | — | — | sim | bots/BotLib/hero_chaos_knight.lua<br>bots/BotLib/hero_morphling.lua<br>bots/FunLib/aba_ward_utility.lua<br>bots/FunLib/global_cache.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua | 4216 |
+| `J.IsMidGame` | — | — | sim | bots/BotLib/hero_chaos_knight.lua<br>bots/FunLib/global_cache.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/global_cache.ts | 4223 |
+| `J.IsLateGame` | — | — | sim | bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_mars.lua<br>bots/FunLib/aba_push.lua<br>bots/FunLib/global_cache.lua | 4230 |
+| `J.DotProduct` | A, B | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_marci.lua<br>bots/BotLib/hero_mars.lua | 4237 |
+| `J.ConsiderForMkbDisassembleMask` | bot | — | sim | bots/BotLib/hero_drow_ranger.lua<br>bots/BotLib/hero_medusa.lua<br>bots/BotLib/hero_muerta.lua<br>bots/BotLib/hero_razor.lua<br>bots/BotLib/hero_sniper.lua | 4241 |
+| `J.HasNotActionLast` | nCD, nNumber | — | sim | bots/mode_farm_generic.lua | 4311 |
+| `J.GetCastDelay` | bot, unit, nPointTime, nProjectSpeed | — | sim | — | 4326 |
+| `J.CanBreakTeleport` | bot, unit, nPointTime, nProjectSpeed | — | sim | — | 4338 |
+| `J.CanBeCast` | ability | — | sim | bots/BotLib/hero_nyx_assassin.lua | 4351 |
+| `J.CanSpamSpell` | bot, manaCost | — | sim | bots/BotLib/hero_tiny.lua | 4355 |
+| `J.GetProperCastRange` | bIgnore, hUnit, abilityCR | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_brewmaster.lua | 4365 |
+| `J.GetLowestHPUnit` | tUnits, bIgnoreImmune | — | sim | — | 4380 |
+| `J.AllowedToSpam` | bot, manaCost | — | sim | bots/BotLib/hero_ember_spirit.lua | 4395 |
+| `J.CountVulnerableUnit` | tUnits, locAOE, nRadius, nUnits | — | sim | — | 4399 |
+| `J.GetProperLocation` | hUnit, nDelay | — | sim | — | 4412 |
+| `J.CountNotStunnedUnits` | tUnits, locAOE, nRadius, nUnits | — | sim | bots/BotLib/hero_snapfire.lua | 4419 |
+| `J.CountInvUnits` | pierceImmune, units | — | sim | — | 4432 |
+| `J.GetMostHPPercent` | listUnits, magicImmune | — | sim | bots/BotLib/hero_terrorblade.lua | 4444 |
+| `J.HasAghanimsShard` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_earth_spirit.lua<br>bots/BotLib/hero_pugna.lua | 4460 |
+| `J.GetCanBeKilledUnit` | units, nDamage, nDmgType, magicImmune | — | sim | bots/BotLib/hero_earth_spirit.lua | 4464 |
+| `J.GetClosestUnit` | units | — | sim | bots/BotLib/hero_earth_spirit.lua | 4477 |
+| `J.IsModeTurbo` | — | — | sim | bots/BotLib/hero_alchemist.lua<br>bots/FunLib/aba_site.lua<br>bots/FunLib/rubick_hero/alchemist.lua<br>bots/FunLib/utils.lua<br>bots/ability_item_usage_generic.lua | 4485 |
+| `J.IsCore` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_chen.lua | 4501 |
+| `J.IsPosxHuman` | x | — | sim | bots/mode_laning_generic.lua | 4506 |
+| `J.GetCoresTotalNetworth` | — | — | sim | — | 4520 |
+| `J.GetPosition` | bot | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_item.lua<br>bots/FunLib/aba_role.lua<br>bots/FunLib/aba_site.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua | 4528 |
+| `GetEffectiveHealthFromArmor` | nHealth, fArmor | — | não | — | 4540 |
+| `GetHealthMultiplier` | hUnit | — | não | — | 4545 |
+| `J.WeAreStronger` | bot, nRadius | — | sim | bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_earth_spirit.lua<br>bots/BotLib/hero_ember_spirit.lua<br>bots/BotLib/hero_enchantress.lua<br>bots/BotLib/hero_grimstroke.lua | 4567 |
+| `J.CanCastAbilitySoon` | ability, fTime | — | sim | — | 4672 |
+| `J.GetManaThreshold` | bot, nManaCost, hAbilityList | — | sim | bots/BotLib/hero_bristleback.lua<br>bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_largo.lua<br>bots/BotLib/hero_life_stealer.lua | 4692 |
+| `J.CheckLoneDruid` | — | — | sim | bots/mode_farm_generic.lua | 4727 |
+| `J.RandomForwardVector` | length | — | sim | bots/FunLib/aba_defend.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 4742 |
+| `J.GetUnitWithMinDistanceToLoc` | hUnit, hUnits, cUnits, fMinDist, vLoc | — | sim | — | 4759 |
+| `J.GetUnitWithMaxDistanceToLoc` | hUnit, hUnits, cUnits, fMinDist, vLoc | — | sim | — | 4777 |
+| `J.GetFurthestUnitToLocationFrommAll` | hUnit, nRange, vLoc | — | sim | bots/BotLib/hero_tiny.lua | 4795 |
+| `J.GetClosestUnitToLocationFrommAll` | hUnit, nRange, vLoc | — | sim | — | 4816 |
+| `J.GetClosestUnitToLocationFrommAll2` | hUnit, nRange, vLoc | — | sim | bots/BotLib/hero_tiny.lua | 4837 |
+| `J.CheckTimeOfDay` | — | — | sim | bots/BotLib/hero_lycan.lua<br>bots/BotLib/hero_night_stalker.lua<br>bots/ability_item_usage_generic.lua<br>bots/mode_roshan_generic.lua | 4858 |
+| `J.GetArmorReducers` | hero | — | sim | — | 4868 |
+| `J.IsRoshanAlive` | — | — | sim | bots/ability_item_usage_generic.lua<br>bots/mode_farm_generic.lua<br>bots/mode_retreat_generic.lua<br>bots/mode_roshan_generic.lua | 4910 |
+| `J.HasEnoughDPSForRoshan` | heroes | — | sim | bots/mode_roshan_generic.lua | 4925 |
+| `J.IsNotSelf` | bot, ally | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_bounty_hunter.lua<br>bots/BotLib/hero_rattletrap.lua<br>bots/BotLib/hero_spectre.lua<br>bots/BotLib/hero_winter_wyvern.lua | 4955 |
+| `J.IsThereNonSelfCoreNearby` | nRadius | — | sim | bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_earthshaker.lua<br>bots/BotLib/hero_grimstroke.lua<br>bots/BotLib/hero_hoodwink.lua<br>bots/BotLib/hero_kez.lua | 4964 |
+| `J.GetAliveAllyCoreCount` | — | — | sim | bots/mode_side_shop_generic.lua | 4984 |
+| `J.GetStrongestUnit` | nRange, hUnit, bEnemy, bMagicImune, fTime | — | sim | bots/BotLib/hero_batrider.lua<br>bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_enchantress.lua<br>bots/BotLib/hero_grimstroke.lua<br>bots/BotLib/hero_gyrocopter.lua | 4999 |
+| `J.GetStrongestEnemyHero` | enemies | — | sim | bots/FunLib/minion_lib/primal_split.lua | 5021 |
+| `J.GetDistance` | s, t | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_mars.lua<br>bots/BotLib/hero_rattletrap.lua<br>bots/BotLib/hero_techies.lua<br>bots/BotLib/hero_tinker.lua | 5036 |
+| `J.IsHeroBetweenMeAndLocation` | hSource, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5040 |
+| `J.IsEnemyBetweenMeAndLocation` | hSource, vLoc, nRadius | — | sim | bots/BotLib/hero_magnataur.lua | 5069 |
+| `J.IsHeroBetweenMeAndTarget` | hSource, hTarget, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5088 |
+| `J.IsCreepBetweenMeAndLocation` | hSource, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5115 |
+| `J.IsUnitBetweenMeAndLocation` | hSource, hTarget, vTargetLoc, nRadius | — | sim | bots/BotLib/hero_pudge.lua<br>bots/BotLib/hero_rattletrap.lua<br>bots/BotLib/hero_ringmaster.lua | 5138 |
+| `J.IsNonSiegeCreepBetweenMeAndLocation` | hSource, vLoc, nRadius | — | sim | — | 5159 |
+| `J.IsThereCoreNearby` | nRadius | — | sim | bots/BotLib/hero_jakiro.lua<br>bots/BotLib/hero_keeper_of_the_light.lua<br>bots/BotLib/hero_morphling.lua<br>bots/BotLib/hero_pudge.lua<br>bots/BotLib/hero_venomancer.lua | 5188 |
+| `J.GetClosestCore` | bot, nRadius | — | sim | bots/mode_team_roam_generic.lua | 5204 |
+| `J.IsCreepBetweenMeAndTarget` | hSource, hTarget, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5223 |
+| `J.IsAllyHeroBetweenMeAndTarget` | hSource, hTarget, vLoc, nRadius | — | sim | bots/FunLib/rubick_hero/rattletrap.lua | 5311 |
+| `J.DidEnemyCastAbility` | — | — | sim | bots/BotLib/hero_dark_willow.lua | 5362 |
+| `J.GetWeakestUnit` | nEnemyUnits | — | sim | bots/BotLib/hero_dark_willow.lua<br>bots/FunLib/minion_lib/primal_split.lua | 5400 |
+| `J.HasInvisibilityOrItem` | npcEnemy | — | sim | bots/ability_item_usage_generic.lua | 5404 |
+| `J.HasEnemyIceSpireNearby` | bot, nRange | — | sim | bots/mode_roam_generic.lua | 5419 |
+| `J.AnyAllyAffectedByChainFrost` | bot, nRange | — | sim | bots/mode_roam_generic.lua | 5437 |
+| `J.AdjustLocationWithOffset` | vLoc, offset, target | — | sim | — | 5457 |
+| `J.AdjustLocationWithOffsetTowardsFountain` | loc, distance | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/global_cache.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/global_cache.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 5469 |
+| `J.IsInLaningPhase` | — | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_bristleback.lua | 5473 |
+| `J.IsTormentor` | nTarget | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_arc_warden.lua | 5488 |
+| `J.IsDoingTormentor` | bot | — | sim | bots/BotLib/hero_abaddon.lua<br>bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_alchemist.lua<br>bots/BotLib/hero_ancient_apparition.lua<br>bots/BotLib/hero_antimage.lua | 5496 |
+| `J.IsLocationInChrono` | loc | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_broodmother.lua<br>bots/BotLib/hero_disruptor.lua<br>bots/BotLib/hero_faceless_void.lua | 5500 |
+| `J.IsLocationInBlackHole` | loc | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_broodmother.lua<br>bots/BotLib/hero_disruptor.lua<br>bots/BotLib/hero_faceless_void.lua<br>bots/BotLib/hero_invoker.lua | 5526 |
+| `J.IsEnemyChronosphereInLocation` | loc | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_phoenix.lua<br>bots/BotLib/hero_primal_beast.lua<br>bots/BotLib/hero_windrunner.lua<br>bots/mode_roam_generic.lua | 5542 |
+| `J.IsEnemyBlackHoleInLocation` | loc | — | sim | bots/BotLib/hero_kez.lua<br>bots/BotLib/hero_phoenix.lua<br>bots/BotLib/hero_primal_beast.lua<br>bots/BotLib/hero_windrunner.lua<br>bots/mode_roam_generic.lua | 5558 |
+| `J.IsLocationInArena` | loc, radius | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_faceless_void.lua<br>bots/BotLib/hero_mars.lua<br>bots/BotLib/hero_rattletrap.lua<br>bots/BotLib/hero_undying.lua | 5575 |
+| `J.GetMeepos` | — | — | sim | bots/BotLib/hero_meepo.lua | 5602 |
+| `J.IsMeepoClone` | hero | — | sim | bots/BotLib/hero_abyssal_underlord.lua<br>bots/BotLib/hero_brewmaster.lua<br>bots/BotLib/hero_keeper_of_the_light.lua<br>bots/BotLib/hero_life_stealer.lua<br>bots/BotLib/hero_marci.lua | 5618 |
+| `J.DoesSomeoneHaveModifier` | nUnitList, modifierName | — | sim | bots/BotLib/hero_phoenix.lua | 5646 |
+| `J.NumHumanBotPlayersInTeam` | — | — | sim | bots/FunLib/aba_push.lua<br>bots/FunLib/aba_role.lua<br>bots/FunLib/utils.lua<br>bots/mode_farm_generic.lua<br>bots/mode_laning_generic.lua | 5660 |
+| `J.GetEnemiesAroundAncient` | bot, nRadius | — | sim | bots/mode_laning_generic.lua<br>bots/mode_outpost_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_side_shop_generic.lua<br>typescript/bots/FunLib/jmz_func.d.ts | 5675 |
+| `J.DoesUnitHaveTemporaryBuff` | hUnit | — | sim | bots/mode_side_shop_generic.lua | 5679 |
+| `J.GetEnemiesAroundLoc` | vLoc, nRadius | — | sim | bots/BotLib/hero_invoker.lua<br>bots/FunLib/aba_push.lua<br>bots/ability_item_usage_generic.lua<br>typescript/bots/FunLib/aba_push.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 5697 |
+| `J.GetInventoryNetworth` | — | — | sim | bots/FunLib/global_cache.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/global_cache.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 5766 |
+| `J.FindEnemyUnit` | name | — | sim | bots/mode_roam_generic.lua | 5815 |
+| `J.GetHumanPing` | — | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/aba_push.lua<br>bots/FunLib/utils.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_roshan_generic.lua | 5828 |
+| `J.IsStaleARDMHero` | cachedBot, cachedName | — | sim | bots/ability_item_usage_generic.lua<br>bots/item_purchase_generic.lua | 5852 |
+| `J.ModeAnnounce` | bot, locKey, cooldown | — | sim | bots/mode_assemble_generic.lua<br>bots/mode_roshan_generic.lua | 5881 |
+| `J.HasAbility` | bot, abilityName | — | sim | bots/BotLib/hero_brewmaster.lua<br>bots/FretBots/DataTables.lua | 5893 |
+| `J.IsHumanInLoc` | vLoc, nRadius | — | sim | — | 5907 |
+| `J.GetCurrentRoshanLocation` | — | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_dark_seer.lua<br>bots/BotLib/hero_faceless_void.lua<br>bots/BotLib/hero_furion.lua | 5924 |
+| `J.GetTormentorLocation` | team | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_dark_seer.lua<br>bots/BotLib/hero_faceless_void.lua<br>bots/BotLib/hero_furion.lua | 5934 |
+| `J.GetTormentorWaitingLocation` | team | — | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/global_cache.lua<br>bots/mode_side_shop_generic.lua<br>typescript/bots/FunLib/aba_defend.ts<br>typescript/bots/FunLib/global_cache.ts | 5944 |
+| `J.IsClosestToDustLocation` | bot, loc | — | sim | bots/ability_item_usage_generic.lua | 5955 |
+| `J.GetXUnitsTowardsLocation2` | iLoc, tLoc, nUnits | — | sim | bots/ability_item_usage_generic.lua | 5986 |
+| `J.IsUnitWillGoInvisible` | unit | — | sim | bots/ability_item_usage_generic.lua | 5991 |
+| `J.HasInvisCounterBuff` | unit | — | sim | bots/ability_item_usage_generic.lua | 6009 |
+| `J.GetUnderlordPortal` | — | — | sim | — | 6023 |
+| `J.GetTotalEstimatedDamageToTarget` | nUnits, target | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_bristleback.lua<br>bots/BotLib/hero_invoker.lua<br>bots/BotLib/hero_life_stealer.lua<br>bots/BotLib/hero_mars.lua | 6053 |
+| `J.GetAliveCoreCount` | nEnemy | — | sim | bots/FunLib/global_cache.lua<br>bots/mode_farm_generic.lua<br>typescript/bots/FunLib/global_cache.ts<br>typescript/bots/FunLib/jmz_func.d.ts | 6069 |
+| `J.GetEnemyCountInLane` | lane | — | sim | bots/mode_roam_generic.lua | 6095 |
+| `J.GetAllyCountInLane` | lane, nRadius | — | sim | — | 6121 |
+| `J.GetManaAfter` | manaCost | — | sim | bots/BotLib/hero_antimage.lua<br>bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_axe.lua<br>bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_brewmaster.lua | 6138 |
+| `J.GetHealthAfter` | hpCost | — | sim | bots/BotLib/hero_enigma.lua<br>bots/ability_item_usage_generic.lua | 6142 |
+| `J.GetCreepListAroundTargetCanKill` | target, nRadius, damage, bEnemy, bNeutral, bLaneCreep | — | sim | bots/BotLib/hero_tinker.lua | 6147 |
+| `J.GetPushTPLocation` | nLane | — | sim | bots/BotLib/hero_tinker.lua<br>bots/ability_item_usage_generic.lua | 6218 |
+| `J.GetDefendTPLocation` | nLane | — | sim | bots/BotLib/hero_tinker.lua<br>bots/ability_item_usage_generic.lua | 6227 |
+| `J.GetRandomLocationWithinDist` | sLoc, minDist, maxDist | — | sim | bots/BotLib/hero_techies.lua<br>bots/BotLib/hero_tinker.lua<br>bots/FunLib/aba_push.lua<br>bots/FunLib/minion_lib/illusions.lua<br>typescript/bots/FunLib/aba_push.ts | 6231 |
+| `J.GetHeroCountAttackingTarget` | nUnits, target | — | sim | bots/BotLib/hero_chen.lua<br>bots/FunLib/rubick_hero/chen.lua | 6239 |
+| `J.GetHighestRightClickDamageHero` | nUnits | — | sim | — | 6257 |
+| `J.IsBigCamp` | nUnits | — | sim | bots/BotLib/hero_clinkz.lua<br>bots/BotLib/hero_viper.lua<br>bots/FunLib/rubick_hero/clinkz.lua | 6277 |
+| `J.GetETAWithAcceleration` | dist, speed, accel | — | sim | bots/BotLib/hero_techies.lua | 6295 |
+| `J.GetTechiesMines` | — | — | sim | — | 6299 |
+| `J.GetTechiesMinesInLoc` | loc, nRadius | — | sim | bots/BotLib/hero_techies.lua | 6314 |
+| `J.CheckBitfieldFlag` | bitfield, flag | — | sim | bots/BotLib/hero_arc_warden.lua<br>bots/BotLib/hero_techies.lua<br>bots/FunLib/minion_lib/minion_with_skill.lua | 6330 |
+| `J.GetPowerCogsCountInLoc` | loc, nRadius | — | sim | bots/FunLib/aba_special_units.lua | 6334 |
+| `J.HasPowerTreads` | bot | — | sim | bots/BotLib/hero_luna.lua<br>bots/BotLib/hero_viper.lua | 6349 |
+| `J.GetLanePartner` | bot | — | sim | bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/item_purchase_generic.lua | 6361 |
+| `J.IsEnemyHero` | hero | — | sim | — | 6383 |
+| `J.AddAvoidanceZone` | locationR, durationSec | — | sim | — | 6395 |
+| `J.GetClosestAllyHero` | bot | — | sim | — | 6408 |
+| `J.hasValue` | tab, val | — | sim | — | 6427 |
+| `J.CheckBotIdleState` | — | — | sim | bots/mode_team_roam_generic.lua | 6442 |
+| `J.AreTreesBetween` | bot, loc, r | — | sim | bots/BotLib/hero_shredder.lua | 6512 |
+| `J.VectorTowards` | vStart, vTowards, nDistance | — | sim | bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/ability_item_usage_generic.lua | 6549 |
+| `J.VectorAway` | vStart, vTowards, nDistance | — | sim | bots/BotLib/hero_beastmaster.lua<br>bots/BotLib/hero_keeper_of_the_light.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_attack_generic.lua | 6554 |
+| `J.GetAngleFromDotProduct` | dot | — | sim | — | 6559 |
+| `J.IsUnitTargetedByTower` | hUnit, bTeam | — | sim | bots/BotLib/hero_dragon_knight.lua<br>bots/BotLib/hero_largo.lua | 6563 |
+| `J.GetBestRetreatTree` | bot, nCastRange | — | sim | bots/BotLib/hero_shredder.lua | 6576 |
+| `J.GetBestTree` | bot, enemyLoc, enemy, nCastRange, hitRadios | — | sim | bots/BotLib/hero_shredder.lua | 6606 |
+| `J.GetUltLoc` | bot, target, nManaCost, nCastRange, s | — | sim | bots/BotLib/hero_shredder.lua | 6646 |
 
 ## `bots/mode_assemble_generic.lua`
 
@@ -410,18 +410,18 @@
 |---|---|---|---|---|---|
 | `GetDesire` | — | — | não | bots/--mode_item_generic.lua<br>bots/BotLib/hero_muerta.lua<br>bots/FunLib/aba_special_units.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua | 57 |
 | `GetDesireHelper` | — | — | não | bots/mode_outpost_generic.lua<br>bots/mode_retreat_generic.lua<br>bots/mode_roam_generic.lua<br>bots/mode_roshan_generic.lua<br>bots/mode_secret_shop_generic.lua | 66 |
-| `OnStart` | — | — | não | bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_attack_generic.lua<br>bots/mode_outpost_generic.lua<br>bots/mode_roam_generic.lua | 529 |
-| `OnEnd` | — | — | não | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 533 |
-| `Think` | — | — | não | bots/BotLib/hero_muerta.lua<br>bots/Buff/Timers.lua<br>bots/FretBots/Timers.lua<br>bots/FunLib/aba_minion.lua<br>bots/FunLib/aba_special_units.lua | 542 |
-| `X.IsNearLaneFront` | bot | — | não | bots/BotLib/hero_skeleton_king.lua | 864 |
-| `X.IsUnitAroundLocation` | vLoc, nRadius | — | não | bots/mode_rune_generic.lua | 878 |
-| `X.CouldBlade` | bot, nLocation | — | não | — | 893 |
-| `X.CouldBlink` | bot, nLocation | — | não | bots/mode_rune_generic.lua | 926 |
-| `X.IsLocCanBeSeen` | vLoc | — | não | — | 997 |
-| `PickOneAnnouncer` | — | — | não | bots/mode_laning_generic.lua | 1014 |
-| `AnnounceMessages` | — | — | não | bots/mode_laning_generic.lua | 1026 |
-| `X.ShouldRun` | bot | — | não | bots/mode_retreat_generic.lua | 1070 |
-| `X.IsThereT3Detroyed` | — | — | não | — | 1331 |
+| `OnStart` | — | — | não | bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_attack_generic.lua<br>bots/mode_outpost_generic.lua<br>bots/mode_roam_generic.lua | 551 |
+| `OnEnd` | — | — | não | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 555 |
+| `Think` | — | — | não | bots/BotLib/hero_muerta.lua<br>bots/Buff/Timers.lua<br>bots/FretBots/Timers.lua<br>bots/FunLib/aba_minion.lua<br>bots/FunLib/aba_special_units.lua | 564 |
+| `X.IsNearLaneFront` | bot | — | não | bots/BotLib/hero_skeleton_king.lua | 908 |
+| `X.IsUnitAroundLocation` | vLoc, nRadius | — | não | bots/mode_rune_generic.lua | 922 |
+| `X.CouldBlade` | bot, nLocation | — | não | — | 937 |
+| `X.CouldBlink` | bot, nLocation | — | não | bots/mode_rune_generic.lua | 970 |
+| `X.IsLocCanBeSeen` | vLoc | — | não | — | 1041 |
+| `PickOneAnnouncer` | — | — | não | bots/mode_laning_generic.lua | 1058 |
+| `AnnounceMessages` | — | — | não | bots/mode_laning_generic.lua | 1070 |
+| `X.ShouldRun` | bot | — | não | bots/mode_retreat_generic.lua | 1114 |
+| `X.IsThereT3Detroyed` | — | — | não | — | 1375 |
 
 ## `bots/mode_laning_generic.lua`
 
@@ -711,7 +711,7 @@
 | `GetDefendDesire` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 505 |
 | `GetDefendDesireHelper` | bot: Unit, lane: Lane | BotModeDesire | sim | bots/FunLib/aba_defend.lua | 532 |
 | `DefendThink` | bot: Unit, lane: Lane | void | sim | bots/FunLib/aba_defend.lua<br>bots/mode_defend_tower_bot_generic.lua<br>bots/mode_defend_tower_mid_generic.lua<br>bots/mode_defend_tower_top_generic.lua | 814 |
-| `OnEnd` | — | void | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 1090 |
+| `OnEnd` | — | void | sim | bots/FunLib/aba_defend.lua<br>bots/FunLib/override_generic/mode_attack_generic.lua<br>bots/FunLib/override_generic/mode_laning_generic.lua<br>bots/mode_assemble_generic.lua<br>bots/mode_attack_generic.lua | 1047 |
 
 ## `typescript/bots/FunLib/aba_push.ts`
 

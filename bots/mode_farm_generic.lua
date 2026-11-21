@@ -367,7 +367,18 @@ function GetDesireHelper()
 	   or (bot:GetLevel() >= 23 and nAlliesCount >= 3)
 	   or GetRoshanDesire() > BOT_MODE_DESIRE_VERYHIGH
 	then
-		local nNeutrals = bot:GetNearbyNeutralCreeps( bot:GetAttackRange() );
+		local rawNeutrals = bot:GetNearbyNeutralCreeps( bot:GetAttackRange() );
+		local nNeutrals = {}
+		for _, u in pairs(rawNeutrals) do
+				if u:GetUnitName() == "npc_dota_watcher" then
+						if u:GetTeam() == TEAM_NEUTRAL and not u:IsInvulnerable() then
+								if GetUnitToUnitDistance(bot, u) <= bot:GetAttackRange() then bot:Action_AttackUnit(u, false) return end
+								if GetUnitToUnitDistance(bot, u) <= 1000 then bot:Action_MoveToUnit(u) return end
+						end
+				else
+						table.insert(nNeutrals, u)
+				end
+		end
 		if #nNeutrals == 0
 		then
 		    teamTime = DotaTime();
@@ -385,7 +396,18 @@ function GetDesireHelper()
 		local vDefendLocation  = GetLaneFrontLocation(GetTeam(), nDefendLane, -600)
 		local nDefendAllies = J.GetAlliesNearLoc(vDefendLocation, 2200)
 
-		local nNeutrals = bot:GetNearbyNeutralCreeps(Min(bot:GetAttackRange(), 1600))
+		local rawNeutrals = bot:GetNearbyNeutralCreeps(Min(bot:GetAttackRange(), 1600))
+		local nNeutrals = {}
+		for _, u in pairs(rawNeutrals) do
+				if u:GetUnitName() == "npc_dota_watcher" then
+						if u:GetTeam() == TEAM_NEUTRAL and not u:IsInvulnerable() then
+								if GetUnitToUnitDistance(bot, u) <= bot:GetAttackRange() then bot:Action_AttackUnit(u, false) return end
+								if GetUnitToUnitDistance(bot, u) <= 1000 then bot:Action_MoveToUnit(u) return end
+						end
+				else
+						table.insert(nNeutrals, u)
+				end
+		end
 
 		if #nNeutrals == 0 and #nDefendAllies >= 2 and (not beVeryHighFarmer or bot:GetLevel() >= 15 or J.IsLateGame()) then
 		    teamTime = DotaTime()
@@ -643,7 +665,18 @@ function Think()
 				return
 			end
 			-- 没有可反补的 → 打野（如果附近有野）
-			local nNeutrals = bot:GetNearbyNeutralCreeps(800)
+			local rawNeutrals = bot:GetNearbyNeutralCreeps(800)
+			local nNeutrals = {}
+			for _, u in pairs(rawNeutrals) do
+					if u:GetUnitName() == "npc_dota_watcher" then
+							if u:GetTeam() == TEAM_NEUTRAL and not u:IsInvulnerable() then
+									if GetUnitToUnitDistance(bot, u) <= bot:GetAttackRange() then bot:Action_AttackUnit(u, false) return end
+									if GetUnitToUnitDistance(bot, u) <= 1000 then bot:Action_MoveToUnit(u) return end
+							end
+					else
+							table.insert(nNeutrals, u)
+					end
+			end
 			-- OHA MOD 2026/08/13: 真人玩家在刷这组野（【野怪】700 码内有真人）→ 不抢
 			local bHumanFarmingHere = false
 			for _, ally2 in ipairs(GetUnitList(UNIT_LIST_ALLIED_HEROES)) do
@@ -665,7 +698,18 @@ function Think()
 		local farmTarget = J.Site.GetFarmLaneTarget(hLaneCreepList);
 		local nSearchRange = bot:GetAttackRange() + 180
 		if nSearchRange > 1600 then nSearchRange = 1600 end
-		local nNeutrals = bot:GetNearbyNeutralCreeps(nSearchRange);
+		local rawNeutrals = bot:GetNearbyNeutralCreeps(nSearchRange);
+		local nNeutrals = {}
+		for _, u in pairs(rawNeutrals) do
+				if u:GetUnitName() == "npc_dota_watcher" then
+						if u:GetTeam() == TEAM_NEUTRAL and not u:IsInvulnerable() then
+								if GetUnitToUnitDistance(bot, u) <= bot:GetAttackRange() then bot:Action_AttackUnit(u, false) return end
+								if GetUnitToUnitDistance(bot, u) <= 1000 then bot:Action_MoveToUnit(u) return end
+						end
+				else
+						table.insert(nNeutrals, u)
+				end
+		end
 		if J.IsValid(farmTarget) and #nNeutrals == 0 then
 			if farmTarget:GetTeam() ~= bot:GetTeam() then
 				local nEnemyTowers = bot:GetNearbyTowers(1600, true)

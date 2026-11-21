@@ -480,7 +480,7 @@
     "name": "OnEnd",
     "params": "",
     "returns": "void",
-    "line": 1090,
+    "line": 1047,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -6455,7 +6455,7 @@
     "name": "J.IsValidTarget",
     "params": "nTarget",
     "returns": "",
-    "line": 2916,
+    "line": 2911,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -6567,7 +6567,7 @@
     "name": "J.IsValidHero",
     "params": "nTarget",
     "returns": "",
-    "line": 2921,
+    "line": 2916,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -6762,7 +6762,7 @@
     "name": "J.IsValidBuilding",
     "params": "nTarget",
     "returns": "",
-    "line": 2925,
+    "line": 2920,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_clinkz.lua",
@@ -6822,7 +6822,7 @@
     "name": "J.IsRoshan",
     "params": "nTarget",
     "returns": "",
-    "line": 2929,
+    "line": 2924,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -6976,7 +6976,7 @@
     "name": "J.IsMoving",
     "params": "bot",
     "returns": "",
-    "line": 2940,
+    "line": 2935,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_dark_willow.lua",
@@ -6998,7 +6998,7 @@
     "name": "J.IsRunning",
     "params": "bot",
     "returns": "",
-    "line": 2955,
+    "line": 2950,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -7075,7 +7075,7 @@
     "name": "J.IsAttacking",
     "params": "bot",
     "returns": "",
-    "line": 2964,
+    "line": 2959,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -7217,7 +7217,7 @@
     "name": "J.IsChasingTarget",
     "params": "bot, nTarget",
     "returns": "",
-    "line": 2983,
+    "line": 2978,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abyssal_underlord.lua",
@@ -7317,7 +7317,7 @@
     "name": "J.IsRealInvisible",
     "params": "bot",
     "returns": "",
-    "line": 2998,
+    "line": 2993,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_antimage.lua",
@@ -7380,7 +7380,7 @@
     "name": "J.GetModifierTime",
     "params": "bot, sModifierName",
     "returns": "",
-    "line": 3020,
+    "line": 3015,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_beastmaster.lua",
@@ -7410,7 +7410,7 @@
     "name": "J.GetModifierCount",
     "params": "bot, sModifierName",
     "returns": "",
-    "line": 3038,
+    "line": 3033,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_kez.lua",
@@ -7429,7 +7429,7 @@
     "name": "J.GetUniqueModifierCount",
     "params": "bot, sModifierName",
     "returns": "",
-    "line": 3056,
+    "line": 3051,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_oracle.lua",
@@ -7442,7 +7442,7 @@
     "name": "J.GetRemainStunTime",
     "params": "bot",
     "returns": "",
-    "line": 3076,
+    "line": 3071,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_mirana.lua",
@@ -7455,7 +7455,7 @@
     "name": "J.IsTeamActivityCount",
     "params": "bot, nCount",
     "returns": "",
-    "line": 3094,
+    "line": 3089,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -7468,7 +7468,7 @@
     "name": "J.GetSpecialModeAllies",
     "params": "bot, nDistance, nMode",
     "returns": "",
-    "line": 3114,
+    "line": 3109,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_mars.lua",
@@ -7485,7 +7485,7 @@
     "name": "J.GetSpecialModeAlliesCount",
     "params": "nMode",
     "returns": "",
-    "line": 3136,
+    "line": 3131,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -7497,7 +7497,7 @@
     "name": "J.GetTeamFightLocation",
     "params": "bot",
     "returns": "",
-    "line": 3145,
+    "line": 3140,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abyssal_underlord.lua",
@@ -7536,7 +7536,7 @@
     "name": "J.GetTeamFightAlliesCount",
     "params": "bot",
     "returns": "",
-    "line": 3174,
+    "line": 3169,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_drow_ranger.lua",
@@ -7550,7 +7550,7 @@
     "name": "J.GetCenterOfUnits",
     "params": "nUnits",
     "returns": "",
-    "line": 3195,
+    "line": 3190,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abyssal_underlord.lua",
@@ -7619,7 +7619,7 @@
     "name": "J.GetMostFarmLaneDesire",
     "params": "bot",
     "returns": "",
-    "line": 3220,
+    "line": 3215,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_tinker.lua",
@@ -7633,7 +7633,7 @@
     "name": "J.GetMostDefendLaneDesire",
     "params": "",
     "returns": "",
-    "line": 3245,
+    "line": 3240,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_furion.lua",
@@ -7649,7 +7649,7 @@
     "name": "J.GetDefendLaneDesire",
     "params": "lane",
     "returns": "",
-    "line": 3269,
+    "line": 3264,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -7664,7 +7664,7 @@
     "name": "J.IsT3TowerDown",
     "params": "team, lane",
     "returns": "",
-    "line": 3278,
+    "line": 3273,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -7676,7 +7676,7 @@
     "name": "J.IsPingCloseToValidTower",
     "params": "nTeam, ping, nRadius, fInterval",
     "returns": "",
-    "line": 3288,
+    "line": 3283,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -7693,7 +7693,7 @@
     "name": "J.IsRoshanCloseToChangingSides",
     "params": "",
     "returns": "",
-    "line": 3326,
+    "line": 3321,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -7707,7 +7707,7 @@
     "name": "J.GetMostPushLaneDesire",
     "params": "",
     "returns": "",
-    "line": 3330,
+    "line": 3325,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -7721,7 +7721,7 @@
     "name": "J.GetClosestAlly",
     "params": "bot, nRadius",
     "returns": "",
-    "line": 3350,
+    "line": 3345,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -7734,7 +7734,7 @@
     "name": "J.GetNearestLaneFrontLocation",
     "params": "nUnitLoc, bEnemy, fDeltaFromFront",
     "returns": "",
-    "line": 3368,
+    "line": 3363,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_arc_warden.lua",
@@ -7749,7 +7749,7 @@
     "name": "J.GetAttackableWeakestUnit",
     "params": "bot, nRadius, bHero, bEnemy",
     "returns": "",
-    "line": 3395,
+    "line": 3390,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -7777,7 +7777,7 @@
     "name": "J.GetAttackableWeakestUnitFromList",
     "params": "bot, unitList",
     "returns": "",
-    "line": 3407,
+    "line": 3402,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -7790,7 +7790,7 @@
     "name": "J.CannotBeKilled",
     "params": "bot, botTarget",
     "returns": "",
-    "line": 3448,
+    "line": 3443,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_dazzle.lua",
@@ -7803,7 +7803,7 @@
     "name": "J.CanIgnoreLowHp",
     "params": "bot",
     "returns": "",
-    "line": 3460,
+    "line": 3455,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -7816,7 +7816,7 @@
     "name": "J.ScoreEnemyTarget",
     "params": "bot, enemy, alliesNearby",
     "returns": "",
-    "line": 3472,
+    "line": 3467,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -7828,7 +7828,7 @@
     "name": "J.GetBestTeamTarget",
     "params": "bot, enemyHeroes, allyHeroes",
     "returns": "",
-    "line": 3557,
+    "line": 3552,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -7840,7 +7840,7 @@
     "name": "J.CanBeAttacked",
     "params": "unit",
     "returns": "",
-    "line": 3595,
+    "line": 3590,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_antimage.lua",
@@ -7939,7 +7939,7 @@
     "name": "J.GetHP",
     "params": "unit",
     "returns": "",
-    "line": 3622,
+    "line": 3613,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -8092,7 +8092,7 @@
     "name": "J.GetEffectiveHP",
     "params": "bot",
     "returns": "",
-    "line": 3633,
+    "line": 3624,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8104,7 +8104,7 @@
     "name": "J.GetMP",
     "params": "bot",
     "returns": "",
-    "line": 3655,
+    "line": 3646,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -8183,7 +8183,7 @@
     "name": "J.GetAllyList",
     "params": "bot, nRadius",
     "returns": "",
-    "line": 3663,
+    "line": 3654,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_sven.lua",
@@ -8200,7 +8200,7 @@
     "name": "J.GetAllyCount",
     "params": "bot, nRadius",
     "returns": "",
-    "line": 3685,
+    "line": 3676,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_drow_ranger.lua",
@@ -8216,7 +8216,7 @@
     "name": "J.GetAroundEnemyHeroList",
     "params": "nRadius",
     "returns": "",
-    "line": 3694,
+    "line": 3685,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_axe.lua",
@@ -8247,7 +8247,7 @@
     "name": "J.GetAroundCreepList",
     "params": "nRadius, bEnemy, bNeutral, bLaneCreep",
     "returns": "",
-    "line": 3703,
+    "line": 3694,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8259,7 +8259,7 @@
     "name": "J.GetAroundBuildingList",
     "params": "nRadius, bEnemy, bTower, bShrine, bFiller, bBarrack, bAcient",
     "returns": "",
-    "line": 3724,
+    "line": 3715,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8271,7 +8271,7 @@
     "name": "J.GetEnemyList",
     "params": "bot, nRadius",
     "returns": "",
-    "line": 3741,
+    "line": 3732,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_chaos_knight.lua",
@@ -8297,7 +8297,7 @@
     "name": "J.GetEnemyCount",
     "params": "bot, nRadius",
     "returns": "",
-    "line": 3762,
+    "line": 3753,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_dazzle.lua",
@@ -8314,7 +8314,7 @@
     "name": "J.ConsiderTarget",
     "params": "",
     "returns": "",
-    "line": 3770,
+    "line": 3761,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_luna.lua",
@@ -8331,7 +8331,7 @@
     "name": "J.IsHaveAegis",
     "params": "bot",
     "returns": "",
-    "line": 3797,
+    "line": 3788,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_antimage.lua",
@@ -8353,7 +8353,7 @@
     "name": "J.DoesTeamHaveAegis",
     "params": "",
     "returns": "",
-    "line": 3801,
+    "line": 3792,
     "exported": true,
     "callers": [
       "bots/FunLib/global_cache.lua",
@@ -8369,7 +8369,7 @@
     "name": "J.GetCoresAverageNetworth",
     "params": "",
     "returns": "",
-    "line": 3823,
+    "line": 3814,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -8384,7 +8384,7 @@
     "name": "J.GetCoresMaxNetworth",
     "params": "",
     "returns": "",
-    "line": 3846,
+    "line": 3837,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8396,7 +8396,7 @@
     "name": "J.IsLocHaveTower",
     "params": "nRadius, bEnemy, nLoc",
     "returns": "",
-    "line": 3869,
+    "line": 3860,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -8409,7 +8409,7 @@
     "name": "J.GetNearbyLocationToTp",
     "params": "nLoc",
     "returns": "",
-    "line": 3894,
+    "line": 3885,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_tinker.lua",
@@ -8424,7 +8424,7 @@
     "name": "J.IsEnemyFacingUnit",
     "params": "bot, nRadius, nDegrees",
     "returns": "",
-    "line": 3940,
+    "line": 3931,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -8437,7 +8437,7 @@
     "name": "J.IsAllyFacingUnit",
     "params": "bot, nRadius, nDegrees",
     "returns": "",
-    "line": 3960,
+    "line": 3951,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8449,7 +8449,7 @@
     "name": "J.IsEnemyTargetUnit",
     "params": "nUnit, nRadius",
     "returns": "",
-    "line": 3981,
+    "line": 3972,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_drow_ranger.lua",
@@ -8463,7 +8463,7 @@
     "name": "J.IsCastingUltimateAbility",
     "params": "bot",
     "returns": "",
-    "line": 3999,
+    "line": 3990,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_beastmaster.lua",
@@ -8500,7 +8500,7 @@
     "name": "J.IsInAllyArea",
     "params": "bot",
     "returns": "",
-    "line": 4016,
+    "line": 4007,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -8513,7 +8513,7 @@
     "name": "J.IsInEnemyArea",
     "params": "bot",
     "returns": "",
-    "line": 4031,
+    "line": 4022,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_bounty_hunter.lua",
@@ -8530,7 +8530,7 @@
     "name": "J.IsAnyAllyHeroSurroundedByManyAllies",
     "params": "",
     "returns": "",
-    "line": 4046,
+    "line": 4037,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8542,7 +8542,7 @@
     "name": "J.IsAllyHeroAroundLocation",
     "params": "vLoc, nRadius",
     "returns": "",
-    "line": 4063,
+    "line": 4054,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8554,7 +8554,7 @@
     "name": "J.IsEnemyHeroAroundLocation",
     "params": "vLoc, nRadius",
     "returns": "",
-    "line": 4081,
+    "line": 4072,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_keeper_of_the_light.lua",
@@ -8569,7 +8569,7 @@
     "name": "J.GetLastSeenEnemiesNearLoc",
     "params": "vLoc, nRadius",
     "returns": "",
-    "line": 4108,
+    "line": 4099,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -8589,7 +8589,7 @@
     "name": "J.GetNumOfAliveHeroes",
     "params": "bEnemy",
     "returns": "",
-    "line": 4135,
+    "line": 4126,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_mirana.lua",
@@ -8617,7 +8617,7 @@
     "name": "J.GetNumOfHeroesNearLocation",
     "params": "bEnemy, location, distance",
     "returns": "",
-    "line": 4157,
+    "line": 4148,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8629,7 +8629,7 @@
     "name": "J.GetHeroesNearLocation",
     "params": "bEnemy, location, distance",
     "returns": "",
-    "line": 4169,
+    "line": 4160,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_elder_titan.lua",
@@ -8644,7 +8644,7 @@
     "name": "J.GetAverageLevel",
     "params": "bEnemy",
     "returns": "",
-    "line": 4182,
+    "line": 4173,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -8664,7 +8664,7 @@
     "name": "J.GetNumOfTeamTotalKills",
     "params": "bEnemy",
     "returns": "",
-    "line": 4205,
+    "line": 4196,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -8680,7 +8680,7 @@
     "name": "J.IsEarlyGame",
     "params": "",
     "returns": "",
-    "line": 4225,
+    "line": 4216,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_chaos_knight.lua",
@@ -8701,7 +8701,7 @@
     "name": "J.IsMidGame",
     "params": "",
     "returns": "",
-    "line": 4232,
+    "line": 4223,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_chaos_knight.lua",
@@ -8719,7 +8719,7 @@
     "name": "J.IsLateGame",
     "params": "",
     "returns": "",
-    "line": 4239,
+    "line": 4230,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_dragon_knight.lua",
@@ -8742,7 +8742,7 @@
     "name": "J.DotProduct",
     "params": "A, B",
     "returns": "",
-    "line": 4246,
+    "line": 4237,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_kez.lua",
@@ -8757,7 +8757,7 @@
     "name": "J.ConsiderForMkbDisassembleMask",
     "params": "bot",
     "returns": "",
-    "line": 4250,
+    "line": 4241,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_drow_ranger.lua",
@@ -8775,7 +8775,7 @@
     "name": "J.HasNotActionLast",
     "params": "nCD, nNumber",
     "returns": "",
-    "line": 4320,
+    "line": 4311,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -8788,7 +8788,7 @@
     "name": "J.GetCastDelay",
     "params": "bot, unit, nPointTime, nProjectSpeed",
     "returns": "",
-    "line": 4335,
+    "line": 4326,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8800,7 +8800,7 @@
     "name": "J.CanBreakTeleport",
     "params": "bot, unit, nPointTime, nProjectSpeed",
     "returns": "",
-    "line": 4347,
+    "line": 4338,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8812,7 +8812,7 @@
     "name": "J.CanBeCast",
     "params": "ability",
     "returns": "",
-    "line": 4360,
+    "line": 4351,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_nyx_assassin.lua",
@@ -8825,7 +8825,7 @@
     "name": "J.CanSpamSpell",
     "params": "bot, manaCost",
     "returns": "",
-    "line": 4364,
+    "line": 4355,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_tiny.lua",
@@ -8838,7 +8838,7 @@
     "name": "J.GetProperCastRange",
     "params": "bIgnore, hUnit, abilityCR",
     "returns": "",
-    "line": 4374,
+    "line": 4365,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abyssal_underlord.lua",
@@ -8937,7 +8937,7 @@
     "name": "J.GetLowestHPUnit",
     "params": "tUnits, bIgnoreImmune",
     "returns": "",
-    "line": 4389,
+    "line": 4380,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8949,7 +8949,7 @@
     "name": "J.AllowedToSpam",
     "params": "bot, manaCost",
     "returns": "",
-    "line": 4404,
+    "line": 4395,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_ember_spirit.lua",
@@ -8962,7 +8962,7 @@
     "name": "J.CountVulnerableUnit",
     "params": "tUnits, locAOE, nRadius, nUnits",
     "returns": "",
-    "line": 4408,
+    "line": 4399,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8974,7 +8974,7 @@
     "name": "J.GetProperLocation",
     "params": "hUnit, nDelay",
     "returns": "",
-    "line": 4421,
+    "line": 4412,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -8986,7 +8986,7 @@
     "name": "J.CountNotStunnedUnits",
     "params": "tUnits, locAOE, nRadius, nUnits",
     "returns": "",
-    "line": 4428,
+    "line": 4419,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_snapfire.lua",
@@ -8999,7 +8999,7 @@
     "name": "J.CountInvUnits",
     "params": "pierceImmune, units",
     "returns": "",
-    "line": 4441,
+    "line": 4432,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9011,7 +9011,7 @@
     "name": "J.GetMostHPPercent",
     "params": "listUnits, magicImmune",
     "returns": "",
-    "line": 4453,
+    "line": 4444,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_terrorblade.lua",
@@ -9024,7 +9024,7 @@
     "name": "J.HasAghanimsShard",
     "params": "bot",
     "returns": "",
-    "line": 4469,
+    "line": 4460,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -9039,7 +9039,7 @@
     "name": "J.GetCanBeKilledUnit",
     "params": "units, nDamage, nDmgType, magicImmune",
     "returns": "",
-    "line": 4473,
+    "line": 4464,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_earth_spirit.lua",
@@ -9052,7 +9052,7 @@
     "name": "J.GetClosestUnit",
     "params": "units",
     "returns": "",
-    "line": 4486,
+    "line": 4477,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_earth_spirit.lua",
@@ -9065,7 +9065,7 @@
     "name": "J.IsModeTurbo",
     "params": "",
     "returns": "",
-    "line": 4494,
+    "line": 4485,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_alchemist.lua",
@@ -9089,7 +9089,7 @@
     "name": "J.IsCore",
     "params": "bot",
     "returns": "",
-    "line": 4510,
+    "line": 4501,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -9163,7 +9163,7 @@
     "name": "J.IsPosxHuman",
     "params": "x",
     "returns": "",
-    "line": 4515,
+    "line": 4506,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9176,7 +9176,7 @@
     "name": "J.GetCoresTotalNetworth",
     "params": "",
     "returns": "",
-    "line": 4529,
+    "line": 4520,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9188,7 +9188,7 @@
     "name": "J.GetPosition",
     "params": "bot",
     "returns": "",
-    "line": 4537,
+    "line": 4528,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -9220,7 +9220,7 @@
     "name": "GetEffectiveHealthFromArmor",
     "params": "nHealth, fArmor",
     "returns": "",
-    "line": 4549,
+    "line": 4540,
     "exported": false,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9232,7 +9232,7 @@
     "name": "GetHealthMultiplier",
     "params": "hUnit",
     "returns": "",
-    "line": 4554,
+    "line": 4545,
     "exported": false,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9244,7 +9244,7 @@
     "name": "J.WeAreStronger",
     "params": "bot, nRadius",
     "returns": "",
-    "line": 4576,
+    "line": 4567,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_brewmaster.lua",
@@ -9279,7 +9279,7 @@
     "name": "J.CanCastAbilitySoon",
     "params": "ability, fTime",
     "returns": "",
-    "line": 4681,
+    "line": 4672,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9291,7 +9291,7 @@
     "name": "J.GetManaThreshold",
     "params": "bot, nManaCost, hAbilityList",
     "returns": "",
-    "line": 4701,
+    "line": 4692,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_bristleback.lua",
@@ -9309,7 +9309,7 @@
     "name": "J.CheckLoneDruid",
     "params": "",
     "returns": "",
-    "line": 4736,
+    "line": 4727,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9322,7 +9322,7 @@
     "name": "J.RandomForwardVector",
     "params": "length",
     "returns": "",
-    "line": 4751,
+    "line": 4742,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -9337,7 +9337,7 @@
     "name": "J.GetUnitWithMinDistanceToLoc",
     "params": "hUnit, hUnits, cUnits, fMinDist, vLoc",
     "returns": "",
-    "line": 4768,
+    "line": 4759,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9349,7 +9349,7 @@
     "name": "J.GetUnitWithMaxDistanceToLoc",
     "params": "hUnit, hUnits, cUnits, fMinDist, vLoc",
     "returns": "",
-    "line": 4786,
+    "line": 4777,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9361,7 +9361,7 @@
     "name": "J.GetFurthestUnitToLocationFrommAll",
     "params": "hUnit, nRange, vLoc",
     "returns": "",
-    "line": 4804,
+    "line": 4795,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_tiny.lua",
@@ -9374,7 +9374,7 @@
     "name": "J.GetClosestUnitToLocationFrommAll",
     "params": "hUnit, nRange, vLoc",
     "returns": "",
-    "line": 4825,
+    "line": 4816,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9386,7 +9386,7 @@
     "name": "J.GetClosestUnitToLocationFrommAll2",
     "params": "hUnit, nRange, vLoc",
     "returns": "",
-    "line": 4846,
+    "line": 4837,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_tiny.lua",
@@ -9399,7 +9399,7 @@
     "name": "J.CheckTimeOfDay",
     "params": "",
     "returns": "",
-    "line": 4867,
+    "line": 4858,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_lycan.lua",
@@ -9415,7 +9415,7 @@
     "name": "J.GetArmorReducers",
     "params": "hero",
     "returns": "",
-    "line": 4877,
+    "line": 4868,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9427,7 +9427,7 @@
     "name": "J.IsRoshanAlive",
     "params": "",
     "returns": "",
-    "line": 4919,
+    "line": 4910,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9443,7 +9443,7 @@
     "name": "J.HasEnoughDPSForRoshan",
     "params": "heroes",
     "returns": "",
-    "line": 4934,
+    "line": 4925,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9456,7 +9456,7 @@
     "name": "J.IsNotSelf",
     "params": "bot, ally",
     "returns": "",
-    "line": 4964,
+    "line": 4955,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -9477,7 +9477,7 @@
     "name": "J.IsThereNonSelfCoreNearby",
     "params": "nRadius",
     "returns": "",
-    "line": 4973,
+    "line": 4964,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_ancient_apparition.lua",
@@ -9512,7 +9512,7 @@
     "name": "J.GetAliveAllyCoreCount",
     "params": "",
     "returns": "",
-    "line": 4993,
+    "line": 4984,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9525,7 +9525,7 @@
     "name": "J.GetStrongestUnit",
     "params": "nRange, hUnit, bEnemy, bMagicImune, fTime",
     "returns": "",
-    "line": 5008,
+    "line": 4999,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_batrider.lua",
@@ -9551,7 +9551,7 @@
     "name": "J.GetStrongestEnemyHero",
     "params": "enemies",
     "returns": "",
-    "line": 5030,
+    "line": 5021,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9564,7 +9564,7 @@
     "name": "J.GetDistance",
     "params": "s, t",
     "returns": "",
-    "line": 5045,
+    "line": 5036,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_kez.lua",
@@ -9594,7 +9594,7 @@
     "name": "J.IsHeroBetweenMeAndLocation",
     "params": "hSource, vLoc, nRadius",
     "returns": "",
-    "line": 5049,
+    "line": 5040,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9607,7 +9607,7 @@
     "name": "J.IsEnemyBetweenMeAndLocation",
     "params": "hSource, vLoc, nRadius",
     "returns": "",
-    "line": 5078,
+    "line": 5069,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_magnataur.lua",
@@ -9620,7 +9620,7 @@
     "name": "J.IsHeroBetweenMeAndTarget",
     "params": "hSource, hTarget, vLoc, nRadius",
     "returns": "",
-    "line": 5097,
+    "line": 5088,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9633,7 +9633,7 @@
     "name": "J.IsCreepBetweenMeAndLocation",
     "params": "hSource, vLoc, nRadius",
     "returns": "",
-    "line": 5124,
+    "line": 5115,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9646,7 +9646,7 @@
     "name": "J.IsUnitBetweenMeAndLocation",
     "params": "hSource, hTarget, vTargetLoc, nRadius",
     "returns": "",
-    "line": 5147,
+    "line": 5138,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_pudge.lua",
@@ -9661,7 +9661,7 @@
     "name": "J.IsNonSiegeCreepBetweenMeAndLocation",
     "params": "hSource, vLoc, nRadius",
     "returns": "",
-    "line": 5168,
+    "line": 5159,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9673,7 +9673,7 @@
     "name": "J.IsThereCoreNearby",
     "params": "nRadius",
     "returns": "",
-    "line": 5197,
+    "line": 5188,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_jakiro.lua",
@@ -9693,7 +9693,7 @@
     "name": "J.GetClosestCore",
     "params": "bot, nRadius",
     "returns": "",
-    "line": 5213,
+    "line": 5204,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9706,7 +9706,7 @@
     "name": "J.IsCreepBetweenMeAndTarget",
     "params": "hSource, hTarget, vLoc, nRadius",
     "returns": "",
-    "line": 5232,
+    "line": 5223,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9719,7 +9719,7 @@
     "name": "J.IsAllyHeroBetweenMeAndTarget",
     "params": "hSource, hTarget, vLoc, nRadius",
     "returns": "",
-    "line": 5320,
+    "line": 5311,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9732,7 +9732,7 @@
     "name": "J.DidEnemyCastAbility",
     "params": "",
     "returns": "",
-    "line": 5371,
+    "line": 5362,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_dark_willow.lua",
@@ -9745,7 +9745,7 @@
     "name": "J.GetWeakestUnit",
     "params": "nEnemyUnits",
     "returns": "",
-    "line": 5409,
+    "line": 5400,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_dark_willow.lua",
@@ -9759,7 +9759,7 @@
     "name": "J.HasInvisibilityOrItem",
     "params": "npcEnemy",
     "returns": "",
-    "line": 5413,
+    "line": 5404,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9772,7 +9772,7 @@
     "name": "J.HasEnemyIceSpireNearby",
     "params": "bot, nRange",
     "returns": "",
-    "line": 5428,
+    "line": 5419,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9785,7 +9785,7 @@
     "name": "J.AnyAllyAffectedByChainFrost",
     "params": "bot, nRange",
     "returns": "",
-    "line": 5446,
+    "line": 5437,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -9798,7 +9798,7 @@
     "name": "J.AdjustLocationWithOffset",
     "params": "vLoc, offset, target",
     "returns": "",
-    "line": 5466,
+    "line": 5457,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -9810,7 +9810,7 @@
     "name": "J.AdjustLocationWithOffsetTowardsFountain",
     "params": "loc, distance",
     "returns": "",
-    "line": 5478,
+    "line": 5469,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -9827,7 +9827,7 @@
     "name": "J.IsInLaningPhase",
     "params": "",
     "returns": "",
-    "line": 5482,
+    "line": 5473,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abyssal_underlord.lua",
@@ -9895,7 +9895,7 @@
     "name": "J.IsTormentor",
     "params": "nTarget",
     "returns": "",
-    "line": 5497,
+    "line": 5488,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -10033,7 +10033,7 @@
     "name": "J.IsDoingTormentor",
     "params": "bot",
     "returns": "",
-    "line": 5505,
+    "line": 5496,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abaddon.lua",
@@ -10182,7 +10182,7 @@
     "name": "J.IsLocationInChrono",
     "params": "loc",
     "returns": "",
-    "line": 5509,
+    "line": 5500,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abyssal_underlord.lua",
@@ -10221,7 +10221,7 @@
     "name": "J.IsLocationInBlackHole",
     "params": "loc",
     "returns": "",
-    "line": 5535,
+    "line": 5526,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abyssal_underlord.lua",
@@ -10252,7 +10252,7 @@
     "name": "J.IsEnemyChronosphereInLocation",
     "params": "loc",
     "returns": "",
-    "line": 5551,
+    "line": 5542,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_kez.lua",
@@ -10269,7 +10269,7 @@
     "name": "J.IsEnemyBlackHoleInLocation",
     "params": "loc",
     "returns": "",
-    "line": 5567,
+    "line": 5558,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_kez.lua",
@@ -10286,7 +10286,7 @@
     "name": "J.IsLocationInArena",
     "params": "loc, radius",
     "returns": "",
-    "line": 5584,
+    "line": 5575,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abyssal_underlord.lua",
@@ -10305,7 +10305,7 @@
     "name": "J.GetMeepos",
     "params": "",
     "returns": "",
-    "line": 5611,
+    "line": 5602,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_meepo.lua",
@@ -10318,7 +10318,7 @@
     "name": "J.IsMeepoClone",
     "params": "hero",
     "returns": "",
-    "line": 5627,
+    "line": 5618,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_abyssal_underlord.lua",
@@ -10352,7 +10352,7 @@
     "name": "J.DoesSomeoneHaveModifier",
     "params": "nUnitList, modifierName",
     "returns": "",
-    "line": 5655,
+    "line": 5646,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_phoenix.lua",
@@ -10365,7 +10365,7 @@
     "name": "J.NumHumanBotPlayersInTeam",
     "params": "",
     "returns": "",
-    "line": 5669,
+    "line": 5660,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_push.lua",
@@ -10385,7 +10385,7 @@
     "name": "J.GetEnemiesAroundAncient",
     "params": "bot, nRadius",
     "returns": "",
-    "line": 5684,
+    "line": 5675,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10402,7 +10402,7 @@
     "name": "J.DoesUnitHaveTemporaryBuff",
     "params": "hUnit",
     "returns": "",
-    "line": 5688,
+    "line": 5679,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10415,7 +10415,7 @@
     "name": "J.GetEnemiesAroundLoc",
     "params": "vLoc, nRadius",
     "returns": "",
-    "line": 5706,
+    "line": 5697,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_invoker.lua",
@@ -10432,7 +10432,7 @@
     "name": "J.GetInventoryNetworth",
     "params": "",
     "returns": "",
-    "line": 5775,
+    "line": 5766,
     "exported": true,
     "callers": [
       "bots/FunLib/global_cache.lua",
@@ -10448,7 +10448,7 @@
     "name": "J.FindEnemyUnit",
     "params": "name",
     "returns": "",
-    "line": 5824,
+    "line": 5815,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10461,7 +10461,7 @@
     "name": "J.GetHumanPing",
     "params": "",
     "returns": "",
-    "line": 5837,
+    "line": 5828,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -10483,7 +10483,7 @@
     "name": "J.IsStaleARDMHero",
     "params": "cachedBot, cachedName",
     "returns": "",
-    "line": 5861,
+    "line": 5852,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10497,7 +10497,7 @@
     "name": "J.ModeAnnounce",
     "params": "bot, locKey, cooldown",
     "returns": "",
-    "line": 5890,
+    "line": 5881,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10511,7 +10511,7 @@
     "name": "J.HasAbility",
     "params": "bot, abilityName",
     "returns": "",
-    "line": 5902,
+    "line": 5893,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_brewmaster.lua",
@@ -10525,7 +10525,7 @@
     "name": "J.IsHumanInLoc",
     "params": "vLoc, nRadius",
     "returns": "",
-    "line": 5916,
+    "line": 5907,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -10537,7 +10537,7 @@
     "name": "J.GetCurrentRoshanLocation",
     "params": "",
     "returns": "",
-    "line": 5933,
+    "line": 5924,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_antimage.lua",
@@ -10571,7 +10571,7 @@
     "name": "J.GetTormentorLocation",
     "params": "team",
     "returns": "",
-    "line": 5943,
+    "line": 5934,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_antimage.lua",
@@ -10602,7 +10602,7 @@
     "name": "J.GetTormentorWaitingLocation",
     "params": "team",
     "returns": "",
-    "line": 5953,
+    "line": 5944,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -10620,7 +10620,7 @@
     "name": "J.IsClosestToDustLocation",
     "params": "bot, loc",
     "returns": "",
-    "line": 5964,
+    "line": 5955,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10633,7 +10633,7 @@
     "name": "J.GetXUnitsTowardsLocation2",
     "params": "iLoc, tLoc, nUnits",
     "returns": "",
-    "line": 5995,
+    "line": 5986,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10646,7 +10646,7 @@
     "name": "J.IsUnitWillGoInvisible",
     "params": "unit",
     "returns": "",
-    "line": 6000,
+    "line": 5991,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10659,7 +10659,7 @@
     "name": "J.HasInvisCounterBuff",
     "params": "unit",
     "returns": "",
-    "line": 6018,
+    "line": 6009,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10672,7 +10672,7 @@
     "name": "J.GetUnderlordPortal",
     "params": "",
     "returns": "",
-    "line": 6032,
+    "line": 6023,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -10684,7 +10684,7 @@
     "name": "J.GetTotalEstimatedDamageToTarget",
     "params": "nUnits, target",
     "returns": "",
-    "line": 6062,
+    "line": 6053,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_antimage.lua",
@@ -10707,7 +10707,7 @@
     "name": "J.GetAliveCoreCount",
     "params": "nEnemy",
     "returns": "",
-    "line": 6078,
+    "line": 6069,
     "exported": true,
     "callers": [
       "bots/FunLib/global_cache.lua",
@@ -10723,7 +10723,7 @@
     "name": "J.GetEnemyCountInLane",
     "params": "lane",
     "returns": "",
-    "line": 6104,
+    "line": 6095,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -10736,7 +10736,7 @@
     "name": "J.GetAllyCountInLane",
     "params": "lane, nRadius",
     "returns": "",
-    "line": 6130,
+    "line": 6121,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -10748,7 +10748,7 @@
     "name": "J.GetManaAfter",
     "params": "manaCost",
     "returns": "",
-    "line": 6147,
+    "line": 6138,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_antimage.lua",
@@ -10806,7 +10806,7 @@
     "name": "J.GetHealthAfter",
     "params": "hpCost",
     "returns": "",
-    "line": 6151,
+    "line": 6142,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_enigma.lua",
@@ -10820,7 +10820,7 @@
     "name": "J.GetCreepListAroundTargetCanKill",
     "params": "target, nRadius, damage, bEnemy, bNeutral, bLaneCreep",
     "returns": "",
-    "line": 6156,
+    "line": 6147,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_tinker.lua",
@@ -10833,7 +10833,7 @@
     "name": "J.GetPushTPLocation",
     "params": "nLane",
     "returns": "",
-    "line": 6227,
+    "line": 6218,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_tinker.lua",
@@ -10847,7 +10847,7 @@
     "name": "J.GetDefendTPLocation",
     "params": "nLane",
     "returns": "",
-    "line": 6236,
+    "line": 6227,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_tinker.lua",
@@ -10861,7 +10861,7 @@
     "name": "J.GetRandomLocationWithinDist",
     "params": "sLoc, minDist, maxDist",
     "returns": "",
-    "line": 6240,
+    "line": 6231,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_techies.lua",
@@ -10879,7 +10879,7 @@
     "name": "J.GetHeroCountAttackingTarget",
     "params": "nUnits, target",
     "returns": "",
-    "line": 6248,
+    "line": 6239,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_chen.lua",
@@ -10893,7 +10893,7 @@
     "name": "J.GetHighestRightClickDamageHero",
     "params": "nUnits",
     "returns": "",
-    "line": 6266,
+    "line": 6257,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -10905,7 +10905,7 @@
     "name": "J.IsBigCamp",
     "params": "nUnits",
     "returns": "",
-    "line": 6286,
+    "line": 6277,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_clinkz.lua",
@@ -10920,7 +10920,7 @@
     "name": "J.GetETAWithAcceleration",
     "params": "dist, speed, accel",
     "returns": "",
-    "line": 6304,
+    "line": 6295,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_techies.lua",
@@ -10933,7 +10933,7 @@
     "name": "J.GetTechiesMines",
     "params": "",
     "returns": "",
-    "line": 6308,
+    "line": 6299,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -10945,7 +10945,7 @@
     "name": "J.GetTechiesMinesInLoc",
     "params": "loc, nRadius",
     "returns": "",
-    "line": 6323,
+    "line": 6314,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_techies.lua",
@@ -10958,7 +10958,7 @@
     "name": "J.CheckBitfieldFlag",
     "params": "bitfield, flag",
     "returns": "",
-    "line": 6339,
+    "line": 6330,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_arc_warden.lua",
@@ -10973,7 +10973,7 @@
     "name": "J.GetPowerCogsCountInLoc",
     "params": "loc, nRadius",
     "returns": "",
-    "line": 6343,
+    "line": 6334,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_special_units.lua",
@@ -10986,7 +10986,7 @@
     "name": "J.HasPowerTreads",
     "params": "bot",
     "returns": "",
-    "line": 6358,
+    "line": 6349,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_luna.lua",
@@ -11000,7 +11000,7 @@
     "name": "J.GetLanePartner",
     "params": "bot",
     "returns": "",
-    "line": 6370,
+    "line": 6361,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -11014,7 +11014,7 @@
     "name": "J.IsEnemyHero",
     "params": "hero",
     "returns": "",
-    "line": 6392,
+    "line": 6383,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -11026,7 +11026,7 @@
     "name": "J.AddAvoidanceZone",
     "params": "locationR, durationSec",
     "returns": "",
-    "line": 6404,
+    "line": 6395,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -11038,7 +11038,7 @@
     "name": "J.GetClosestAllyHero",
     "params": "bot",
     "returns": "",
-    "line": 6417,
+    "line": 6408,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -11050,7 +11050,7 @@
     "name": "J.hasValue",
     "params": "tab, val",
     "returns": "",
-    "line": 6436,
+    "line": 6427,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -11062,7 +11062,7 @@
     "name": "J.CheckBotIdleState",
     "params": "",
     "returns": "",
-    "line": 6451,
+    "line": 6442,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -11075,7 +11075,7 @@
     "name": "J.AreTreesBetween",
     "params": "bot, loc, r",
     "returns": "",
-    "line": 6521,
+    "line": 6512,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_shredder.lua",
@@ -11088,7 +11088,7 @@
     "name": "J.VectorTowards",
     "params": "vStart, vTowards, nDistance",
     "returns": "",
-    "line": 6558,
+    "line": 6549,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua",
@@ -11102,7 +11102,7 @@
     "name": "J.VectorAway",
     "params": "vStart, vTowards, nDistance",
     "returns": "",
-    "line": 6563,
+    "line": 6554,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_beastmaster.lua",
@@ -11120,7 +11120,7 @@
     "name": "J.GetAngleFromDotProduct",
     "params": "dot",
     "returns": "",
-    "line": 6568,
+    "line": 6559,
     "exported": true,
     "callers": [
       "bots/FunLib/jmz_func.lua"
@@ -11132,7 +11132,7 @@
     "name": "J.IsUnitTargetedByTower",
     "params": "hUnit, bTeam",
     "returns": "",
-    "line": 6572,
+    "line": 6563,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_dragon_knight.lua",
@@ -11146,7 +11146,7 @@
     "name": "J.GetBestRetreatTree",
     "params": "bot, nCastRange",
     "returns": "",
-    "line": 6585,
+    "line": 6576,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_shredder.lua",
@@ -11159,7 +11159,7 @@
     "name": "J.GetBestTree",
     "params": "bot, enemyLoc, enemy, nCastRange, hitRadios",
     "returns": "",
-    "line": 6615,
+    "line": 6606,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_shredder.lua",
@@ -11172,7 +11172,7 @@
     "name": "J.GetUltLoc",
     "params": "bot, target, nManaCost, nCastRange, s",
     "returns": "",
-    "line": 6655,
+    "line": 6646,
     "exported": true,
     "callers": [
       "bots/BotLib/hero_shredder.lua",
@@ -12107,7 +12107,7 @@
     "name": "OnStart",
     "params": "",
     "returns": "",
-    "line": 529,
+    "line": 551,
     "exported": false,
     "callers": [
       "bots/FunLib/override_generic/mode_attack_generic.lua",
@@ -12127,7 +12127,7 @@
     "name": "OnEnd",
     "params": "",
     "returns": "",
-    "line": 533,
+    "line": 555,
     "exported": false,
     "callers": [
       "bots/FunLib/aba_defend.lua",
@@ -12150,7 +12150,7 @@
     "name": "Think",
     "params": "",
     "returns": "",
-    "line": 542,
+    "line": 564,
     "exported": false,
     "callers": [
       "bots/BotLib/hero_muerta.lua",
@@ -12194,7 +12194,7 @@
     "name": "X.IsNearLaneFront",
     "params": "bot",
     "returns": "",
-    "line": 864,
+    "line": 908,
     "exported": false,
     "callers": [
       "bots/BotLib/hero_skeleton_king.lua",
@@ -12207,7 +12207,7 @@
     "name": "X.IsUnitAroundLocation",
     "params": "vLoc, nRadius",
     "returns": "",
-    "line": 878,
+    "line": 922,
     "exported": false,
     "callers": [
       "bots/mode_farm_generic.lua",
@@ -12220,7 +12220,7 @@
     "name": "X.CouldBlade",
     "params": "bot, nLocation",
     "returns": "",
-    "line": 893,
+    "line": 937,
     "exported": false,
     "callers": [
       "bots/mode_farm_generic.lua"
@@ -12232,7 +12232,7 @@
     "name": "X.CouldBlink",
     "params": "bot, nLocation",
     "returns": "",
-    "line": 926,
+    "line": 970,
     "exported": false,
     "callers": [
       "bots/mode_farm_generic.lua",
@@ -12245,7 +12245,7 @@
     "name": "X.IsLocCanBeSeen",
     "params": "vLoc",
     "returns": "",
-    "line": 997,
+    "line": 1041,
     "exported": false,
     "callers": [
       "bots/mode_farm_generic.lua"
@@ -12257,7 +12257,7 @@
     "name": "PickOneAnnouncer",
     "params": "",
     "returns": "",
-    "line": 1014,
+    "line": 1058,
     "exported": false,
     "callers": [
       "bots/mode_farm_generic.lua",
@@ -12270,7 +12270,7 @@
     "name": "AnnounceMessages",
     "params": "",
     "returns": "",
-    "line": 1026,
+    "line": 1070,
     "exported": false,
     "callers": [
       "bots/mode_farm_generic.lua",
@@ -12283,7 +12283,7 @@
     "name": "X.ShouldRun",
     "params": "bot",
     "returns": "",
-    "line": 1070,
+    "line": 1114,
     "exported": false,
     "callers": [
       "bots/mode_farm_generic.lua",
@@ -12296,7 +12296,7 @@
     "name": "X.IsThereT3Detroyed",
     "params": "",
     "returns": "",
-    "line": 1331,
+    "line": 1375,
     "exported": false,
     "callers": [
       "bots/mode_farm_generic.lua"
