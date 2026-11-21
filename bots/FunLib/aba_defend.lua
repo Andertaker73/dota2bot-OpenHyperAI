@@ -1324,27 +1324,29 @@ function ____exports.DefendThink(bot, lane)
     do
         local baseThreat = GetBaseThreatLevel()
         if baseThreat >= 2 then
-            local responders = GetDesignatedResponders(baseThreat, nil)
-            if __TS__ArrayIndexOf(
-                responders,
-                bot:GetPlayerID()
-            ) ~= -1 then
+            local anc = GetAncient(nTeam)
+            local ancUnderAttack = anc and anc:GetHealth() < anc:GetMaxHealth()
+            local targetLoc = nil
+            if ancUnderAttack then
+                targetLoc = anc:GetLocation()
+            else
                 local threatBld = unpack(____exports.GetFurthestBuildingOnLane(lane))
-                local anc = GetAncient(nTeam)
-                local targetLoc = IsValidBuildingTarget(threatBld) and threatBld:GetLocation() or (anc and IsValidBuildingTarget(anc) and anc:GetLocation() or nil)
-                if targetLoc then
-                    local distToTarget = GetUnitToLocationDistance(bot, targetLoc)
-                    if distToTarget > 2500 then
-                        local dest = add(
-                            jmz.AdjustLocationWithOffsetTowardsFountain(targetLoc, 250),
-                            jmz.RandomForwardVector(150)
-                        )
-                        local tp = jmz.GetItem2(bot, "item_tpscroll")
-                        if jmz.CanCastAbility(tp) then
-                            bot:Action_UseAbilityOnLocation(tp, dest)
-                            return
-                        end
+                targetLoc = IsValidBuildingTarget(threatBld) and threatBld:GetLocation() or nil
+            end
+            if targetLoc then
+                local distToTarget = GetUnitToLocationDistance(bot, targetLoc)
+                if distToTarget > 2000 then
+                    local dest = add(
+                        jmz.AdjustLocationWithOffsetTowardsFountain(targetLoc, 250),
+                        jmz.RandomForwardVector(150)
+                    )
+                    local tp = jmz.GetItem2(bot, "item_tpscroll")
+                    if jmz.CanCastAbility(tp) then
+                        bot:Action_UseAbilityOnLocation(tp, dest)
+                        return
                     end
+                    bot:Action_MoveToLocation(dest)
+                    return
                 end
             end
         end
@@ -1380,15 +1382,17 @@ function ____exports.DefendThink(bot, lane)
         return
     end
     if inBaseThreatNow then
+        local anc = GetAncient(nTeam)
+        local ancUnderAttack = anc and anc:GetHealth() < anc:GetMaxHealth()
         local threatBld = unpack(____exports.GetFurthestBuildingOnLane(lane))
-        local threatAnchor = IsValidBuildingTarget(threatBld) and threatBld:GetLocation() or GetLaneFrontLocation(nTeam, lane, 0)
+        local threatAnchor = ancUnderAttack and anc:GetLocation() or (IsValidBuildingTarget(threatBld) and threatBld:GetLocation() or GetLaneFrontLocation(nTeam, lane, 0))
         local liveEnemies = bot:GetNearbyHeroes(1600, true, BotMode.None)
         for ____, e in ipairs(liveEnemies) do
             do
-                local __continue214
+                local __continue215
                 repeat
                     if not jmz.IsValidHero(e) or jmz.IsSuspiciousIllusion(e) then
-                        __continue214 = true
+                        __continue215 = true
                         break
                     end
                     if jmz.IsInRange(
@@ -1402,9 +1406,30 @@ function ____exports.DefendThink(bot, lane)
                     bot:Action_MoveToLocation(e:GetLocation())
                     return
                 until true
-                if not __continue214 then
+                if not __continue215 then
                     break
                 end
+            end
+        end
+        if ancUnderAttack and anc then
+            local enemiesNearAncient = jmz.GetEnemiesNearLoc(
+                anc:GetLocation(),
+                1200
+            )
+            local bestCreep = nil
+            local minDist = 99999
+            for ____, c in ipairs(enemiesNearAncient) do
+                if jmz.IsValid(c) and jmz.CanBeAttacked(c) and (c:IsCreep() or c:IsAncientCreep()) then
+                    local d = GetUnitToUnitDistance(anc, c)
+                    if d < minDist then
+                        minDist = d
+                        bestCreep = c
+                    end
+                end
+            end
+            if bestCreep then
+                bot:Action_AttackUnit(bestCreep, true)
+                return
             end
         end
         local seenEnemies = jmz.GetLastSeenEnemiesNearLoc(threatAnchor, 1600)

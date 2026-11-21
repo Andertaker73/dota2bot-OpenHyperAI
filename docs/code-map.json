@@ -480,7 +480,7 @@
     "name": "OnEnd",
     "params": "",
     "returns": "void",
-    "line": 1063,
+    "line": 1090,
     "exported": true,
     "callers": [
       "bots/FunLib/aba_defend.lua",

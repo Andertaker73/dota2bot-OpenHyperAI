@@ -855,25 +855,29 @@ export function DefendThink(bot: Unit, lane: Lane) {
     {
         const baseThreat = GetBaseThreatLevel();
         if (baseThreat >= 2) {
-            // OHA FIX: Se somos um respondedor designado, usamos TP imediatamente se estivermos longe
-            const responders = GetDesignatedResponders(baseThreat, null);
-            if (responders.indexOf(bot.GetPlayerID()) !== -1) {
-                const [threatBld] = GetFurthestBuildingOnLane(lane);
-                const anc = GetAncient(nTeam);
-                const targetLoc = IsValidBuildingTarget(threatBld)
-                    ? threatBld.GetLocation()
-                    : (anc && IsValidBuildingTarget(anc) ? anc.GetLocation() : null);
+            const anc = GetAncient(nTeam);
+            const ancUnderAttack = anc && anc.GetHealth() < anc.GetMaxHealth();
 
-                if (targetLoc) {
-                    const distToTarget = GetUnitToLocationDistance(bot, targetLoc);
-                    if (distToTarget > 2500) { // Se estiver longe, força o TP
-                        const dest = add(jmz.AdjustLocationWithOffsetTowardsFountain(targetLoc, 250), jmz.RandomForwardVector(150));
-                        const tp = jmz.GetItem2(bot, "item_tpscroll");
-                        if (jmz.CanCastAbility(tp)) {
-                            bot.Action_UseAbilityOnLocation(tp, dest);
-                            return;
-                        }
+            // OHA FIX: Se o Ancient está sob ataque, o TP deve ser direto para ele.
+            let targetLoc = null;
+            if (ancUnderAttack) {
+                targetLoc = anc!.GetLocation();
+            } else {
+                const [threatBld] = GetFurthestBuildingOnLane(lane);
+                targetLoc = IsValidBuildingTarget(threatBld) ? threatBld.GetLocation() : null;
+            }
+
+            if (targetLoc) {
+                const distToTarget = GetUnitToLocationDistance(bot, targetLoc);
+                if (distToTarget > 2000) {
+                    const dest = add(jmz.AdjustLocationWithOffsetTowardsFountain(targetLoc, 250), jmz.RandomForwardVector(150));
+                    const tp = jmz.GetItem2(bot, "item_tpscroll");
+                    if (jmz.CanCastAbility(tp)) {
+                        bot.Action_UseAbilityOnLocation(tp, dest);
+                        return;
                     }
+                    bot.Action_MoveToLocation(dest);
+                    return;
                 }
             }
         }
@@ -919,10 +923,14 @@ export function DefendThink(bot: Unit, lane: Lane) {
     //   2. Se houver herói vivo por perto, o bot ATACA ou AVANÇA sobre ele.
     //   3. Sem herói visível, o bot fica no prédio (não no Ancient) e segura posição.
     if (inBaseThreatNow) {
+        const anc = GetAncient(nTeam);
+        const ancUnderAttack = anc && anc.GetHealth() < anc.GetMaxHealth();
+
         const [threatBld] = GetFurthestBuildingOnLane(lane);
-        const threatAnchor = IsValidBuildingTarget(threatBld)
-            ? threatBld.GetLocation()
-            : GetLaneFrontLocation(nTeam, lane, 0);
+        // OHA FIX: Se o Ancient está sob ataque, a âncora é o Ancient, ignorando a lane.
+        const threatAnchor = ancUnderAttack
+            ? anc!.GetLocation()
+            : (IsValidBuildingTarget(threatBld) ? threatBld.GetLocation() : GetLaneFrontLocation(nTeam, lane, 0));
 
         // 1) Inimigos VIVOS e visíveis: engajar diretamente
         const liveEnemies = bot.GetNearbyHeroes(1600, true, BotMode.None);
@@ -932,9 +940,28 @@ export function DefendThink(bot: Unit, lane: Lane) {
                 bot.Action_AttackUnit(e, true);
                 return;
             }
-            // Fora de alcance: avançar sobre o inimigo (não sobre o Ancient)
             bot.Action_MoveToLocation(e.GetLocation());
             return;
+        }
+
+        // OHA FIX: Se o Ancient está sob ataque de creeps, atacar ativamente os creeps
+        if (ancUnderAttack && anc) {
+            const enemiesNearAncient = jmz.GetEnemiesNearLoc(anc.GetLocation(), 1200);
+            let bestCreep: Unit | null = null;
+            let minDist = 99999;
+            for (const c of enemiesNearAncient) {
+                if (jmz.IsValid(c) && jmz.CanBeAttacked(c) && (c.IsCreep() || c.IsAncientCreep())) {
+                    const d = GetUnitToUnitDistance(anc, c);
+                    if (d < minDist) {
+                        minDist = d;
+                        bestCreep = c;
+                    }
+                }
+            }
+            if (bestCreep) {
+                bot.Action_AttackUnit(bestCreep, true);
+                return;
+            }
         }
 
         // 2) Sem herói vivo visível: usar last-seen como referência (fog parcial)
